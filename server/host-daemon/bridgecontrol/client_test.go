@@ -16,11 +16,19 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
 
 func certificate(t *testing.T, name string) (tlsCertificate []byte, key []byte) {
+	return certificateWithValidity(t, name, time.Now().Add(-time.Hour),
+		time.Now().Add(time.Hour))
+}
+
+func certificateWithValidity(t *testing.T, name string, notBefore, notAfter time.Time) (
+	tlsCertificate []byte, key []byte,
+) {
 	t.Helper()
 	private, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -28,7 +36,7 @@ func certificate(t *testing.T, name string) (tlsCertificate []byte, key []byte) 
 	}
 	template := &x509.Certificate{
 		SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: name},
-		NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(time.Hour),
+		NotBefore: notBefore, NotAfter: notAfter,
 		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 	}
@@ -38,6 +46,55 @@ func certificate(t *testing.T, name string) (tlsCertificate []byte, key []byte) 
 	}
 	return pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der}),
 		pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(private)})
+}
+
+func TestExpiredPinnedCertificateRemainsAValidDeviceIdentity(t *testing.T) {
+	const token = "independent-pi-token"
+	certPEM, keyPEM := certificateWithValidity(t, "device",
+		time.Now().Add(-48*time.Hour), time.Now().Add(-24*time.Hour))
+	certPath := filepath.Join(t.TempDir(), "expired-device.crt")
+	if err := os.WriteFile(certPath, certPEM, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewUnstartedServer(http.HandlerFunc(
+		func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) }))
+	server.TLS = serverTLS(t, certPEM, keyPEM)
+	server.StartTLS()
+	defer server.Close()
+
+	client, err := New(server.URL, token, certPath)
+	if err != nil {
+		t.Fatalf("expired exact-pinned certificate was rejected: %v", err)
+	}
+	if err = client.Action(context.Background(), "detach"); err != nil {
+		t.Fatalf("expired exact-pinned certificate failed TLS: %v", err)
+	}
+}
+
+func TestExpiredCertificateStillRequiresExactPin(t *testing.T) {
+	const token = "independent-pi-token"
+	serverCert, serverKey := certificateWithValidity(t, "device",
+		time.Now().Add(-48*time.Hour), time.Now().Add(-24*time.Hour))
+	pinnedCert, _ := certificateWithValidity(t, "other-device",
+		time.Now().Add(-48*time.Hour), time.Now().Add(-24*time.Hour))
+	certPath := filepath.Join(t.TempDir(), "wrong-device.crt")
+	if err := os.WriteFile(certPath, pinnedCert, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewUnstartedServer(http.HandlerFunc(
+		func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) }))
+	server.TLS = serverTLS(t, serverCert, serverKey)
+	server.StartTLS()
+	defer server.Close()
+
+	client, err := New(server.URL, token, certPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = client.Action(context.Background(), "detach"); err == nil ||
+		!strings.Contains(err.Error(), "certificate pin mismatch") {
+		t.Fatalf("wrong certificate pin error = %v", err)
+	}
 }
 
 func serverTLS(t *testing.T, certificatePEM, keyPEM []byte) *tls.Config {

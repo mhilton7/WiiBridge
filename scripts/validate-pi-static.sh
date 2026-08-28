@@ -80,6 +80,13 @@ grep -q 'ConditionPathExists=/etc/wiibridge/auto-attach' \
   pi/packaging/systemd/wiibridge-auto-attach.service
 grep -q 'exit 0' pi/packaging/pi-gen/common/files/wiibridge-helper
 grep -q 'wiibridge-setup' pi/packaging/pi-gen/common/files/wiibridge-firstboot
+grep -Fq -- '-days 36525' \
+  pi/packaging/pi-gen/common/files/wiibridge-firstboot
+if grep -Fq -- '-days 30 ' \
+  pi/packaging/pi-gen/common/files/wiibridge-firstboot; then
+  echo "short-lived Pi device certificate generation is forbidden" >&2
+  exit 1
+fi
 grep -Fq "admin_token=\$(openssl rand -hex 6)" \
   pi/packaging/pi-gen/common/files/wiibridge-firstboot
 grep -q '10.77.0.1/24' pi/packaging/pi-gen/common/files/wiibridge-setup-ap

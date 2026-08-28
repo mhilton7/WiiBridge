@@ -52,6 +52,14 @@ sudo cp /etc/wiibridge/device.crt /path/to/removable-or-secure-transfer/pi-devic
 Do not copy `device.key`. Place `pi-device.crt` in the TrueNAS certificate
 dataset and compare its SHA-256 with the value recorded on the Pi.
 
+X.509 certificates must contain a `notAfter` value, so newly provisioned Pi
+devices use a 100-year validity period. WiiBridge treats the exact pinned DER
+certificate as the device identity and does not expire that identity based on
+the certificate's validity dates. This also keeps earlier devices with the
+legacy 30-day certificate operational after its date has passed. Rotate the
+certificate manually if the Pi is reprovisioned or its private key might have
+been exposed; never replace it merely to extend its date.
+
 Set the token and pinned certificate in `deploy/truenas/.env`. The URL is an
 optional initial address; when it is blank, enter the Pi's literal IP address
 from the authenticated dashboard:
@@ -144,7 +152,8 @@ After a reported failure, inspect the Pi dashboard on port 9443. Confirm USB is
 detached before using its fixed recovery actions. Wii remains the startup and
 recovery default after an ordinary reboot.
 
-The Pi management certificate is pinned exactly. When that certificate is
-rotated or the Pi is reprovisioned, copy and verify the new public certificate
-before updating `WIIBRIDGE_PI_CERT`. A certificate mismatch stops automation;
-it never falls back to unauthenticated TLS.
+The Pi management certificate is pinned exactly and remains trusted for the
+lifetime of that device identity, regardless of its encoded validity dates.
+When the certificate is rotated or the Pi is reprovisioned, copy and verify the
+new public certificate before updating `WIIBRIDGE_PI_CERT`. A certificate
+mismatch stops automation; it never falls back to unauthenticated TLS.

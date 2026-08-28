@@ -12,7 +12,9 @@ install -d -o root -g root -m 0700 /etc/NetworkManager/system-connections
 umask 077
 admin_token=$(openssl rand -hex 6)
 printf '%s\n' "$admin_token" > /etc/wiibridge/admin.token
-openssl req -x509 -newkey rsa:3072 -nodes -days 30 \
+# X.509 requires a notAfter value. Use a 100-year device lifetime so the
+# appliance identity does not require routine certificate renewal.
+openssl req -x509 -newkey rsa:3072 -nodes -days 36525 \
   -subj "/CN=wiibridge-setup" \
   -keyout /etc/wiibridge/device.key -out /etc/wiibridge/device.crt
 chown root:wiibridge /etc/wiibridge/admin.token \

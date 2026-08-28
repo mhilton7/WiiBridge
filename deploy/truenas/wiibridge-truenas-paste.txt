@@ -1,6 +1,6 @@
 services:
   wiibridge-host:
-    image: "ghcr.io/OWNER/wiibridge-host:sha-COMMIT@sha256:IMAGE_DIGEST"
+    image: "ghcr.io/OWNER/wiibridge-host:sha-7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92@sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b"
     user: "568:568"
     restart: "unless-stopped"
     read_only: true

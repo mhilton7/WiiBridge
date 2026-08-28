@@ -1,5 +1,21 @@
 # Known issues
 
+## Legacy Pi certificate lifetime
+
+The published `0.1.0-rc.1` Pi first-boot script generated the device management
+certificate with a 30-day validity period. The Host could reject an otherwise
+exact pinned certificate after that date, preventing automatic Pi-manager
+startup.
+
+The source correction generates 100-year certificates and treats the exact DER
+pin as the lifetime device identity regardless of encoded validity dates. Unit,
+TLS pin-mismatch, full test, and static gates pass. A clean Host/firmware build,
+publication, deployment, and runtime confirmation remain pending.
+
+Status: `PENDING` — publish and deploy the corrected Host; rebuild firmware for
+future Pi provisioning. Existing Pi private keys and pinned public certificates
+do not need rotation solely because their encoded date passed.
+
 ## USB Loader GX stalls after large-catalog enumeration
 
 The exact-FSInfo repair is deployed and USB Loader GX now advances beyond

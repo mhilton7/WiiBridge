@@ -1156,3 +1156,21 @@
   1,039-1,043 ns/op enabled; atomic enabled observation 62.01-62.45 ns/op with
   zero allocations; cached Pi sample 31.64-31.89 ns/op with zero allocations.
   These are host-cache measurements, not physical Pi/Wii throughput.
+
+### Lifetime Pi management certificate correction
+
+- Traced Host revision `15b0e40` to a legacy Pi first-boot certificate with a
+  30-day validity window and a Host-side date rejection; this failure path is
+  consistent with the observed 2026-08-28 startup timing.
+- Changed new Pi device identity generation to use the X.509-required
+  `notAfter` field with a 100-year lifetime (`36525` days).
+- Kept exact DER certificate pinning and the independent Pi management token,
+  but made the pin—not certificate validity dates—the lifetime trust anchor.
+  This lets existing exact-pinned 30-day device certificates remain usable
+  without rotating the Pi private key or copying a replacement pin.
+- Added regressions proving an expired exact-pinned TLS identity works and an
+  expired mismatched identity is still rejected.
+- Validation passes: focused bridge-control tests, `make test`, `make static`,
+  shell/static certificate-generation policy, and `git diff --check`.
+- Source correction is verified locally; publication, deployment, and physical
+  retesting remain pending, and the running `15b0e40` image is unchanged.

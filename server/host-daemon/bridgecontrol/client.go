@@ -33,7 +33,9 @@ var allowedActions = map[string]bool{
 }
 
 // Client authenticates the Pi by an exact certificate pin and authenticates
-// each request with the Pi's independently provisioned management token.
+// each request with the Pi's independently provisioned management token. The
+// exact DER pin, rather than the certificate's validity dates, defines the
+// lifetime of this appliance identity.
 type Client struct {
 	baseURL string
 	token   string
@@ -90,9 +92,6 @@ func New(baseURL, token, certificatePath string) (*Client, error) {
 		return nil, fmt.Errorf("parse Pi certificate: %w", err)
 	}
 	pin := sha256.Sum256(certificate.Raw)
-	if now := time.Now(); now.Before(certificate.NotBefore) || now.After(certificate.NotAfter) {
-		return nil, errors.New("Pi certificate is not currently valid")
-	}
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS13,
 		// Hostname verification cannot be used with the Pi's device-unique,
@@ -106,9 +105,6 @@ func New(baseURL, token, certificatePath string) (*Client, error) {
 			got := sha256.Sum256(rawCerts[0])
 			if subtle.ConstantTimeCompare(got[:], pin[:]) != 1 {
 				return errors.New("Pi certificate pin mismatch")
-			}
-			if now := time.Now(); now.Before(certificate.NotBefore) || now.After(certificate.NotAfter) {
-				return errors.New("Pi certificate is not currently valid")
 			}
 			return nil
 		},

@@ -1174,3 +1174,15 @@
   shell/static certificate-generation policy, and `git diff --check`.
 - Source correction is verified locally; publication, deployment, and physical
   retesting remain pending, and the running `15b0e40` image is unchanged.
+
+### Lifetime certificate Host publication
+
+- Merged pull request #11 to `main` as `7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92`.
+- GitHub Actions run `33214221649` passed binary/OCI identity checks and
+  published both the release and commit-specific GHCR tags.
+- Independent daemonless registry inspection resolved both tags to
+  `sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b`
+  and confirmed Linux/AMD64, version `0.1.0-rc.1`, and the exact main revision.
+- Pinned the immutable commit tag and digest in the generic TrueNAS Compose,
+  environment, and paste-ready YAML templates. Runtime deployment remains
+  pending and is not recorded as passed.

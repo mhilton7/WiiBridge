@@ -2,7 +2,7 @@
 services:
   wiibridge-host:
     # Publish the supplied OCI layout under this name without altering it.
-    image: ghcr.io/CHANGE_ME/wiibridge-host:0.1.0-rc.1@sha256:14dfeb29b5ac206c479be45a32bb1752ab56951c099053e757ad8f2915b50461
+    image: ghcr.io/CHANGE_ME/wiibridge-host:sha-7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92@sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b
     user: "568:568"
     restart: unless-stopped
     read_only: true

@@ -140,3 +140,5 @@ Status values are `PENDING`, `PASS`, `FAIL`, `BLOCKED_EXTERNAL`, and
 | GameCube startup validation bound | PASS | Fast validation checks compact generation data and source identities without payload hashing; deep hashing is background, cancellable, receipt-backed, and does not block Wii |
 | Immutable binary and OCI source identity | PASS | Host `version` reports commit/build/dirty/Go/target and OCI builders emit revision/version/created/source labels with CI equality checks |
 | Corrected TrueNAS startup deployment | PENDING | Exact digest, binary revision, OCI label, prompt 8445 liveness, and two consecutive restart timings require the operator's TrueNAS runtime |
+| Lifetime Pi certificate Host publication | PASS | Main revision `7fd0c3a`; GitHub Actions run `33214221649`; independently resolved GHCR digest `sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b` |
+| Lifetime Pi certificate TrueNAS deployment | PENDING | Digest-pinned YAML is published; running revision, health, readiness, and Pi-manager startup require operator deployment evidence |

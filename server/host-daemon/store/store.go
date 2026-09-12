@@ -238,15 +238,22 @@ func seedLegacyWiiCatalog(tx *sql.Tx) error {
 }
 
 func (s *Store) Publish(snapshot model.Snapshot) error {
-	manifest, err := json.Marshal(snapshot)
-	if err != nil {
-		return err
-	}
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
+	if err = publishSnapshotTx(tx, snapshot); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func publishSnapshotTx(tx *sql.Tx, snapshot model.Snapshot) error {
+	manifest, err := json.Marshal(snapshot)
+	if err != nil {
+		return err
+	}
 	if _, err = tx.Exec(`INSERT OR IGNORE INTO snapshots
  (snapshot_id,catalog_id,virtual_disk_size,metadata_hash,manifest_json,created_utc)
  VALUES(?,?,?,?,?,?)`, snapshot.SnapshotID, snapshot.CatalogID,
@@ -264,7 +271,7 @@ func (s *Store) Publish(snapshot model.Snapshot) error {
 		time.Now().UTC().Format(time.RFC3339Nano)); err != nil {
 		return err
 	}
-	return tx.Commit()
+	return nil
 }
 
 func (s *Store) Active() (model.Snapshot, error) {
@@ -305,6 +312,14 @@ func (s *Store) SourceByRoot(root string) (sourcehealth.Record, error) {
 }
 
 func (s *Store) UpsertSource(record sourcehealth.Record) error {
+	return upsertSource(s.db, record)
+}
+
+type sqlExecutor interface {
+	Exec(string, ...any) (sql.Result, error)
+}
+
+func upsertSource(executor sqlExecutor, record sourcehealth.Record) error {
 	if record.SourceID == "" || record.RootPath == "" || record.LastAttemptedScan.IsZero() {
 		return errors.New("invalid source state")
 	}
@@ -312,7 +327,7 @@ func (s *Store) UpsertSource(record sourcehealth.Record) error {
 	if !record.LastSuccessfulScan.IsZero() {
 		successful = record.LastSuccessfulScan.UTC().Format(time.RFC3339Nano)
 	}
-	_, err := s.db.Exec(`INSERT INTO source_roots(
+	_, err := executor.Exec(`INSERT INTO source_roots(
  source_id,root_path,state,last_successful_scan,last_attempted_scan,
  last_successful_item_count,failure_code,failure_message,consecutive_failures,
  last_known_device,last_known_filesystem,last_known_mount_info)
@@ -472,7 +487,15 @@ func reconcileCatalogTx(tx *sql.Tx, platform string, current []CatalogItem,
 }
 
 func (s *Store) Catalog(platform string) ([]CatalogItem, error) {
-	rows, err := s.db.Query(`SELECT item_id,payload_json,availability,
+	return readCatalog(s.db, platform)
+}
+
+type sqlQuerier interface {
+	Query(string, ...any) (*sql.Rows, error)
+}
+
+func readCatalog(query sqlQuerier, platform string) ([]CatalogItem, error) {
+	rows, err := query.Query(`SELECT item_id,payload_json,availability,
  missing_observations,last_seen_utc,missing_confirmed_utc
  FROM catalog_items WHERE platform=? ORDER BY item_id`, platform)
 	if err != nil {

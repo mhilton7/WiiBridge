@@ -69,6 +69,9 @@ enforced by the read-only NBD export and USB LUN.
 
 Do not expose ports 8445 or 10809 to the public internet.
 
+For independent Wii and GameCube folders or recovery after moving a dataset,
+see [library locations](docs/library-locations.md).
+
 ## Quick start
 
 ### 1. Prepare the host configuration

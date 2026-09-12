@@ -121,6 +121,21 @@ func Preflight(root string, previous *Record) (PreflightResult, error) {
 	return PreflightResult{Record: record}, nil
 }
 
+// PreflightReplacement inspects an explicitly selected replacement mount. Its
+// identity is only a candidate: callers must complete discovery and validation
+// before committing it. Failed recovery retains the last trusted identity.
+func PreflightReplacement(root string, previous Record) (PreflightResult, error) {
+	baseline := previous
+	baseline.LastKnownDevice, baseline.LastKnownMountInfo = 0, ""
+	result, err := Preflight(root, &baseline)
+	if err != nil {
+		return failure(&previous, result.Record.RootPath, result.Record.State,
+			result.Record.FailureCode, result.Record.FailureMessage,
+			result.Record.LastAttemptedScan, err)
+	}
+	return result, nil
+}
+
 func Successful(previous Record, itemCount int) Record {
 	previous.State = StateAvailable
 	previous.LastSuccessfulScan = time.Now().UTC()

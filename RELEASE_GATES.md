@@ -142,3 +142,14 @@ Status values are `PENDING`, `PASS`, `FAIL`, `BLOCKED_EXTERNAL`, and
 | Corrected TrueNAS startup deployment | PENDING | Exact digest, binary revision, OCI label, prompt 8445 liveness, and two consecutive restart timings require the operator's TrueNAS runtime |
 | Lifetime Pi certificate Host publication | PASS | Main revision `7fd0c3a`; GitHub Actions run `33214221649`; independently resolved GHCR digest `sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b` |
 | Lifetime Pi certificate TrueNAS deployment | PENDING | Digest-pinned YAML is published; running revision, health, readiness, and Pi-manager startup require operator deployment evidence |
+
+| Separate Wii/GameCube library configuration | PASS | Legacy shared root and independent platform roots; per-platform status, scanning, diagnostics, and runtime failures verified with synthetic fixtures |
+| Explicit moved-mount recovery | PASS | Ordinary rescan rejects stale mount; confirmed recovery requires read-only complete non-empty scan, mount recheck, and atomic trusted-identity/catalog/snapshot commit; failure rollback tested |
+| GameCube rebuild after source relocation | PASS | Fresh scanned paths remain playable, old generation is blocked, replacement builds successfully, and a configured-root change cannot activate the old generation |
+| Separate-library container acceptance | PASS | Real read-only mounts, moved files, stale persisted identity, empty replacement preservation, and GameCube build/activation during Wii source outage pass; source hashes unchanged |
+| Separate-library image publication and TrueNAS deployment | PENDING | Local dirty build is tested; requires publication, actual operator dataset paths, updated runtime image, and mount verification |
+| Separate-library physical Pi/Wii/Nintendont acceptance | DEFERRED_HARDWARE_UNAVAILABLE | Container and synthetic tests do not establish physical gameplay/save behavior |
+
+| Separate-library feature image publication | PASS | Clean source `2f8df9d`; draft PR #13 CI passes; anonymous registry inspection matches `sha256:efbe790aeb51a6b635cbbe3fa4268d7dda071b0d5b583f6b19e03b7aa83d6d1c`; commit-specific tag only |
+| Operator separate-library configuration | PASS | Exact provided dataset paths mapped to independent read-only binds in an ignored local service patch; digest pin included; Compose parser validates paths |
+| Operator separate-library installation | PENDING | The live TrueNAS app still runs the previous Host image; applying the prepared patch and validating the live mounts is outstanding |

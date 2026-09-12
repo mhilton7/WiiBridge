@@ -10,6 +10,14 @@ Source states are `available`, `offline`, `unreachable`,
 `source-changed`, `validation-required`, `missing-confirmed`, or `invalid`;
 validation and availability remain separate dashboard fields.
 
+## Platform-specific locations
+
+Wii and GameCube can use separate configured roots with independent source
+states and rescans. Shared-root scans remain atomic across both catalogs.
+An explicitly confirmed replacement location is committed only after a
+complete successful scan and snapshot validation. See
+[library locations](library-locations.md) for configuration and recovery.
+
 ## Source identity and scan transaction
 
 SQLite stores source ID, configured root, device/filesystem/mount identity when
@@ -26,8 +34,9 @@ empty root after a prior non-empty successful scan.
 
 A scan has preflight, complete discovery, item validation, reconciliation, and
 commit phases. Wii and GameCube traversal errors fail the whole source scan.
-The rescan endpoint reconciles both catalogs in one SQLite transaction only
-after both traversals complete. A failed or partial scan updates bounded
+For a shared root, the rescan endpoint reconciles both catalogs in one SQLite
+transaction only after both traversals complete. Separate roots are scanned and
+committed independently, so an unavailable platform cannot block the other. A failed or partial scan updates bounded
 diagnostics and serves the prior complete catalog with offline availability;
 it never commits an empty snapshot, deletes generations, drops save
 associations, or removes a GameCube validation receipt merely because a source

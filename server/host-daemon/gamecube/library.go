@@ -232,7 +232,7 @@ func NewLibraryManager(root string, config LibraryConfig) (*LibraryManager, erro
 		validation := "pending"
 		state := "Validating"
 		phase := "Deep validation pending"
-		if fastErr := ValidateLibraryManifestFast(manager.root, active); fastErr != nil {
+		if fastErr := manager.validateConfiguredSources(active); fastErr != nil {
 			validation, state, phase = "blocked", "Source unavailable", "Source validation blocked"
 		} else if receiptErr := validateReceipt(manager.root, active); receiptErr == nil {
 			validation, state, phase = "validated", "Ready", "Ready"
@@ -1012,12 +1012,19 @@ func validationReceiptPathForGeneration(root, generation string) string {
 	return filepath.Join(root, "generations", generation, "validation.json")
 }
 
+func (manager *LibraryManager) validateConfiguredSources(manifest LibraryManifest) error {
+	if manager.config.SourceRoot != "" && filepath.Clean(manifest.LibraryRoot) != manager.config.SourceRoot {
+		return fmt.Errorf("%w: configured library path changed", ErrGameCubeSourceChanged)
+	}
+	return ValidateLibraryManifestFast(manager.root, manifest)
+}
+
 func (manager *LibraryManager) activeFast() (LibraryManifest, error) {
 	manifest, err := manager.activeManaged()
 	if err != nil {
 		return LibraryManifest{}, err
 	}
-	if err = ValidateLibraryManifestFast(manager.root, manifest); err != nil {
+	if err = manager.validateConfiguredSources(manifest); err != nil {
 		return manifest, err
 	}
 	return manifest, nil

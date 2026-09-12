@@ -1,0 +1,23 @@
+{
+  "updated_utc": "2026-09-12T17:44:30Z",
+  "status": "PASS",
+  "build_scope": "local-dirty-unpublished",
+  "source_data": "synthetic-only",
+  "checks": [
+    "full-test-suite",
+    "static-vet-shell-pi-checks",
+    "host-and-sourcehealth-race-tests",
+    "shared-and-separate-compose-parser",
+    "writable-second-library-mount-rejected",
+    "dashboard-javascript-syntax-v8",
+    "real-readonly-container-separate-scans",
+    "gamecube-moved-source-rebuild",
+    "stale-mount-explicit-recovery",
+    "empty-replacement-preserves-catalog",
+    "gamecube-activation-while-wii-source-unavailable",
+    "source-bytes-unchanged"
+  ],
+  "publication": "PENDING",
+  "truenas_deployment": "PENDING",
+  "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
+}

@@ -1,5 +1,8 @@
 schema_version: 1
 library_root: /library
+# Runtime equivalents: WIIBRIDGE_WII_LIBRARY / WIIBRIDGE_GAMECUBE_LIBRARY.
+wii_library_root: /library
+gamecube_library_root: /library
 data_root: /data
 default_catalog: all
 https:

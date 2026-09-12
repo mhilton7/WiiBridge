@@ -6,6 +6,30 @@ import (
 	"testing"
 )
 
+func TestReplacementPreflightRetainsTrustedIdentityOnFailure(t *testing.T) {
+	root := t.TempDir()
+	initial, err := Preflight(root, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	previous := Successful(initial.Record, 42)
+	previous.LastKnownDevice = 99
+	previous.LastKnownMountInfo = "synthetic:previous:mount"
+	for _, path := range []string{root, filepath.Join(root, "missing")} {
+		candidate, candidateErr := PreflightReplacement(path, previous)
+		if candidateErr == nil || candidate.Record.LastKnownDevice != previous.LastKnownDevice || candidate.Record.LastKnownMountInfo != previous.LastKnownMountInfo || candidate.Record.LastSuccessfulItemCount != 42 {
+			t.Fatalf("failed replacement discarded trust baseline: %#v %v", candidate, candidateErr)
+		}
+	}
+	if err = os.WriteFile(filepath.Join(root, "entry"), []byte("synthetic"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	candidate, err := PreflightReplacement(root, previous)
+	if err != nil || candidate.Record.State != StateAvailable || candidate.Record.LastKnownMountInfo == previous.LastKnownMountInfo || candidate.Record.LastKnownDevice == previous.LastKnownDevice {
+		t.Fatalf("replacement mount not inspected: %#v %v", candidate, err)
+	}
+}
+
 func TestPreflightAvailableAndMissing(t *testing.T) {
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "entry"), []byte("x"), 0o600); err != nil {

@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project_version": "0.1.0-rc.1",
   "prompt_version": 3,
-  "status": "pi-certificate-lifetime-host-published-truenas-deployment-pending",
-  "final_label": "SOFTWARE-COMPLETE RELEASE CANDIDATE — HARDWARE UNVERIFIED",
+  "status": "separate-library-paths-locally-validated-publication-deployment-pending",
+  "final_label": "SOFTWARE-COMPLETE RELEASE CANDIDATE \u2014 HARDWARE UNVERIFIED",
   "application_commit": "7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92",
   "implementation_base_commit": "ce732427b1805cfa580ba0d5a865e2aed47eeeac",
   "last_published_application_commit": "7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92",
-  "worktree_state": "lifetime-certificate-host-published-truenas-yaml-pinned-deployment-pending",
+  "worktree_state": "separate-library-paths-and-mount-recovery-unpublished",
   "published_oci_digest": "sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b",
   "local_oci_digest": "sha256:93d6056a9ce0dab0030a55e7a74abf76c7ee64f564c8899b430fbb50cc350ce8",
   "controller_armv6_sha256": "c380f33b36f6408c46619e81f07585fe1b2f7e77e5a4225c5736988618b02b01",
@@ -45,5 +45,18 @@
     "truenas_startup": "exact-fsinfo-host-deployed-ready-and-live-block-verified"
   },
   "physical_tests": "exact FSInfo large-library retest passes USB initialization; post-enumeration stall and absent useful reads retained; live export contains 59 4GiB-minus-4KiB segments whose 32KiB-cluster chains span exactly 2^32 bytes; USB Loader GX-compatible 4GiB-minus-32KiB correction passes focused sparse fsck/source-byte tests but is not deployed or physically retested; gamecube-emulated-save-DEFERRED_HARDWARE_UNAVAILABLE",
-  "updated_utc": "2026-08-28T21:51:55Z"
+  "updated_utc": "2026-09-12T17:44:30Z",
+  "library_locations": {
+    "branch": "fix/separate-library-paths",
+    "settings": [
+      "WIIBRIDGE_WII_LIBRARY",
+      "WIIBRIDGE_GAMECUBE_LIBRARY"
+    ],
+    "legacy_shared_root": "supported",
+    "relocation": "explicit-confirmation-and-atomic-catalog-commit",
+    "local_validation": "PASS",
+    "publication": "PENDING",
+    "truenas_deployment": "PENDING",
+    "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
+  }
 }

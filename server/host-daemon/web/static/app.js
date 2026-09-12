@@ -158,28 +158,28 @@
     element.title = `${version} · ${fullRevision}`;
   };
 
-  const sourcePanel = document.getElementById("source-health");
+  const sourcePanels = document.querySelectorAll(".library-source");
   async function refreshSource() {
-    if (!sourcePanel) return;
+    if (!sourcePanels.length) return;
     try {
-      const response = await fetch(sourcePanel.dataset.statusUrl, {
+      const response = await fetch("/api/v1/sources", {
         headers: {"Accept": "application/json"}, cache: "no-store"
       });
       if (!response.ok) return;
       const value = await response.json();
-      const source = value.source || {};
-      text("source-state", source.state || "unknown");
-      text("source-path", source.configured_root_path || "unknown");
-      text("source-id", source.source_id || "unknown");
-      text("source-identity", source.last_known_mount_information || "unavailable");
-      text("source-last-success", formatTime(source.last_successful_scan));
-      text("source-last-attempt", formatTime(source.last_attempted_scan));
-      text("source-game-count", String(source.last_successful_item_count || 0));
-      text("source-failures", String(source.consecutive_failure_count || 0));
-      text("source-affected-wii", String(value.affected_wii_games || 0));
-      text("source-affected-gamecube", String(value.affected_gamecube_games || 0));
-      text("source-error", source.failure_code ?
-        `${source.failure_code} · ${source.failure_message || ""}` : "None");
+      sourcePanels.forEach((panel) => {
+        const platform = panel.dataset.platform;
+        const source = (value.sources || {})[platform] || value.source || {};
+        const prefix = `source-${platform}-`;
+        text(prefix + "state", source.state || "unknown");
+        text(prefix + "path", source.configured_root_path || "unknown");
+        text(prefix + "last-success", formatTime(source.last_successful_scan));
+        text(prefix + "last-attempt", formatTime(source.last_attempted_scan));
+        text(prefix + "game-count", String(source.last_successful_item_count || 0));
+        text(prefix + "affected", String(value[`affected_${platform}_games`] || 0));
+        text(prefix + "error", source.failure_code ?
+          `${source.failure_code} · ${source.failure_message || ""}` : "None");
+      });
     } catch (_) {}
   }
 

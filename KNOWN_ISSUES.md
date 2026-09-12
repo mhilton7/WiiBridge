@@ -1,5 +1,23 @@
 # Known issues
 
+## Library relocation and separate platform paths
+
+A replaced ZFS mount can leave the saved `/library` identity different from
+the current bind mount. Ordinary scans correctly preserve the old catalog,
+but older Hosts have no way to accept an intentionally moved dataset. An old
+GameCube generation can also incorrectly mark newly scanned paths unavailable.
+
+The local correction adds separate Wii/GameCube roots, per-platform status and
+rescans, and authenticated, confirmed location recovery. A complete scan and
+validated catalog commit accept the replacement identity atomically; failed
+scans preserve the catalog and save data. Moved GameCube sources can rebuild
+without reactivating an outdated generation. See
+[the configuration and recovery guide](docs/library-locations.md).
+
+Status: `LOCALLY_VALIDATED` — full tests, static checks, race checks, and a
+real read-only container recovery/activation test pass. Publication and
+installation of the updated Host image on TrueNAS remain pending.
+
 ## Legacy Pi certificate lifetime
 
 The published `0.1.0-rc.1` Pi first-boot script generated the device management

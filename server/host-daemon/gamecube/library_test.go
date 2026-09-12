@@ -59,6 +59,32 @@ func libraryManager(t testing.TB, managed, sources string) *LibraryManager {
 	return manager
 }
 
+func TestChangingConfiguredLibraryRootRequiresNewGeneration(t *testing.T) {
+	oldRoot, newRoot, managed := t.TempDir(), t.TempDir(), t.TempDir()
+	oldManager := libraryManager(t, managed, oldRoot)
+	old, err := oldManager.Build(context.Background(), libraryGames(t, oldRoot))
+	if err != nil {
+		t.Fatal(err)
+	}
+	manager := libraryManager(t, managed, newRoot)
+	if _, ready := manager.ValidatedSummary(); ready {
+		t.Fatal("old folder remained active after path change")
+	}
+	if _, err = manager.Active(); !errors.Is(err, ErrGameCubeSourceChanged) {
+		t.Fatalf("old generation path accepted: %v", err)
+	}
+	if retained, retainedErr := manager.ManagedActive(); retainedErr != nil || retained.GenerationID != old.GenerationID {
+		t.Fatal("old generation was not retained")
+	}
+	current, err := manager.Build(context.Background(), libraryGames(t, newRoot))
+	if err != nil || current.LibraryRoot != newRoot {
+		t.Fatalf("new folder could not be built: %v", err)
+	}
+	if _, err = manager.Active(); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestCompleteLibraryIsNoCopyAndReadsEveryDisc(t *testing.T) {
 	root := t.TempDir()
 	sourceRoot := filepath.Join(root, "sources")

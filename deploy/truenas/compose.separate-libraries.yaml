@@ -1,3 +1,5 @@
+# Standalone definition for separate Wii and GameCube datasets.
+# Requires a Host image containing the separate-library-paths feature.
 services:
   wiibridge-host:
     image: ${WIIBRIDGE_IMAGE:?set immutable image reference with sha256 digest}
@@ -11,8 +13,8 @@ services:
       - no-new-privileges:true
     environment:
       WIIBRIDGE_LIBRARY: /library
-      WIIBRIDGE_WII_LIBRARY: ${WIIBRIDGE_WII_LIBRARY:-/library}
-      WIIBRIDGE_GAMECUBE_LIBRARY: ${WIIBRIDGE_GAMECUBE_LIBRARY:-/library}
+      WIIBRIDGE_WII_LIBRARY: /library/wii
+      WIIBRIDGE_GAMECUBE_LIBRARY: /library/gamecube
       WIIBRIDGE_DATA: /data
       WIIBRIDGE_ADMIN_TOKEN: ${WIIBRIDGE_ADMIN_TOKEN:?set an admin token}
       WIIBRIDGE_UI_USERNAME: ${WIIBRIDGE_UI_USERNAME:-admin}
@@ -52,8 +54,14 @@ services:
       - "${WIIBRIDGE_NBD_BIND:?set NBD bind IP}:${WIIBRIDGE_NBD_PORT:-10809}:10809/tcp"
     volumes:
       - type: bind
-        source: ${WIIBRIDGE_LIBRARY_PATH:?set WBFS dataset path}
-        target: /library
+        source: ${WIIBRIDGE_WII_LIBRARY_PATH:-${WIIBRIDGE_LIBRARY_PATH:?set Wii dataset path}}
+        target: /library/wii
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WIIBRIDGE_GAMECUBE_LIBRARY_PATH:-${WIIBRIDGE_LIBRARY_PATH:?set GameCube dataset path}}
+        target: /library/gamecube
         read_only: true
         bind:
           create_host_path: false

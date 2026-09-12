@@ -1186,3 +1186,40 @@
 - Pinned the immutable commit tag and digest in the generic TrueNAS Compose,
   environment, and paste-ready YAML templates. Runtime deployment remains
   pending and is not recorded as passed.
+
+### Separate Wii/GameCube library paths and moved-mount recovery
+
+- Confirmed the reported rescan failure matches source preflight rejecting a
+  different saved mount identity. The existing retry path had no explicit
+  recovery operation for an intentionally moved library.
+- Added `WIIBRIDGE_WII_LIBRARY` and `WIIBRIDGE_GAMECUBE_LIBRARY`, both falling
+  back to the existing shared `WIIBRIDGE_LIBRARY` setting. Separate roots
+  retain independent catalog availability, scan controls, runtime failure
+  handling, and diagnostics. Shared-root rescans remain atomic.
+- Added an authenticated, CSRF-protected, explicitly confirmed location
+  recovery action. Read-only proof, complete discovery, non-empty valid-game
+  checks for previously populated libraries, mount rechecks, and snapshot
+  validation precede an atomic SQLite identity/catalog/snapshot commit.
+  Failed scans preserve the old trusted mount, catalog, and save data.
+- Kept fresh GameCube scan results playable when an old generation refers to
+  moved paths. Generations built for another configured root cannot activate;
+  new builds use the selected GameCube root. An unavailable Wii source no
+  longer prevents a healthy GameCube library from building or activating.
+- Added per-platform dashboard source/recovery cards, a standalone separate-
+  dataset Compose definition, updated read-only mount validation/preflight,
+  and `docs/library-locations.md`. Hosts advertise `separate-library-paths-v1`.
+- Validation PASS: `make test`, `make static`, full Host/source-health race
+  checks and focused final race checks, shared/separate Compose parsing, a
+  negative writable-second-mount check, V8 dashboard JavaScript syntax,
+  public-tree privacy checks including new files, and `git diff --check`.
+- Real container validation PASS via
+  `tests/truenas/separate-libraries-test.py`: separate read-only mounts;
+  moved GameCube file rescan/rebuild; persisted stale mount rejection then
+  explicit recovery; empty replacement preserving the catalog and Wii
+  readiness; GameCube build/activation with Wii unavailable; unchanged
+  synthetic source bytes. An initial harness run was corrected to wait for
+  the new build to finish instead of the prior generation's ready flag.
+- Local build is intentionally marked dirty/unpublished. No live TrueNAS
+  configuration, games, database, certificates, or saves were changed.
+  Publication, operator dataset paths, deployment, and physical retesting
+  remain pending; physical results are `DEFERRED_HARDWARE_UNAVAILABLE`.

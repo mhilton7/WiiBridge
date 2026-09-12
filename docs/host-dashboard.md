@@ -44,6 +44,11 @@ control selects the current complete validated generation and is disabled until
 one exists. Building and updating are separate background operations; opening
 the page never starts a build.
 
+The Wii and GameCube source cards show each configured folder and provide
+separate rescan controls. **Moved this library?** validates and accepts an
+intentionally replaced mount. See [library locations](library-locations.md)
+for the environment settings and TrueNAS bind mounts.
+
 The dashboard also has four integrated status areas:
 
 - Source reconciliation preserves the prior catalog when the dataset is

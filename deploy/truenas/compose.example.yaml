@@ -11,6 +11,8 @@ services:
     security_opt: [no-new-privileges:true]
     environment:
       WIIBRIDGE_LIBRARY: /library
+      WIIBRIDGE_WII_LIBRARY: ${WIIBRIDGE_WII_LIBRARY:-/library}
+      WIIBRIDGE_GAMECUBE_LIBRARY: ${WIIBRIDGE_GAMECUBE_LIBRARY:-/library}
       WIIBRIDGE_DATA: /data
       WIIBRIDGE_ADMIN_TOKEN: CHANGE_ME_USE_UI_SECRET_VALUE
       WIIBRIDGE_GAMECUBE_MEMORY_CARD_MODE: physical

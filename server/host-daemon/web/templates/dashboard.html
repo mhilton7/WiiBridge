@@ -36,21 +36,24 @@
 </div></div></div>{{end}}</section>
 
 <section class="feature-grid">
-<article class="card" id="source-health" data-status-url="/api/v1/sources">
-<div class="section-title"><div><p class="eyebrow">Source reconciliation</p><h2>Library source status</h2></div><span class="tag" id="source-state">{{.Source.State}}</span></div>
+{{range .LibrarySources}}
+<article class="card library-source" id="source-health-{{.Platform}}" data-platform="{{.Platform}}" data-status-url="/api/v1/sources">
+<div class="section-title"><div><p class="eyebrow">Library location</p><h2>{{.Label}} source</h2></div><span class="tag" id="source-{{.Platform}}-state">{{.Source.State}}</span></div>
 <dl class="compact">
-<div><dt>Source path</dt><dd id="source-path"><code>{{.Source.RootPath}}</code></dd></div>
-<div><dt>Source ID</dt><dd id="source-id">{{.Source.SourceID}}</dd></div>
-<div><dt>Mount / identity</dt><dd id="source-identity">{{if .Source.LastKnownMountInfo}}{{.Source.LastKnownMountInfo}}{{else}}Unavailable{{end}}</dd></div>
-<div><dt>Last successful scan</dt><dd id="source-last-success">{{if .Source.LastSuccessfulScan}}{{.Source.LastSuccessfulScan}}{{else}}Never{{end}}</dd></div>
-<div><dt>Last scan attempt</dt><dd id="source-last-attempt">{{.Source.LastAttemptedScan}}</dd></div>
-<div><dt>Last successful game count</dt><dd id="source-game-count">{{.Source.LastSuccessfulItemCount}}</dd></div>
-<div><dt>Consecutive failures</dt><dd id="source-failures">{{.Source.ConsecutiveFailures}}</dd></div>
-<div><dt>Affected games</dt><dd><span id="source-affected-wii">Loading</span> Wii · <span id="source-affected-gamecube">Loading</span> GameCube</dd></div>
-<div><dt>Current failure</dt><dd id="source-error">{{if .Source.FailureCode}}{{.Source.FailureCode}} · {{.Source.FailureMessage}}{{else}}None{{end}}</dd></div>
+<div><dt>Configured folder</dt><dd><code id="source-{{.Platform}}-path">{{.Source.RootPath}}</code></dd></div>
+<div><dt>Last successful scan</dt><dd id="source-{{.Platform}}-last-success">{{.Source.LastSuccessfulScan}}</dd></div>
+<div><dt>Last scan attempt</dt><dd id="source-{{.Platform}}-last-attempt">{{.Source.LastAttemptedScan}}</dd></div>
+<div><dt>Games at last scan</dt><dd id="source-{{.Platform}}-game-count">{{.Source.LastSuccessfulItemCount}}</dd></div>
+<div><dt>Affected games</dt><dd id="source-{{.Platform}}-affected">Loading</dd></div>
+<div><dt>Current failure</dt><dd id="source-{{.Platform}}-error">{{if .Source.FailureCode}}{{.Source.FailureCode}} · {{.Source.FailureMessage}}{{else}}None{{end}}</dd></div>
 </dl>
-<div class="actions"><form method="post" action="/api/v1/scan"><input type="hidden" name="csrf" value="{{.CSRF}}"><button class="secondary" {{if .DefaultPassword}}disabled{{end}}>Retry source check and rescan</button></form><a class="button secondary" href="/api/v1/sources/diagnostic">Export diagnostic report</a></div>
+<form method="post" action="/api/v1/scan"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="platform" value="{{.Platform}}"><button class="secondary" {{if $.DefaultPassword}}disabled{{end}}>Rescan {{.Label}} library</button></form>
+<details data-persist-details="relocate-{{.Platform}}"><summary>Moved this library?</summary><p>Set this library's folder in the Host configuration and mount it read-only. Then accept the new location to scan it. Your existing catalog and saves are retained if validation fails. Libraries using the same folder are scanned together.</p>
+<form method="post" action="/api/v1/sources/relocate"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="platform" value="{{.Platform}}"><label class="confirm-toggle"><input type="checkbox" name="confirm" value="relocate" required> This is the intended {{.Label}} library location</label><button class="secondary" {{if $.DefaultPassword}}disabled{{end}}>Accept location and rescan</button></form>
+</details>
+<a href="/api/v1/sources/diagnostic">Export diagnostic report</a>
 </article>
+{{end}}
 
 <article class="card" id="compatibility-panel" data-status-url="/api/v1/compatibility">
 <div class="section-title"><div><p class="eyebrow">Compatibility contract</p><h2>Host and firmware negotiation</h2></div><span class="tag" id="compat-state">{{.Compatibility.Status}}</span></div>

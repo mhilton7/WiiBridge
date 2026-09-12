@@ -1,7 +1,7 @@
 {
-  "updated_utc": "2026-09-12T17:44:30Z",
+  "updated_utc": "2026-09-12T17:51:41Z",
   "status": "PASS",
-  "build_scope": "local-dirty-unpublished",
+  "build_scope": "clean-feature-image-published",
   "source_data": "synthetic-only",
   "checks": [
     "full-test-suite",
@@ -17,7 +17,12 @@
     "gamecube-activation-while-wii-source-unavailable",
     "source-bytes-unchanged"
   ],
-  "publication": "PENDING",
+  "publication": "PASS",
   "truenas_deployment": "PENDING",
-  "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
+  "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE",
+  "application_commit": "2f8df9dd160c8cc8c0a6da081137674dea925988",
+  "published_oci_digest": "sha256:efbe790aeb51a6b635cbbe3fa4268d7dda071b0d5b583f6b19e03b7aa83d6d1c",
+  "public_pull_verified": true,
+  "pull_request": 13,
+  "ci_run": 34709335498
 }

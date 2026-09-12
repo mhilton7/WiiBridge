@@ -14,9 +14,13 @@ scans preserve the catalog and save data. Moved GameCube sources can rebuild
 without reactivating an outdated generation. See
 [the configuration and recovery guide](docs/library-locations.md).
 
-Status: `LOCALLY_VALIDATED` — full tests, static checks, race checks, and a
-real read-only container recovery/activation test pass. Publication and
-installation of the updated Host image on TrueNAS remain pending.
+Status: `FEATURE_IMAGE_PUBLISHED` — source revision `2f8df9d`
+passes full tests, static/race checks, GitHub image CI, and real read-only
+container recovery/activation tests. Its commit-specific image is published
+and independently verified for anonymous pulls at
+`sha256:efbe790aeb51a6b635cbbe3fa4268d7dda071b0d5b583f6b19e03b7aa83d6d1c`.
+PR #13 is a draft; main and the default release tag remain unchanged.
+Installation on the operator's TrueNAS app remains pending.
 
 ## Legacy Pi certificate lifetime
 

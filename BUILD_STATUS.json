@@ -29,14 +29,14 @@
     "baseline": "PASS: fresh pinned main; complete release including all firmware",
     "server": "PASS: full tests, static, race, vet",
     "container": "PASS: final OCI tested, immutable GHCR digest verified",
-    "firmware_zero_w": "PASS: full build and offline validation",
+    "firmware_zero_w": "PASS: full build, offline validation, operator card flash and whole-image readback; physical boot deferred",
     "firmware_pi4": "PASS: full build and offline validation",
     "firmware_pi5": "PASS: full build and offline validation",
     "integration": "PASS: final Wii/GameCube kernel NBD and separate-source recovery",
     "release": "PASS: public prerelease; 30 asset sizes and hashes verified",
     "truenas_deployment": "NOT_PERFORMED"
   },
-  "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE",
+  "physical_tests": "Zero W SD flashing and whole-image readback PASS; physical board boot, Wii launches and hardware save tests DEFERRED_HARDWARE_UNAVAILABLE",
   "library_locations": {
     "settings": [
       "WIIBRIDGE_WII_LIBRARY",
@@ -147,5 +147,14 @@
       "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
     }
   },
-  "updated_utc": "2026-09-13T22:46:01.705456+00:00"
+  "updated_utc": "2026-09-13T23:24:40.421726+00:00",
+  "operator_zero_w_card_flash": {
+    "status": "PASS",
+    "release_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+    "report": "reports/firmware/zero-w-armhf/performance-card-flash-2026-09-13.json",
+    "configuration_preserved": true,
+    "full_readback": "PASS",
+    "safe_eject": "PASS",
+    "physical_boot": "DEFERRED_HARDWARE_UNAVAILABLE"
+  }
 }

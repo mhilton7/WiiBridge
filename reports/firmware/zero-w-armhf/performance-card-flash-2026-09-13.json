@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "target": "zero-w-armhf",
+  "release_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+  "completed_utc": "2026-09-13T23:23:09.849860+00:00",
+  "canonical_image_sha256": "3c5ecc921be55ad829a02cbb6871f63075558034b869b78c4b7d662ae5bcf138",
+  "controller_sha256": "a2b778e718496e3e1542e38db810b124c1245d3047c7b20698f6585a552ad809",
+  "configured_image_bytes": 2759852032,
+  "rollback_backup": "PASS: both complete filesystems and partition table; unused ext4 space omitted",
+  "canonical_artifact_hashes": "PASS: raw and compressed release images",
+  "operator_configuration": "PASS: existing identities, certificates, token, Wi-Fi, bridge/USB settings and appliance state preserved locally",
+  "preserved_file_count": 27,
+  "whole_image_card_readback": "PASS: block cache invalidated before reading all written bytes",
+  "card_filesystems_readonly": "PASS",
+  "controller_matches_release": "PASS",
+  "firstboot_identity_preserved": "PASS",
+  "safe_eject": "PASS",
+  "physical_boot": "DEFERRED_HARDWARE_UNAVAILABLE",
+  "wii_launch": "DEFERRED_HARDWARE_UNAVAILABLE",
+  "privacy": "Personalized images, credentials and identifying device metadata are retained only in private local backup storage."
+}

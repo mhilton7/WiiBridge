@@ -24,6 +24,7 @@ record measurements, exact artifacts and limits.
 | Compression, checksums, SBOM and provenance | PASS | Full decompressed hashes and captured clean build inputs |
 | Immutable GHCR publication and GitHub release assets | PASS | Published digest plus all 30 remote sizes/hashes verified |
 | Independent byte-for-byte build reproducibility | PENDING | Not performed; unsigned local provenance is not an independent attestation |
+| Zero W operator SD flash, whole-image readback and safe eject | PASS | [Card verification](reports/firmware/zero-w-armhf/performance-card-flash-2026-09-13.json) |
 | Physical board boot, Wii launches, TrueNAS/ZFS performance and save recovery | DEFERRED_HARDWARE_UNAVAILABLE | Requires operator hardware qualification |
 
 The failed initial parallel firmware attempt was rejected and cleaned. The

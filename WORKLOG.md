@@ -1306,3 +1306,28 @@ Baseline/main is preserved; work is on `perf/full-system-optimization` and PR 14
 Physical board boots, Wii launches, TrueNAS/ZFS behavior and emulated-save
 hardware qualification remain `DEFERRED_HARDWARE_UNAVAILABLE`. No operator
 repository was reset and no live appliance deployment was performed.
+
+## Zero W card generation, configuration preservation and flash
+
+At the operator's request, inspected the attached removable card and confirmed
+its installed board target was zero-w-armhf. Protected it read-only and saved
+a restorable filesystem backup with partition table, complete FAT partition,
+and all allocated ext4 metadata and file data. Unused ext4 space was omitted
+to avoid unnecessary slow card reads. Both backup filesystems passed read-only
+checks; the private backup has a full-image hash and bmap recovery data.
+
+Verified the raw/compressed released firmware hashes and prepared a private
+configured image from clean release revision
+`3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2`. Preserved 27 existing configuration
+files, including Wi-Fi, device/NBD TLS identities, admin token, machine identity,
+bridge/USB settings and appliance state. Kept the existing identity marker so
+first boot cannot replace the host-pinned device identity. SSH remains disabled.
+No old controller binaries or service definitions were imported.
+
+Flashed only the inspected card, flushed and invalidated the block cache, and
+verified every written image byte by readback. The actual card's partition
+layout, read-only filesystem checks, controller hash and preserved files all
+passed. Unmounted and safely powered off the card reader. No private image or
+credential material was published. Physical board boot and Wii launch tests
+remain DEFERRED_HARDWARE_UNAVAILABLE. See
+reports/firmware/zero-w-armhf/performance-card-flash-2026-09-13.json.

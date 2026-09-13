@@ -8,8 +8,11 @@ and publication work is complete. Exact identities and results are in
 [the audit](docs/full-performance-audit.md).
 
 Physical qualification remains `DEFERRED_HARDWARE_UNAVAILABLE`. The candidate
-has not been installed on the operator's TrueNAS/Pi or tested in repeated Wii
-launches. The earlier isolated fast LEGO Star Wars launch does not establish
+has now been written to the operator's Zero W SD card with
+existing settings preserved, complete readback and safe eject verified. The
+card has not yet been booted in the physical Pi or tested in repeated Wii
+launches, and the candidate host deployment was not performed in this task.
+The earlier isolated fast LEGO Star Wars launch does not establish
 that other multi-minute loader stalls are fixed.
 
 Actual TrueNAS ARC/pool behavior, Pi Wi-Fi/USB resets, loader IOS choices,

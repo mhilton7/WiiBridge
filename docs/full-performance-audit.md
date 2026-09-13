@@ -167,7 +167,7 @@ without repairs and complete synthetic payload checksum validation.
 | Browser polling | Suppressed new periodic requests while hidden and overlapping periodic requests per panel; refreshed on visibility return. Foreground polling intervals remain unchanged. |
 | Background validation/builds | Propagated cancellation through bounded 32 KiB hash reads and FST traversal, checked cancellation before success/promotion, and stopped mutating the caller's disc slice while fingerprinting. Deep source validation was retained. |
 | Firmware services | Reviewed network-online dependencies, auto-attach conditions/retry intervals, recovery detach, restricted privileged helpers and gadget setup. Kept these safeguards; QEMU does not provide a physical boot profile. |
-| Release tooling | Replaced fixed SBOM dates and hardcoded dirty provenance with captured build inputs. Packaging checks source revision/content, generated reports default to ignored build storage, and offline firmware validation compares the embedded controller with its board build. |
+| Release tooling | Replaced fixed SBOM dates and hardcoded dirty provenance with captured build inputs. Packaging checks source revision/content, generated reports default to ignored build storage, and offline firmware validation compares the embedded controller with its board build. Concurrent builders use private mount namespaces and refuse cleanup of mounted trees. |
 | Benchmark tooling | Fixed the older allocated-WBFS benchmark that recreated and truncated its fixture, and corrected the older performance-report command's misleading cold-cache label and microsecond truncation. That changed fixture is excluded from the before/after table. |
 
 FSInfo can avoid a full FAT walk when a client trusts its free-space value.
@@ -219,3 +219,11 @@ an IOS-setting change is useful context, but is not a controlled performance
 result or proof that every multi-minute black screen has been corrected.
 The required release qualification is
 **SOFTWARE-COMPLETE RELEASE CANDIDATE — HARDWARE UNVERIFIED**.
+
+The initial concurrent optimized firmware attempt exposed shared pi-gen chroot
+mount propagation: Pi 4/Pi 5 unmount cleanup failed while the Zero W build was
+still active. The attempt was rejected, its remaining builder stopped, and all
+audit mounts removed normally. The original host mount topology was restored.
+The correction isolates each pi-gen job in a private mount namespace and
+refuses build-tree deletion if any mount remains below it. This build-only
+correction does not change the benchmarked host/Pi runtime code.

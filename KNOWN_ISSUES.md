@@ -8,7 +8,7 @@ GameCube-generation compatibility, local kernel NBD/filesystem validation and
 separate-library recovery integration pass. Controlled measurements and limits
 are in [the full audit](docs/full-performance-audit.md).
 
-The optimized release artifact build/publication is pending. Physical console,
+The initial parallel firmware attempt failed due to shared chroot mount propagation; cleanup is complete and the builder now uses private mount namespaces. A fresh full retry is required. The optimized release artifact build/publication is pending. Physical console,
 Pi and TrueNAS qualification is DEFERRED_HARDWARE_UNAVAILABLE. The historical
 entries below describe prior revisions and do not qualify this candidate.
 

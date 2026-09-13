@@ -1270,3 +1270,13 @@ actual readonly Docker/kernel NBD mounts, payload hashes, fsck without repairs,
 and separate-library recovery/activation integration pass. Physical results
 remain unavailable. The final clean release build and publication are pending.
 See docs/full-performance-audit.md and reports/performance/2026-09-full-audit.
+
+## Firmware build isolation correction
+
+The first concurrent release firmware attempt at 18346a0 failed: Pi 4 and Pi 5
+pi-gen jobs could not unmount shared chroot device filesystems. Stopped only the
+remaining audit builder's descendants; normal unmount cleanup removed all ten
+remaining audit mounts and restored the original host devpts mount topology.
+No failed firmware was published. Added private mount namespaces per builder
+and a mount-presence guard before build-tree deletion. Final validation and a
+fresh full build of every board remain pending after this correction.

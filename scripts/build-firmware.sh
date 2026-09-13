@@ -37,6 +37,21 @@ CGO_ENABLED=0 GOOS=linux GOARCH="$goarch" GOARM="$goarm" \
   -ldflags="-s -w -buildid= -X main.productVersion=${project_version} -X main.gitCommit=${build_revision} -X main.buildTime=${build_timestamp} -X main.buildDirty=${build_dirty}" \
   -o "$binary" ./pi/controller
 if test -e "$tree"; then
+  # Never recurse through a leftover chroot mount during a rebuild. A failed
+  # older builder may have left host device filesystems beneath this tree.
+  python3 - "$source_root/$tree" <<'PY'
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+root = str(Path(sys.argv[1]).resolve())
+mounts = json.loads(subprocess.check_output(
+    ["findmnt", "--json", "--list", "--output", "TARGET"], text=True))
+if any(item["target"] == root or item["target"].startswith(root + "/")
+       for item in mounts["filesystems"]):
+    raise SystemExit("Refusing to remove a pi-gen tree containing active mounts")
+PY
   sudo rm -rf -- "$tree"
 fi
 git clone --filter=blob:none --branch "$branch" \
@@ -64,7 +79,7 @@ fi
 (
   cd "$tree"
   sudo --preserve-env=WIIBRIDGE_BOARD_TARGET,WIIBRIDGE_SOURCE,PI_GEN_DIR \
-    ./build.sh
+    unshare --mount --propagation private ./build.sh
 ) 2>&1 | tee "$source_root/$log"
 image=$(find "$tree/deploy" -maxdepth 1 \
   -name "*wiibridge-${project_version}-${target}.img" -print -quit)

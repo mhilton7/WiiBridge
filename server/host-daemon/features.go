@@ -153,7 +153,7 @@ func decodeWiiItems(items []store.CatalogItem, state sourcehealth.State) ([]mode
 }
 
 func scanGameCubeCatalog(database *store.Store, root string,
-	record sourcehealth.Record,
+	record sourcehealth.Record, sharedRoot ...bool,
 ) (gamecube.Result, sourcehealth.Record, error) {
 	if record.State != sourcehealth.StateAvailable {
 		cached, err := loadGameCubeCatalog(database, record)
@@ -178,8 +178,10 @@ func scanGameCubeCatalog(database *store.Store, root string,
 		return cached, record, err
 	}
 	successfulCount := len(result.Games)
-	if wiiItems, catalogErr := database.Catalog("wii"); catalogErr == nil {
-		successfulCount += len(wiiItems)
+	if len(sharedRoot) == 0 || sharedRoot[0] {
+		if wiiItems, catalogErr := database.Catalog("wii"); catalogErr == nil {
+			successfulCount += len(wiiItems)
+		}
 	}
 	result, err = reconcileGameCubeResult(database, result)
 	if err != nil {
@@ -321,6 +323,7 @@ func (a *app) compatibilityAPI(w http.ResponseWriter, r *http.Request) {
 func (a *app) sourceStatusAPI(w http.ResponseWriter, _ *http.Request) {
 	a.mu.RLock()
 	record := a.source
+	sources := map[string]sourcehealth.Record{"wii": record, "gamecube": a.librarySourceLocked("gamecube")}
 	wii, gameCube := append([]model.Game(nil), a.scan.Games...),
 		append([]gamecube.Game(nil), a.gcScan.Games...)
 	a.mu.RUnlock()
@@ -338,7 +341,7 @@ func (a *app) sourceStatusAPI(w http.ResponseWriter, _ *http.Request) {
 		}
 	}
 	writeJSON(w, map[string]any{
-		"source": record, "affected_wii_games": affectedWii,
+		"source": record, "sources": sources, "affected_wii_games": affectedWii,
 		"affected_gamecube_games": affectedGameCube,
 	})
 }
@@ -346,12 +349,14 @@ func (a *app) sourceStatusAPI(w http.ResponseWriter, _ *http.Request) {
 func (a *app) sourceDiagnosticAPI(w http.ResponseWriter, _ *http.Request) {
 	a.mu.RLock()
 	record := a.source
+	sources := map[string]sourcehealth.Record{"wii": record, "gamecube": a.librarySourceLocked("gamecube")}
 	wii, gameCube := append([]model.Game(nil), a.scan.Games...),
 		append([]gamecube.Game(nil), a.gcScan.Games...)
 	a.mu.RUnlock()
 	report := struct {
-		GeneratedAt time.Time           `json:"generatedAt"`
-		Source      sourcehealth.Record `json:"source"`
+		GeneratedAt time.Time                      `json:"generatedAt"`
+		Source      sourcehealth.Record            `json:"source"`
+		Sources     map[string]sourcehealth.Record `json:"sources"`
 		Wii         []struct {
 			ID           string `json:"id"`
 			Availability string `json:"availability"`
@@ -361,7 +366,7 @@ func (a *app) sourceDiagnosticAPI(w http.ResponseWriter, _ *http.Request) {
 			Revision     byte   `json:"revision"`
 			Availability string `json:"availability"`
 		} `json:"gamecube"`
-	}{GeneratedAt: time.Now().UTC(), Source: record}
+	}{GeneratedAt: time.Now().UTC(), Source: record, Sources: sources}
 	for _, game := range wii {
 		report.Wii = append(report.Wii, struct {
 			ID           string `json:"id"`
@@ -772,43 +777,30 @@ func (a *app) queueSourceFailure(code string) {
 }
 
 func (a *app) runSourceFailureReconciler(ctx context.Context) {
-	lastRecorded := make(map[string]time.Time, 4)
+	lastRecorded := make(map[string]time.Time, 8)
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case code := <-a.sourceFailures:
-			code = normalizedSourceFailureCode(code)
-			now := time.Now()
-			if !shouldRecordSourceFailure(lastRecorded, code, now) {
+		case value := <-a.sourceFailures:
+			platform, code := sourceFailurePlatform(value)
+			if !shouldRecordSourceFailure(lastRecorded, platform+":"+code, time.Now()) {
 				continue
 			}
+			a.scanMu.Lock()
 			a.mu.RLock()
-			previous := a.source
+			previous := a.librarySourceLocked(platform)
 			a.mu.RUnlock()
-			preflight, preflightErr := sourcehealth.Preflight(a.root, &previous)
+			preflight, err := sourcehealth.Preflight(a.libraryRoot(platform), &previous)
 			record := preflight.Record
-			if preflightErr == nil {
-				record = sourcehealth.RuntimeFailure(preflight.Record, code)
+			if err == nil {
+				record = sourcehealth.RuntimeFailure(record, code)
 			}
+			a.recordLibraryFailure([]string{platform}, record)
 			if a.store != nil {
-				_ = a.store.UpsertSource(record)
-				_ = a.store.RecordSourceEvent(
-					record.SourceID, record.FailureCode, record.FailureMessage)
+				_ = a.store.RecordSourceEvent(record.SourceID, record.FailureCode, record.FailureMessage)
 			}
-			a.mu.Lock()
-			a.source, a.ready = record, false
-			for index := range a.scan.Games {
-				a.scan.Games[index].Availability = string(
-					sourcehealth.DerivedAvailability(
-						record.State, sourcehealth.AvailabilityPlayable))
-			}
-			for index := range a.gcScan.Games {
-				a.gcScan.Games[index].Availability = string(
-					sourcehealth.DerivedAvailability(
-						record.State, sourcehealth.AvailabilityPlayable))
-			}
-			a.mu.Unlock()
+			a.scanMu.Unlock()
 		}
 	}
 }
@@ -933,8 +925,9 @@ func (a *app) performanceSummary(w http.ResponseWriter, _ *http.Request) {
 	if value, err := a.performancePiMetrics(); err == nil {
 		piMetrics, piState = value, "available"
 	}
+	platform := a.exports.Platform()
 	a.mu.RLock()
-	source, compatibility := a.source, a.compatibility
+	source, compatibility := a.librarySourceLocked(platform), a.compatibility
 	a.mu.RUnlock()
 	current, active := perf.SessionSummary{}, false
 	warnings := []contract.Error{}

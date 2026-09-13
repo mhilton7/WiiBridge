@@ -1,0 +1,41 @@
+package gamecube
+
+import (
+	"context"
+	"fmt"
+	"path/filepath"
+	"testing"
+)
+
+func BenchmarkAuditGameCubeStartup(b *testing.B) {
+	for _, gib := range []int64{1, 512} {
+		b.Run(fmt.Sprintf("reserveGiB=%d", gib), func(b *testing.B) {
+			root := b.TempDir()
+			config := DefaultLibraryConfig()
+			config.SourceRoot = filepath.Join(root, "sources")
+			config.SaveReserveMiB = gib * 1024
+			games := libraryGames(b, config.SourceRoot)
+			managed := filepath.Join(root, "managed")
+			manager, err := NewLibraryManager(managed, config)
+			if err != nil {
+				b.Fatal(err)
+			}
+			manifest, err := manager.Build(context.Background(), games)
+			if err != nil {
+				b.Fatal(err)
+			}
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				reopened, err := NewLibraryManager(managed, config)
+				if err != nil {
+					b.Fatal(err)
+				}
+				active, ready := reopened.ValidatedSummary()
+				if !ready || active.GenerationID != manifest.GenerationID {
+					b.Fatal("startup did not retain the validated generation")
+				}
+			}
+		})
+	}
+}

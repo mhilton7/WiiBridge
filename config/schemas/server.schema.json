@@ -7,6 +7,8 @@
   "properties": {
     "schema_version": {"const": 1},
     "library_root": {"const": "/library"},
+    "wii_library_root": {"type": "string", "pattern": "^/"},
+    "gamecube_library_root": {"type": "string", "pattern": "^/"},
     "data_root": {"const": "/data"},
     "default_catalog": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,64}$"},
     "https": {

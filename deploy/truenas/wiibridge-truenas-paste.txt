@@ -11,6 +11,8 @@ services:
       - "no-new-privileges:true"
     environment:
       WIIBRIDGE_LIBRARY: "/library"
+      WIIBRIDGE_WII_LIBRARY: "/library"
+      WIIBRIDGE_GAMECUBE_LIBRARY: "/library"
       WIIBRIDGE_DATA: "/data"
       WIIBRIDGE_ADMIN_TOKEN: "REPLACE_WITH_AT_LEAST_20_RANDOM_CHARACTERS"
       WIIBRIDGE_UI_USERNAME: "admin"

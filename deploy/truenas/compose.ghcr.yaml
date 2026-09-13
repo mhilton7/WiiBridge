@@ -1,8 +1,10 @@
+# Standalone definition for separate Wii and GameCube datasets.
+# Requires a Host image containing the separate-library-paths feature.
 services:
-  networkgames-host:
-    image: ghcr.io/OWNER/networkgames-host:0.1.0-rc.1@sha256:97de3bb60b71bcd55c85346aff3f665d16da18018400bd053242243bc506553c
-    user: "568:568"
-    restart: "unless-stopped"
+  wiibridge-host:
+    image: ghcr.io/mhilton7/wiibridge-host:sha-3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2@sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09
+    user: "${WIIBRIDGE_UID:?set UID}:${WIIBRIDGE_GID:?set GID}"
+    restart: unless-stopped
     read_only: true
     init: true
     cap_drop:
@@ -10,72 +12,99 @@ services:
     security_opt:
       - no-new-privileges:true
     environment:
-      NETWORKGAMES_LIBRARY: "/library"
-      NETWORKGAMES_DATA: "/data"
-      NETWORKGAMES_ADMIN_TOKEN: "REPLACE_WITH_AT_LEAST_20_RANDOM_CHARACTERS"
-      NETWORKGAMES_HTTPS_LISTEN: ":8445"
-      NETWORKGAMES_NBD_LISTEN: ":10809"
-      NETWORKGAMES_EXPORT: "all"
-      NETWORKGAMES_TLS_CERT: "/certs/server.crt"
-      NETWORKGAMES_TLS_KEY: "/certs/server.key"
-      NETWORKGAMES_TLS_CLIENT_CA: "/certs/clients-ca.crt"
+      WIIBRIDGE_LIBRARY: /library
+      WIIBRIDGE_WII_LIBRARY: /library/wii
+      WIIBRIDGE_GAMECUBE_LIBRARY: /library/gamecube
+      WIIBRIDGE_DATA: /data
+      WIIBRIDGE_ADMIN_TOKEN: ${WIIBRIDGE_ADMIN_TOKEN:?set an admin token}
+      WIIBRIDGE_UI_USERNAME: ${WIIBRIDGE_UI_USERNAME:-admin}
+      WIIBRIDGE_UI_BOOTSTRAP_PASSWORD: ${WIIBRIDGE_UI_BOOTSTRAP_PASSWORD:-wiibridge}
+      WIIBRIDGE_SESSION_TTL: ${WIIBRIDGE_SESSION_TTL:-12h}
+      WIIBRIDGE_GAMECUBE_MEMORY_CARD_MODE: ${WIIBRIDGE_GAMECUBE_MEMORY_CARD_MODE:-physical}
+      WIIBRIDGE_GAMECUBE_CARD_SIZE_BYTES: ${WIIBRIDGE_GAMECUBE_CARD_SIZE_BYTES:-16777216}
+      WIIBRIDGE_GAMECUBE_AUTO_CREATE_CARDS: ${WIIBRIDGE_GAMECUBE_AUTO_CREATE_CARDS:-true}
+      WIIBRIDGE_GAMECUBE_SHARED_CARD: ${WIIBRIDGE_GAMECUBE_SHARED_CARD:-shared}
+      WIIBRIDGE_GAMECUBE_MAX_SAVE_BACKUPS: ${WIIBRIDGE_GAMECUBE_MAX_SAVE_BACKUPS:-5}
+      WIIBRIDGE_GAMECUBE_AUTO_BACKUP_INTERVAL: ${WIIBRIDGE_GAMECUBE_AUTO_BACKUP_INTERVAL:-0s}
+      WIIBRIDGE_GAMECUBE_HEADROOM_PERCENT: ${WIIBRIDGE_GAMECUBE_HEADROOM_PERCENT:-5}
+      WIIBRIDGE_GAMECUBE_SAVE_RESERVE_MIB: ${WIIBRIDGE_GAMECUBE_SAVE_RESERVE_MIB:-1024}
+      WIIBRIDGE_GAMECUBE_MAX_VOLUME_GIB: ${WIIBRIDGE_GAMECUBE_MAX_VOLUME_GIB:-}
+      WIIBRIDGE_GAMECUBE_GENERATION_RETENTION: ${WIIBRIDGE_GAMECUBE_GENERATION_RETENTION:-2}
+      WIIBRIDGE_PERFORMANCE_METRICS_ENABLED: ${WIIBRIDGE_PERFORMANCE_METRICS_ENABLED:-true}
+      WIIBRIDGE_SESSION_HISTORY_ENABLED: ${WIIBRIDGE_SESSION_HISTORY_ENABLED:-true}
+      WIIBRIDGE_MAX_RETAINED_SESSIONS: ${WIIBRIDGE_MAX_RETAINED_SESSIONS:-100}
+      WIIBRIDGE_SESSION_RETENTION_DAYS: ${WIIBRIDGE_SESSION_RETENTION_DAYS:-30}
+      WIIBRIDGE_PI_METRICS_POLL_INTERVAL: ${WIIBRIDGE_PI_METRICS_POLL_INTERVAL:-10s}
+      WIIBRIDGE_DASHBOARD_REFRESH_INTERVAL: ${WIIBRIDGE_DASHBOARD_REFRESH_INTERVAL:-5s}
+      WIIBRIDGE_METRICS_PERSISTENCE_INTERVAL: ${WIIBRIDGE_METRICS_PERSISTENCE_INTERVAL:-1m}
+      WIIBRIDGE_PERF_P99_WARNING: ${WIIBRIDGE_PERF_P99_WARNING:-100ms}
+      WIIBRIDGE_PERF_MEMORY_WARNING_PERCENT: ${WIIBRIDGE_PERF_MEMORY_WARNING_PERCENT:-85}
+      WIIBRIDGE_HTTPS_LISTEN: :8445
+      WIIBRIDGE_NBD_LISTEN: :10809
+      WIIBRIDGE_EXPORT: ${WIIBRIDGE_EXPORT:-all}
+      WIIBRIDGE_TLS_CERT: /certs/server.crt
+      WIIBRIDGE_TLS_KEY: /certs/server.key
+      WIIBRIDGE_TLS_CLIENT_CA: /certs/clients-ca.crt
+      WIIBRIDGE_PI_URL: ${WIIBRIDGE_PI_URL:-}
+      WIIBRIDGE_PI_ADMIN_TOKEN: ${WIIBRIDGE_PI_ADMIN_TOKEN:-}
+      WIIBRIDGE_PI_CERT: ${WIIBRIDGE_PI_CERT:-}
+      GOMEMLIMIT: ${WIIBRIDGE_GO_MEMORY_LIMIT:-384MiB}
     ports:
-      - "192.0.2.10:8445:8445/tcp"
-      - "192.0.2.10:10809:10809/tcp"
+      - "${WIIBRIDGE_HTTPS_BIND:?set management bind IP}:${WIIBRIDGE_HTTPS_PORT:-8445}:8445/tcp"
+      - "${WIIBRIDGE_NBD_BIND:?set NBD bind IP}:${WIIBRIDGE_NBD_PORT:-10809}:10809/tcp"
     volumes:
       - type: bind
-        source: /mnt/POOL/WII_DATASET
-        target: /library
+        source: ${WIIBRIDGE_WII_LIBRARY_PATH:?set Wii dataset path}
+        target: /library/wii
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: /mnt/POOL/apps/networkgames/config
+        source: ${WIIBRIDGE_GAMECUBE_LIBRARY_PATH:?set GameCube dataset path}
+        target: /library/gamecube
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${WIIBRIDGE_CONFIG_PATH:?set config dataset path}
         target: /config
         bind:
           create_host_path: false
       - type: bind
-        source: /mnt/POOL/apps/networkgames/data
+        source: ${WIIBRIDGE_DATA_PATH:?set data dataset path}
         target: /data
         bind:
           create_host_path: false
       - type: bind
-        source: /mnt/POOL/apps/networkgames/certs
+        source: ${WIIBRIDGE_CERTS_PATH:?set certificate dataset path}
         target: /certs
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: /mnt/POOL/apps/networkgames/logs
+        source: ${WIIBRIDGE_LOGS_PATH:?set logs dataset path}
         target: /logs
         bind:
           create_host_path: false
       - type: bind
-        source: /mnt/POOL/apps/networkgames/backups
+        source: ${WIIBRIDGE_BACKUPS_PATH:?set backups dataset path}
         target: /backups
         bind:
           create_host_path: false
     tmpfs:
       - /tmp:size=32m,mode=1777,noexec,nosuid,nodev
     healthcheck:
-      test:
-        - CMD
-        - /networkgames-host
-        - healthcheck
-        - --url
-        - https://127.0.0.1:8445/healthz
-        - --ca
-        - /certs/ca.crt
+      test: ["CMD", "/wiibridge-host", "healthcheck", "--url", "https://127.0.0.1:8445/healthz", "--ca", "/certs/ca.crt"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 20s
     stop_grace_period: 30s
     pids_limit: 256
-    mem_limit: "1g"
-    cpus: "2.0"
+    mem_limit: ${WIIBRIDGE_MEMORY_LIMIT:-512m}
+    cpus: ${WIIBRIDGE_CPU_LIMIT:-2.0}
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "5"

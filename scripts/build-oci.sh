@@ -14,6 +14,10 @@ if [ -z "$(git status --porcelain --untracked-files=normal)" ]; then
 else
   dirty=true
 fi
+source_tree_sha=$(
+  find Makefile go.mod go.sum versions.lock server shared config scripts deploy docs -type f -print0 |
+    sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1
+)
 mkdir -p "$root" "$out/blobs/sha256"
 GOCACHE="$cache" GOPATH="$gopath" CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
   go build -trimpath \
@@ -40,3 +44,9 @@ mv "$manifest_tmp" "$out/blobs/sha256/$manifest_digest"
 printf '{"imageLayoutVersion":"1.0.0"}\n' > "$out/oci-layout"
 printf '{"schemaVersion":2,"manifests":[{"mediaType":"application/vnd.oci.image.manifest.v1+json","digest":"sha256:%s","size":%s,"annotations":{"org.opencontainers.image.ref.name":"wiibridge-host:%s"}}]}\n' "$manifest_digest" "$manifest_size" "$version" > "$out/index.json"
 printf 'wiibridge-host:%s@sha256:%s\n' "$version" "$manifest_digest" | tee "dist/wiibridge-host-${version}.digest"
+jq -n --arg revision "$commit" --arg started "$created" \
+  --arg digest "$manifest_digest" --arg source_tree_sha "$source_tree_sha" \
+  --argjson dirty "$dirty" \
+  '{revision:$revision,started:$started,digest:$digest,
+    sourceTreeSha256:$source_tree_sha,dirty:$dirty}' \
+  > "dist/wiibridge-host-${version}.build-input.json"

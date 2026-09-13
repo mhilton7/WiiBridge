@@ -1,0 +1,139 @@
+{
+  "fixture": "fully allocated synthetic files; no kernel-global cache eviction",
+  "results": [
+    {
+      "games": 1000,
+      "request_bytes": 4096,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 6.28,
+      "p95_us": 7.96,
+      "p99_us": 48.39,
+      "maximum_us": 131.791,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 1000,
+      "request_bytes": 4096,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 186.131,
+      "p95_us": 281.602,
+      "p99_us": 330.572,
+      "maximum_us": 564.439,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 1000,
+      "request_bytes": 65536,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 7.42,
+      "p95_us": 23.631,
+      "p99_us": 44.101,
+      "maximum_us": 108.531,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 1000,
+      "request_bytes": 65536,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 246.802,
+      "p95_us": 324.152,
+      "p99_us": 447.748,
+      "maximum_us": 450.213,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 1000,
+      "request_bytes": 1048576,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 31.151,
+      "p95_us": 53.88,
+      "p99_us": 124.661,
+      "maximum_us": 171.181,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 1000,
+      "request_bytes": 1048576,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 707.144,
+      "p95_us": 1043.866,
+      "p99_us": 1527.554,
+      "maximum_us": 1858.202,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 10000,
+      "request_bytes": 4096,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 6.18,
+      "p95_us": 16.7,
+      "p99_us": 32.99,
+      "maximum_us": 93.641,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 10000,
+      "request_bytes": 4096,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 217.426,
+      "p95_us": 298.431,
+      "p99_us": 428.248,
+      "maximum_us": 680.718,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 10000,
+      "request_bytes": 65536,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 7.73,
+      "p95_us": 43.68,
+      "p99_us": 45.14,
+      "maximum_us": 104.4,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 10000,
+      "request_bytes": 65536,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 254.691,
+      "p95_us": 359.282,
+      "p99_us": 736.045,
+      "maximum_us": 810.055,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 10000,
+      "request_bytes": 1048576,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 31.191,
+      "p95_us": 72.331,
+      "p99_us": 128.61,
+      "maximum_us": 189.492,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 10000,
+      "request_bytes": 1048576,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 724.584,
+      "p95_us": 976.256,
+      "p99_us": 1330.268,
+      "maximum_us": 1502.019,
+      "verified_cold_reads": 200
+    }
+  ],
+  "source_bytes_each": 2097152,
+  "source_files": 32
+}

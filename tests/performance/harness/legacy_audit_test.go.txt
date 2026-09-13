@@ -1,0 +1,104 @@
+package gamecube
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"testing"
+)
+
+func TestAuditLegacyGeneration(t *testing.T) {
+	root := os.Getenv("WIIBRIDGE_AUDIT_LEGACY_ROOT")
+	if root == "" {
+		t.Skip("explicit persistent synthetic fixture path required")
+	}
+	config := DefaultLibraryConfig()
+	config.SourceRoot = filepath.Join(root, "sources")
+	managed := filepath.Join(root, "managed")
+	if os.Getenv("WIIBRIDGE_AUDIT_CREATE_LEGACY") == "1" {
+		if _, err := os.Stat(root); !os.IsNotExist(err) {
+			t.Fatal("legacy fixture already exists; refusing replacement")
+		}
+		games := libraryGames(t, config.SourceRoot)
+		manager, err := NewLibraryManager(managed, config)
+		if err != nil {
+			t.Fatal(err)
+		}
+		manifest, err := manager.Build(context.Background(), games)
+		if err != nil {
+			t.Fatal(err)
+		}
+		reference := map[string]string{"generation": manifest.GenerationID}
+		for _, path := range []string{manifest.LayoutPath, manifest.MetadataPath} {
+			data, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			reference[path] = hashBytes(data)
+		}
+		data, err := json.MarshalIndent(reference, "", "  ")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = os.WriteFile(filepath.Join(root, "reference.json"), data, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	data, err := os.ReadFile(filepath.Join(root, "reference.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var reference map[string]string
+	if err = json.Unmarshal(data, &reference); err != nil {
+		t.Fatal(err)
+	}
+	manager, err := NewLibraryManager(managed, config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest, err := manager.Active()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if manifest.GenerationID != reference["generation"] {
+		t.Fatal("legacy generation was replaced")
+	}
+	backend, err := OpenLibraryBackend(managed, manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer backend.Close()
+	for _, file := range manifest.Files {
+		source, err := os.Open(file.SourcePath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, relative := range []int64{0, 117, file.LogicalSize - 4096} {
+			want, got := make([]byte, 4096), make([]byte, 4096)
+			if _, err = source.ReadAt(want, file.SourceOffset+relative); err != nil {
+				t.Fatal(err)
+			}
+			if _, err = backend.ReadAt(got, file.VirtualOffset+relative); err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Equal(got, want) {
+				t.Fatal("legacy source mapping changed")
+			}
+		}
+		source.Close()
+	}
+	for path, sum := range reference {
+		if path == "generation" {
+			continue
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if hashBytes(data) != sum {
+			t.Fatal("opening a legacy generation changed its metadata")
+		}
+	}
+}

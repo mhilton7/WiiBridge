@@ -13,9 +13,12 @@ if missing:
     raise SystemExit("missing required Compose properties: "+", ".join(missing))
 if re.search(r'privileged\s*:\s*true|/var/run/docker\.sock|/dev/', text):
     raise SystemExit("prohibited privilege, Docker socket, or device access")
-library=text[text.index("target: /library")-180:text.index("target: /library")+100]
-if "read_only: true" not in library:
-    raise SystemExit("/library is not read-only")
+mounts=re.split(r"(?m)^      - type: bind\s*$", text)[1:]
+libraries=[mount for mount in mounts if re.search(r"(?m)^        target: /library(?:/[^\s]+)?\s*$", mount)]
+if not libraries or any(not re.search(r"(?m)^        read_only: true\s*$", mount) for mount in libraries):
+    raise SystemExit("every library mount must be read-only")
+if any(not re.search(r"(?m)^          create_host_path: false\s*$", mount) for mount in libraries):
+    raise SystemExit("library mounts must not create missing host folders")
 print("static compose policy: PASS")
 PY
 if command -v docker >/dev/null 2>&1; then

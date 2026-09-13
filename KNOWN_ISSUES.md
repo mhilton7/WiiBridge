@@ -1,5 +1,62 @@
 # Known issues
 
+## Current September performance candidate
+
+[The optimized prerelease](https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91) passes complete software, firmware-offline
+and local container/kernel validation. The previously pending firmware build
+and publication work is complete. Exact identities and results are in
+[the audit](docs/full-performance-audit.md).
+
+Physical qualification remains `DEFERRED_HARDWARE_UNAVAILABLE`. The candidate
+has now been written to the operator's Zero W SD card with
+existing settings preserved, complete readback and safe eject verified. The
+card has not yet been booted in the physical Pi or tested in repeated Wii
+launches, and the candidate host deployment was not performed in this task.
+The earlier isolated fast LEGO Star Wars launch does not establish
+that other multi-minute loader stalls are fixed.
+
+Actual TrueNAS ARC/pool behavior, Pi Wi-Fi/USB resets, loader IOS choices,
+board boot times and emulated-save crash/reconnect behavior need physical
+measurement. Deep validation still performs source I/O; cancellation waits for
+an active storage syscall to return. GameCube backend reads retain their
+existing lock and bounded descriptor cache. Emulated-save status still
+validates the managed generation and reads backup metadata. Physical card
+mode avoids that status work. No separate emulated-status endpoint benchmark
+or independent byte-for-byte full rebuild is claimed.
+
+The separate-path interpolation defect is corrected: the dedicated Compose
+definition requires both console paths and rejects missing/empty values. The
+shared-root definition remains available. The immutable GHCR definition now
+uses current WiiBridge settings and the tested candidate image. Moved mounts
+still need an explicit authenticated recovery confirmation.
+
+The first parallel firmware attempt failed shared mount cleanup and was
+rejected. Private namespaces and a mounted-tree deletion guard corrected the
+builder; the fresh all-board retry and cleanup passed.
+
+## Historical issues and observations from earlier revisions
+
+The entries below preserve earlier investigation history. Their pending and
+publication statements refer to those earlier snapshots, not this candidate.
+
+## Library relocation and separate platform paths
+
+A replaced ZFS mount can leave the saved `/library` identity different from
+the current bind mount. Ordinary scans correctly preserve the old catalog,
+but older Hosts have no way to accept an intentionally moved dataset. An old
+GameCube generation can also incorrectly mark newly scanned paths unavailable.
+
+The local correction adds separate Wii/GameCube roots, per-platform status and
+rescans, and authenticated, confirmed location recovery. A complete scan and
+validated catalog commit accept the replacement identity atomically; failed
+scans preserve the catalog and save data. Moved GameCube sources can rebuild
+without reactivating an outdated generation. See
+[the configuration and recovery guide](docs/library-locations.md).
+
+Status: `LOCALLY_VALIDATED` — full tests, static checks, race checks, and a
+real read-only container recovery/activation test pass. Publication and
+installation of the updated Host image on TrueNAS remain pending.
+
 ## Legacy Pi certificate lifetime
 
 The published `0.1.0-rc.1` Pi first-boot script generated the device management
@@ -58,3 +115,15 @@ staged, with free-space and banner-cache work disabled.
 Status: `PENDING` — publish and deploy the clean split-boundary correction,
 then cold boot USB Loader GX with the repaired SD card and unchanged complete
 source catalog.
+# Full performance audit — current limitations
+
+- The optimized release is still being implemented and is not yet published.
+  Baseline validation at `cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27` passed.
+- Synthetic ext4 and loopback NBD measurements do not qualify real TrueNAS,
+  Raspberry Pi, USB gadget, cIOS, or Wii launch performance. Those physical
+  tests remain `DEFERRED_HARDWARE_UNAVAILABLE`.
+- Initial exploratory Go benchmarks used RAM-backed temporary storage. Final
+  comparisons use ext4 and explicitly identify source page-cache conditions.
+- Baseline firmware packaging modifies tracked reports between target builds
+  and hardcodes parts of provenance. Baseline evidence is retained as produced;
+  optimized release provenance still requires correction and validation.

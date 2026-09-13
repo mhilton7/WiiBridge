@@ -1,0 +1,34 @@
+package store
+
+import (
+	"encoding/json"
+	"fmt"
+	"path/filepath"
+	"testing"
+)
+
+func BenchmarkAuditReconcile(b *testing.B) {
+	for _, count := range []int{100, 1000, 10000} {
+		b.Run(fmt.Sprintf("items=%d", count), func(b *testing.B) {
+			database, err := Open(filepath.Join(b.TempDir(), "catalog.db"))
+			if err != nil {
+				b.Fatal(err)
+			}
+			defer database.Close()
+			items := make([]CatalogItem, count)
+			for i := range items {
+				items[i] = CatalogItem{ID: fmt.Sprintf("G%05d", i), Payload: json.RawMessage(`{"id":"synthetic","title":"Synthetic"}`)}
+			}
+			if _, err = database.ReconcileCatalog("wii", items, 2); err != nil {
+				b.Fatal(err)
+			}
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				if _, err = database.ReconcileCatalog("wii", items, 2); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+}

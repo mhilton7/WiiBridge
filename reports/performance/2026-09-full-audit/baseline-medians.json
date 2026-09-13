@@ -1,0 +1,347 @@
+{
+  "BenchmarkAuditWiiCatalogRead/games=1/bytes=4096-8": {
+    "ns/op": 6427.0,
+    "MB/s": 637.29,
+    "B/op": 712.0,
+    "allocs/op": 6.0
+  },
+  "BenchmarkAuditWiiCatalogRead/games=1/bytes=65536-8": {
+    "ns/op": 7731.0,
+    "MB/s": 8478.814999999999,
+    "B/op": 712.0,
+    "allocs/op": 6.0
+  },
+  "BenchmarkAuditWiiCatalogRead/games=1000/bytes=4096-8": {
+    "ns/op": 18655.5,
+    "MB/s": 219.56,
+    "B/op": 24687.5,
+    "allocs/op": 505.0
+  },
+  "BenchmarkAuditWiiCatalogRead/games=1000/bytes=65536-8": {
+    "ns/op": 19523.5,
+    "MB/s": 3356.745,
+    "B/op": 24688.0,
+    "allocs/op": 505.0
+  },
+  "BenchmarkAuditWiiCatalogRead/games=10000/bytes=4096-8": {
+    "ns/op": 132658.0,
+    "MB/s": 30.875,
+    "B/op": 240700.5,
+    "allocs/op": 5005.0
+  },
+  "BenchmarkAuditWiiCatalogRead/games=10000/bytes=65536-8": {
+    "ns/op": 133692.5,
+    "MB/s": 490.2,
+    "B/op": 240683.5,
+    "allocs/op": 5005.0
+  },
+  "BenchmarkAuditWiiFATRead/bytes=512-8": {
+    "ns/op": 652.2,
+    "MB/s": 785.075,
+    "B/op": 512.0,
+    "allocs/op": 1.0
+  },
+  "BenchmarkAuditWiiFATRead/bytes=65536-8": {
+    "ns/op": 83038.0,
+    "MB/s": 789.2249999999999,
+    "B/op": 65536.0,
+    "allocs/op": 128.0
+  },
+  "BenchmarkAuditWiiFATRead/bytes=1048576-8": {
+    "ns/op": 1467090.0,
+    "MB/s": 714.73,
+    "B/op": 1048579.0,
+    "allocs/op": 2048.0
+  },
+  "BenchmarkLargeFATSynthesis-8": {
+    "ns/op": 239669.0,
+    "B/op": 288045.0,
+    "allocs/op": 2134.0
+  },
+  "BenchmarkLargeFATSectorRead-8": {
+    "ns/op": 644.3,
+    "MB/s": 794.66,
+    "B/op": 512.0,
+    "allocs/op": 1.0
+  },
+  "BenchmarkAuditGameCubeManaged/reserveGiB=1/fast-8": {
+    "ns/op": 3368545.0,
+    "B/op": 4501367.0,
+    "allocs/op": 189.0
+  },
+  "BenchmarkAuditGameCubeManaged/reserveGiB=1/active-8": {
+    "ns/op": 6972823.5,
+    "B/op": 9014300.5,
+    "allocs/op": 453.5
+  },
+  "BenchmarkAuditGameCubeManaged/reserveGiB=1/open-8": {
+    "ns/op": 6351540.5,
+    "B/op": 8996282.0,
+    "allocs/op": 336.5
+  },
+  "BenchmarkAuditGameCubeManaged/reserveGiB=512/fast-8": {
+    "ns/op": 137021600.5,
+    "B/op": 269267393.0,
+    "allocs/op": 193.0
+  },
+  "BenchmarkAuditGameCubeManaged/reserveGiB=512/active-8": {
+    "ns/op": 276965762.0,
+    "B/op": 538547598.0,
+    "allocs/op": 464.0
+  },
+  "BenchmarkAuditGameCubeManaged/reserveGiB=512/open-8": {
+    "ns/op": 230677452.0,
+    "B/op": 538529523.0,
+    "allocs/op": 345.5
+  },
+  "BenchmarkAuditSaveRead/mixed=false/bytes=4096-8": {
+    "ns/op": 4077.0,
+    "MB/s": 1004.5899999999999,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkAuditSaveRead/mixed=false/bytes=65536-8": {
+    "ns/op": 54404.5,
+    "MB/s": 1204.6100000000001,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkAuditSaveRead/mixed=false/bytes=1048576-8": {
+    "ns/op": 858438.0,
+    "MB/s": 1221.495,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkAuditSaveRead/mixed=true/bytes=4096-8": {
+    "ns/op": 3936.0,
+    "MB/s": 1040.65,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkAuditSaveRead/mixed=true/bytes=65536-8": {
+    "ns/op": 52542.5,
+    "MB/s": 1247.3000000000002,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkAuditSaveRead/mixed=true/bytes=1048576-8": {
+    "ns/op": 834269.0,
+    "MB/s": 1256.88,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkSaveOverlayWriteAccounting-8": {
+    "ns/op": 966859.0,
+    "MB/s": 4.24,
+    "B/op": 5197.0,
+    "allocs/op": 8.0
+  },
+  "BenchmarkSequentialReadsOneISO-8": {
+    "ns/op": 5090.5,
+    "cache-hit-%": 100.0,
+    "peak-open-files": 1.0,
+    "source-opens": 1.0,
+    "source-reads/op": 1.0,
+    "B/op": 384.0,
+    "allocs/op": 2.0
+  },
+  "BenchmarkReadPathMetrics/disabled-8": {
+    "ns/op": 3743.5,
+    "MB/s": 17507.55,
+    "B/op": 400.0,
+    "allocs/op": 2.0
+  },
+  "BenchmarkReadPathMetrics/enabled-8": {
+    "ns/op": 3884.5,
+    "MB/s": 16871.065000000002,
+    "B/op": 384.0,
+    "allocs/op": 2.0
+  },
+  "BenchmarkRandomReadsOneISO-8": {
+    "ns/op": 2417.5,
+    "cache-hit-%": 100.0,
+    "peak-open-files": 1.0,
+    "source-opens": 1.0,
+    "source-reads/op": 1.0,
+    "B/op": 384.0,
+    "allocs/op": 2.0
+  },
+  "BenchmarkSwitchingThirtyTwoSources-8": {
+    "ns/op": 2375.0,
+    "cache-hit-%": 99.99,
+    "peak-open-files": 32.0,
+    "source-opens": 32.0,
+    "source-reads/op": 1.0,
+    "B/op": 400.0,
+    "allocs/op": 2.0
+  },
+  "BenchmarkExtentLookup10000-8": {
+    "ns/op": 9.93,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkExtractedFSTFiveThousandFiles-8": {
+    "ns/op": 2352.5,
+    "cache-hit-%": 100.0,
+    "peak-open-files": 1.0,
+    "source-opens": 1.0,
+    "source-reads/op": 1.0,
+    "B/op": 400.0,
+    "allocs/op": 2.0
+  },
+  "BenchmarkReadCrossingSourceExtents-8": {
+    "ns/op": 6690.0,
+    "cache-hit-%": 100.0,
+    "peak-open-files": 2.0,
+    "source-opens": 2.0,
+    "source-reads/op": 2.0,
+    "B/op": 800.0,
+    "allocs/op": 4.0
+  },
+  "BenchmarkConcurrentReads-8": {
+    "ns/op": 2512.0,
+    "cache-hit-%": 100.0,
+    "peak-open-files": 1.0,
+    "source-opens": 1.0,
+    "source-reads/op": 1.0,
+    "B/op": 384.0,
+    "allocs/op": 2.0
+  },
+  "BenchmarkAuditGameCubeLayout/GiB=8-8": {
+    "ns/op": 2828558.5,
+    "metadata_bytes": 2198016.0,
+    "B/op": 6905126.0,
+    "allocs/op": 130.0
+  },
+  "BenchmarkAuditGameCubeLayout/GiB=512-8": {
+    "ns/op": 83575846.0,
+    "metadata_bytes": 134318592.0,
+    "B/op": 432423330.5,
+    "allocs/op": 134.0
+  },
+  "BenchmarkAuditReconcile/items=100-8": {
+    "ns/op": 1817229.0,
+    "B/op": 129020.0,
+    "allocs/op": 2967.0
+  },
+  "BenchmarkAuditReconcile/items=1000-8": {
+    "ns/op": 9952842.5,
+    "B/op": 1190528.5,
+    "allocs/op": 29074.0
+  },
+  "BenchmarkAuditReconcile/items=10000-8": {
+    "ns/op": 98173551.5,
+    "B/op": 14148593.0,
+    "allocs/op": 290118.5
+  },
+  "BenchmarkAuditNBDTLS/bytes=4096-8": {
+    "ns/op": 27028.0,
+    "MB/s": 151.54500000000002,
+    "TLS_bytes/op": 4228.0,
+    "TLS_writes/op": 4.0,
+    "B/op": 96.0,
+    "allocs/op": 10.0
+  },
+  "BenchmarkAuditNBDTLS/bytes=65536-8": {
+    "ns/op": 59422.0,
+    "MB/s": 1102.8899999999999,
+    "TLS_bytes/op": 65755.0,
+    "TLS_writes/op": 7.0,
+    "B/op": 130.5,
+    "allocs/op": 11.0
+  },
+  "BenchmarkAuditNBDTLS/bytes=1048576-8": {
+    "ns/op": 680822.5,
+    "MB/s": 1540.165,
+    "TLS_bytes/op": 1050535.0,
+    "TLS_writes/op": 67.0,
+    "B/op": 2477.5,
+    "allocs/op": 41.0
+  },
+  "BenchmarkRequestBuffer64KiB-8": {
+    "ns/op": 7.949,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkNBDReadPathMetrics/disabled-8": {
+    "ns/op": 938.75,
+    "MB/s": 69815.195,
+    "B/op": 64.0,
+    "allocs/op": 10.0
+  },
+  "BenchmarkNBDReadPathMetrics/enabled-8": {
+    "ns/op": 1027.0,
+    "MB/s": 63802.015,
+    "B/op": 64.0,
+    "allocs/op": 10.0
+  },
+  "BenchmarkPerformanceSummarySerialization-8": {
+    "ns/op": 171153.0,
+    "B/op": 33335.5,
+    "allocs/op": 306.0
+  },
+  "BenchmarkAuditDashboard/games=100-8": {
+    "ns/op": 387661.0,
+    "html_bytes": 30682.0,
+    "B/op": 194282.0,
+    "allocs/op": 4042.0
+  },
+  "BenchmarkAuditDashboard/games=1000-8": {
+    "ns/op": 3231030.5,
+    "html_bytes": 169285.0,
+    "B/op": 1548455.5,
+    "allocs/op": 32694.0
+  },
+  "BenchmarkAuditDashboard/games=10000-8": {
+    "ns/op": 37974814.0,
+    "html_bytes": 1555288.0,
+    "B/op": 13919508.5,
+    "allocs/op": 320736.0
+  },
+  "BenchmarkAuditDashboard/pendingGC512GiB-8": {
+    "ns/op": 137098723.5,
+    "html_bytes": 15323.0,
+    "B/op": 269275302.0,
+    "allocs/op": 1230.5
+  },
+  "BenchmarkAuditScan/wii/files=1000-8": {
+    "ns/op": 11934081.0,
+    "B/op": 3070467.0,
+    "allocs/op": 22107.0
+  },
+  "BenchmarkAuditScan/gamecube/files=1000-8": {
+    "ns/op": 10113523.5,
+    "B/op": 3826416.0,
+    "allocs/op": 17121.5
+  },
+  "BenchmarkCachedPiMetrics-8": {
+    "ns/op": 31.335,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkPiMetricsEndpoint-8": {
+    "ns/op": 2184.5,
+    "B/op": 1970.0,
+    "allocs/op": 13.0
+  },
+  "BenchmarkObserveNBDReadEnabled-8": {
+    "ns/op": 61.665,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkObserveNBDReadDisabled-8": {
+    "ns/op": 0.862,
+    "B/op": 0.0,
+    "allocs/op": 0.0
+  },
+  "BenchmarkAuditGameCubeStartup/reserveGiB=1-8": {
+    "ns/op": 7885882.0,
+    "B/op": 9039828.5,
+    "allocs/op": 531.0
+  },
+  "BenchmarkAuditGameCubeStartup/reserveGiB=512-8": {
+    "ns/op": 266500601.0,
+    "B/op": 538570061.0,
+    "allocs/op": 538.5
+  }
+}

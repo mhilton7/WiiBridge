@@ -1,0 +1,137 @@
+package vdisk
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
+	"syscall"
+	"testing"
+	"time"
+	"unsafe"
+
+	"golang.org/x/sys/unix"
+	"wiibridge/shared/model"
+)
+
+func TestAuditWiiLatencyDistribution(t *testing.T) {
+	output := os.Getenv("WIIBRIDGE_AUDIT_LATENCY_OUTPUT")
+	if output == "" {
+		t.Skip("explicit audit report path required")
+	}
+	root := t.TempDir()
+	payload := make([]byte, 2<<20)
+	for i := range payload {
+		payload[i] = byte(i*31 + 7)
+	}
+	sources := make([]model.Source, 32)
+	files := make([]*os.File, len(sources))
+	for i := range sources {
+		path := filepath.Join(root, fmt.Sprintf("source-%02d.bin", i))
+		if err := os.WriteFile(path, payload, 0600); err != nil {
+			t.Fatal(err)
+		}
+		file, err := os.OpenFile(path, os.O_RDWR, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = file.Close() })
+		if err = file.Sync(); err != nil {
+			t.Fatal(err)
+		}
+		info, err := file.Stat()
+		if err != nil {
+			t.Fatal(err)
+		}
+		stat := info.Sys().(*syscall.Stat_t)
+		sources[i] = model.Source{Path: path, Length: int64(len(payload)), Size: int64(len(payload)), ModUnix: info.ModTime().UnixNano(), Device: uint64(stat.Dev), Inode: stat.Ino}
+		files[i] = file
+	}
+	type result struct {
+		Games             int     `json:"games"`
+		Bytes             int     `json:"request_bytes"`
+		Cache             string  `json:"cache"`
+		Samples           int     `json:"samples"`
+		MedianUS          float64 `json:"median_us"`
+		P95US             float64 `json:"p95_us"`
+		P99US             float64 `json:"p99_us"`
+		MaxUS             float64 `json:"maximum_us"`
+		VerifiedColdReads int     `json:"verified_cold_reads"`
+	}
+	var results []result
+	for _, count := range []int{1000, 10000} {
+		games := make([]model.Game, count)
+		for i := range games {
+			games[i] = model.Game{ID: fmt.Sprintf("P%05d", i), Title: "Synthetic", Size: int64(len(payload)), Sources: []model.Source{sources[i%len(sources)]}}
+		}
+		disk, err := Build("latency-audit", games, "audit")
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, size := range []int{4096, 65536, 1 << 20} {
+			buffer := make([]byte, size)
+			for _, cold := range []bool{false, true} {
+				samples := 1000
+				cache := "warm Linux source page cache; storage cache uncontrolled"
+				if cold {
+					samples = 200
+					cache = "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled"
+				}
+				durations := make([]float64, samples)
+				verifiedCold := 0
+				for i := 0; i < samples; i++ {
+					index := (i * 7919) % len(disk.extents)
+					relative := int64((i * 512) % (len(payload) - size + 512))
+					if cold {
+						if err := unix.Fadvise(int(files[index%len(files)].Fd()), 0, 0, unix.FADV_DONTNEED); err != nil {
+							t.Fatal(err)
+						}
+						mapping, err := unix.Mmap(int(files[index%len(files)].Fd()), 0, len(payload), unix.PROT_READ, unix.MAP_SHARED)
+						if err != nil {
+							t.Fatal(err)
+						}
+						pageSize := os.Getpagesize()
+						residency := make([]byte, (len(payload)+pageSize-1)/pageSize)
+						_, _, errno := unix.Syscall(unix.SYS_MINCORE, uintptr(unsafe.Pointer(&mapping[0])), uintptr(len(mapping)), uintptr(unsafe.Pointer(&residency[0])))
+						if errno != 0 {
+							t.Fatal(errno)
+						}
+						resident := false
+						for page := int(relative) / pageSize; page <= (int(relative)+size-1)/pageSize; page++ {
+							resident = resident || residency[page]&1 != 0
+						}
+						if err := unix.Munmap(mapping); err != nil {
+							t.Fatal(err)
+						}
+						if resident {
+							t.Fatal("source page eviction was not verified; refusing to label this a cold read")
+						}
+						verifiedCold++
+					} else if _, err := files[index%len(files)].ReadAt(buffer, relative); err != nil {
+						t.Fatal(err)
+					}
+					started := time.Now()
+					n, err := disk.ReadAt(buffer, disk.extents[index].start+relative)
+					durations[i] = float64(time.Since(started).Nanoseconds()) / 1000
+					if err != nil || n != size {
+						t.Fatalf("read: %d %v", n, err)
+					}
+					if !bytes.Equal(buffer, payload[relative:relative+int64(size)]) {
+						t.Fatal("payload differs")
+					}
+				}
+				sort.Float64s(durations)
+				results = append(results, result{count, size, cache, samples, durations[samples/2], durations[samples*95/100], durations[samples*99/100], durations[samples-1], verifiedCold})
+			}
+		}
+	}
+	data, err := json.MarshalIndent(map[string]any{"source_files": len(sources), "source_bytes_each": len(payload), "fixture": "fully allocated synthetic files; no kernel-global cache eviction", "results": results}, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = os.WriteFile(output, append(data, '\n'), 0600); err != nil {
+		t.Fatal(err)
+	}
+}

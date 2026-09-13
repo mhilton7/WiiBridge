@@ -1,0 +1,10 @@
+[
+  {
+    "phase": "baseline",
+    "rejoined_benchmark_lines_after_interleaved_shutdown_warning": 1
+  },
+  {
+    "phase": "optimized",
+    "rejoined_benchmark_lines_after_interleaved_shutdown_warning": 0
+  }
+]

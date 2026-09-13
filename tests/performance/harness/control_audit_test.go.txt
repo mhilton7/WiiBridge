@@ -1,0 +1,122 @@
+package main
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"testing"
+	"wiibridge/server/host-daemon/gamecube"
+	"wiibridge/server/host-daemon/scanner"
+	"wiibridge/shared/model"
+	"wiibridge/tests/testutil"
+)
+
+func BenchmarkAuditDashboard(b *testing.B) {
+	for _, count := range []int{100, 1000, 10000} {
+		b.Run(fmt.Sprintf("games=%d", count), func(b *testing.B) {
+			app := testApp(b)
+			app.scan.Games = make([]model.Game, count)
+			for i := range app.scan.Games {
+				app.scan.Games[i] = model.Game{ID: fmt.Sprintf("W%05d", i), Title: fmt.Sprintf("Synthetic title %05d", i), Size: 1 << 30}
+			}
+			request := httptest.NewRequest("GET", "/", nil)
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				response := httptest.NewRecorder()
+				app.dashboard(response, request)
+				if response.Code != 200 {
+					b.Fatal(response.Code)
+				}
+				b.ReportMetric(float64(response.Body.Len()), "html_bytes")
+			}
+		})
+	}
+	b.Run("pendingGC512GiB", func(b *testing.B) {
+		app := testApp(b)
+		root := b.TempDir()
+		sources := filepath.Join(root, "sources")
+		if err := os.Mkdir(sources, 0700); err != nil {
+			b.Fatal(err)
+		}
+		if err := testutil.SyntheticGameCubeISO(filepath.Join(sources, "GAUD01.iso"), "GAUD01", "Synthetic", 0, 0, 2<<20); err != nil {
+			b.Fatal(err)
+		}
+		scan, err := gamecube.Scan(sources)
+		if err != nil {
+			b.Fatal(err)
+		}
+		config := gamecube.DefaultLibraryConfig()
+		config.SourceRoot = sources
+		config.SaveReserveMiB = 512 * 1024
+		managed := filepath.Join(root, "managed")
+		manager, err := gamecube.NewLibraryManager(managed, config)
+		if err != nil {
+			b.Fatal(err)
+		}
+		manifest, err := manager.Build(context.Background(), scan.Games)
+		if err != nil {
+			b.Fatal(err)
+		}
+		if err = os.Remove(filepath.Join(filepath.Dir(manifest.LayoutPath), "validation.json")); err != nil {
+			b.Fatal(err)
+		}
+		manager, err = gamecube.NewLibraryManager(managed, config)
+		if err != nil {
+			b.Fatal(err)
+		}
+		if _, ready := manager.ValidatedSummary(); ready {
+			b.Fatal("fixture must require deep validation")
+		}
+		app.gcLibrary, app.gcScan = manager, scan
+		request := httptest.NewRequest("GET", "/", nil)
+		b.ReportAllocs()
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			response := httptest.NewRecorder()
+			app.dashboard(response, request)
+			if response.Code != 200 || !bytes.Contains(response.Body.Bytes(), []byte(manifest.GenerationID)) {
+				b.Fatal("pending generation is not displayed")
+			}
+			b.ReportMetric(float64(response.Body.Len()), "html_bytes")
+		}
+	})
+}
+
+func BenchmarkAuditScan(b *testing.B) {
+	for _, platform := range []string{"wii", "gamecube"} {
+		root := b.TempDir()
+		for i := 0; i < 1000; i++ {
+			id := fmt.Sprintf("S%05d", i)
+			var err error
+			if platform == "wii" {
+				err = testutil.SyntheticWBFS(filepath.Join(root, id+".wbfs"), id, "Synthetic", 2<<20)
+			} else {
+				err = testutil.SyntheticGameCubeISO(filepath.Join(root, id+".iso"), id, "Synthetic", 0, 0, 2<<20)
+			}
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+		b.Run(platform+"/files=1000", func(b *testing.B) {
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				if platform == "wii" {
+					result, err := scanner.Scan(root)
+					if err != nil || len(result.Games) != 1000 {
+						b.Fatalf("scan: %v count %d", err, len(result.Games))
+					}
+				} else {
+					result, err := gamecube.Scan(root)
+					if err != nil || len(result.Games) != 1000 {
+						b.Fatalf("scan: %v count %d", err, len(result.Games))
+					}
+				}
+			}
+		})
+	}
+}

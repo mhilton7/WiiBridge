@@ -75,35 +75,7 @@ func OpenWithOptions(layout Layout, metadata []byte, options OpenOptions) (*Back
 	if len(layout.SaveExtents) > 0 && options.SaveStore == nil {
 		return nil, errors.New("writable save extents require a save store")
 	}
-	for _, extent := range layout.MetadataExtents {
-		if extent.StorageOffset < 0 || extent.Length < 0 ||
-			extent.StorageOffset > int64(len(metadata))-extent.Length {
-			return nil, errors.New("metadata extent exceeds metadata store")
-		}
-	}
-	sum := sha256.Sum256(metadata)
-	if hex.EncodeToString(sum[:]) != layout.MetadataHash ||
-		hashExtents(layout.SourceExtents) != layout.ExtentMapHash {
-		return nil, errors.New("virtual FAT32 metadata or extent-map hash mismatch")
-	}
-	if len(layout.SaveExtents) > 0 {
-		if hashSaveExtents(layout.SaveExtents, true) != layout.SaveExtentHash {
-			return nil, errors.New("virtual FAT32 save-extent hash mismatch")
-		}
-		baseSaveHash := hashSaveExtents(layout.SaveExtents, false)
-		layoutSum := sha256.Sum256([]byte(
-			layout.MetadataHash + "\x00" + layout.ExtentMapHash + "\x00" + baseSaveHash))
-		if hex.EncodeToString(layoutSum[:]) != layout.LayoutChecksum {
-			return nil, errors.New("virtual FAT32 layout checksum mismatch")
-		}
-		for _, extent := range layout.SaveExtents {
-			if extent.LayoutChecksum != layout.LayoutChecksum {
-				return nil, errors.New("writable extent layout checksum mismatch")
-			}
-		}
-	}
-	if err := validateRanges(layout.VirtualSize, layout.MetadataExtents,
-		layout.SourceExtents, layout.SaveExtents); err != nil {
+	if err := Validate(layout, metadata); err != nil {
 		return nil, err
 	}
 	return &Backend{
@@ -114,6 +86,45 @@ func OpenWithOptions(layout Layout, metadata []byte, options OpenOptions) (*Back
 		limit:   options.CacheLimit, cache: make(map[string]*list.Element), lru: list.New(),
 		saveStore: options.SaveStore, metrics: options.Metrics,
 	}, nil
+}
+
+// Validate checks the complete immutable metadata and extent maps without
+// allocating a backend or copying the metadata store. It does not authorize
+// source access or writes; OpenWithOptions still requires a save store for
+// writable extents and retains its own defensive copies.
+func Validate(layout Layout, metadata []byte) error {
+	if layout.Schema != 2 || layout.VirtualSize <= 0 {
+		return errors.New("invalid virtual FAT32 backend configuration")
+	}
+	for _, extent := range layout.MetadataExtents {
+		if extent.StorageOffset < 0 || extent.Length < 0 ||
+			extent.StorageOffset > int64(len(metadata))-extent.Length {
+			return errors.New("metadata extent exceeds metadata store")
+		}
+	}
+	sum := sha256.Sum256(metadata)
+	if hex.EncodeToString(sum[:]) != layout.MetadataHash ||
+		hashExtents(layout.SourceExtents) != layout.ExtentMapHash {
+		return errors.New("virtual FAT32 metadata or extent-map hash mismatch")
+	}
+	if len(layout.SaveExtents) > 0 {
+		if hashSaveExtents(layout.SaveExtents, true) != layout.SaveExtentHash {
+			return errors.New("virtual FAT32 save-extent hash mismatch")
+		}
+		baseSaveHash := hashSaveExtents(layout.SaveExtents, false)
+		layoutSum := sha256.Sum256([]byte(
+			layout.MetadataHash + "\x00" + layout.ExtentMapHash + "\x00" + baseSaveHash))
+		if hex.EncodeToString(layoutSum[:]) != layout.LayoutChecksum {
+			return errors.New("virtual FAT32 layout checksum mismatch")
+		}
+		for _, extent := range layout.SaveExtents {
+			if extent.LayoutChecksum != layout.LayoutChecksum {
+				return errors.New("writable extent layout checksum mismatch")
+			}
+		}
+	}
+	return validateRanges(layout.VirtualSize, layout.MetadataExtents,
+		layout.SourceExtents, layout.SaveExtents)
 }
 
 func (b *Backend) Size() int64 { return b.size }

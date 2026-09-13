@@ -1,0 +1,73 @@
+package vdisk
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"syscall"
+	"testing"
+	"wiibridge/shared/model"
+)
+
+func BenchmarkAuditWiiCatalogRead(b *testing.B) {
+	path := filepath.Join(b.TempDir(), "synthetic.bin")
+	data := make([]byte, 1<<20)
+	for i := range data {
+		data[i] = byte(i * 31)
+	}
+	if err := os.WriteFile(path, data, 0600); err != nil {
+		b.Fatal(err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		b.Fatal(err)
+	}
+	stat := info.Sys().(*syscall.Stat_t)
+	source := model.Source{Path: path, Length: int64(len(data)), Size: int64(len(data)), ModUnix: info.ModTime().UnixNano(), Device: uint64(stat.Dev), Inode: stat.Ino}
+	for _, count := range []int{1, 1000, 10000} {
+		games := make([]model.Game, count)
+		for i := range games {
+			games[i] = model.Game{ID: fmt.Sprintf("P%05d", i), Title: "Synthetic", Size: source.Size, Sources: []model.Source{source}}
+		}
+		disk, err := Build("audit", games, "audit")
+		if err != nil {
+			b.Fatal(err)
+		}
+		for _, size := range []int{4096, 65536} {
+			b.Run(fmt.Sprintf("games=%d/bytes=%d", count, size), func(b *testing.B) {
+				buffer := make([]byte, size)
+				b.SetBytes(int64(size))
+				b.ReportAllocs()
+				b.ResetTimer()
+				for i := 0; i < b.N; i++ {
+					index := (i * 7919) % len(disk.extents)
+					if _, err := disk.ReadAt(buffer, disk.extents[index].start); err != nil {
+						b.Fatal(err)
+					}
+				}
+			})
+		}
+	}
+}
+
+func BenchmarkAuditWiiFATRead(b *testing.B) {
+	const size = int64(512 << 30)
+	disk, err := Build("audit-fat", []model.Game{{ID: "FAT001", Size: size, Sources: []model.Source{{Path: "/synthetic/not-opened", Length: size, Size: size}}}}, "audit")
+	if err != nil {
+		b.Fatal(err)
+	}
+	for _, size := range []int{512, 65536, 1 << 20} {
+		b.Run(fmt.Sprintf("bytes=%d", size), func(b *testing.B) {
+			buffer := make([]byte, size)
+			offset := (disk.fatStart + disk.fatSectors/2) * sectorSize
+			b.SetBytes(int64(size))
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				if _, err := disk.ReadAt(buffer, offset); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+}

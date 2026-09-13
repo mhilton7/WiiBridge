@@ -1,0 +1,7 @@
+{
+  "visible_requests_per_minute": 44,
+  "hidden_requests_per_minute": 0,
+  "requests_on_visible": 6,
+  "pi_requests_before_first_response": 1,
+  "build_active": false
+}

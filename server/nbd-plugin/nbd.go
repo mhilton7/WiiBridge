@@ -88,8 +88,11 @@ type Server struct {
 }
 
 type requestBuffer struct {
-	data []byte
+	frame []byte
+	data  []byte
 }
+
+const replyHeaderSize = 16
 
 func (s *Server) metricsEnabled() bool {
 	return s.Metrics != nil && s.Metrics.Enabled()
@@ -100,11 +103,15 @@ func (s *Server) acquireRequestBuffer(length int) *requestBuffer {
 	if buffer == nil {
 		buffer = &requestBuffer{}
 	}
-	if cap(buffer.data) < length {
-		buffer.data = make([]byte, length)
+	// Reserve the simple-reply header ahead of the payload so TLS can frame
+	// one complete reply without another allocation or payload copy.
+	frameLength := replyHeaderSize + length
+	if cap(buffer.frame) < frameLength {
+		buffer.frame = make([]byte, frameLength)
 	} else {
-		buffer.data = buffer.data[:length]
+		buffer.frame = buffer.frame[:frameLength]
 	}
+	buffer.data = buffer.frame[replyHeaderSize:]
 	return buffer
 }
 
@@ -372,15 +379,17 @@ func (s *Server) transmission(conn net.Conn, backend Backend, readOnly bool) err
 	if err := conn.SetDeadline(time.Time{}); err != nil {
 		return err
 	}
+	var requestHeader [28]byte
+	var responseHeader [replyHeaderSize]byte
 	for {
-		var magic, flagsType uint32
-		var handle, offset uint64
-		var length uint32
-		for _, dst := range []any{&magic, &flagsType, &handle, &offset, &length} {
-			if err := binary.Read(conn, binary.BigEndian, dst); err != nil {
-				return err
-			}
+		if _, err := io.ReadFull(conn, requestHeader[:]); err != nil {
+			return err
 		}
+		magic := binary.BigEndian.Uint32(requestHeader[0:4])
+		flagsType := binary.BigEndian.Uint32(requestHeader[4:8])
+		handle := binary.BigEndian.Uint64(requestHeader[8:16])
+		offset := binary.BigEndian.Uint64(requestHeader[16:24])
+		length := binary.BigEndian.Uint32(requestHeader[24:28])
 		if magic != requestMagic {
 			if s.metricsEnabled() {
 				s.Metrics.NBD.ProtocolErrors.Add(1)
@@ -414,7 +423,7 @@ func (s *Server) transmission(conn net.Conn, backend Backend, readOnly bool) err
 			} else {
 				readBuffer = s.acquireRequestBuffer(int(length))
 				data = readBuffer.data
-				if _, err := backend.ReadAt(data, int64(offset)); err != nil {
+				if n, err := backend.ReadAt(data, int64(offset)); err != nil || n != len(data) {
 					s.releaseRequestBuffer(readBuffer)
 					readBuffer = nil
 					status, data = errIO, nil
@@ -506,33 +515,28 @@ func (s *Server) transmission(conn net.Conn, backend Backend, readOnly bool) err
 			}
 			return errors.New("oversized write request")
 		}
-		for _, v := range []any{replyMagic, status, handle} {
-			if err := binary.Write(conn, binary.BigEndian, v); err != nil {
-				s.releaseRequestBuffer(readBuffer)
-				if s.metricsEnabled() {
-					if command == cmdRead {
-						s.Metrics.ObserveNBDRead(
-							0, time.Since(requestStarted), errObservedRead)
-					}
-					s.Metrics.NBD.QueueDepth.Add(-1)
-				}
-				return err
-			}
-		}
+		frame := responseHeader[:]
 		if status == 0 && command == cmdRead {
-			written, err := conn.Write(data)
-			if err != nil || written != len(data) {
-				s.releaseRequestBuffer(readBuffer)
-				if s.metricsEnabled() {
+			frame = readBuffer.frame
+		}
+		binary.BigEndian.PutUint32(frame[0:4], replyMagic)
+		binary.BigEndian.PutUint32(frame[4:8], status)
+		binary.BigEndian.PutUint64(frame[8:16], handle)
+		written, err := conn.Write(frame)
+		if err != nil || written != len(frame) {
+			s.releaseRequestBuffer(readBuffer)
+			if s.metricsEnabled() {
+				if command == cmdRead {
+					payloadWritten := min(len(data), max(0, written-replyHeaderSize))
 					s.Metrics.ObserveNBDRead(
-						written, time.Since(requestStarted), errObservedRead)
-					s.Metrics.NBD.QueueDepth.Add(-1)
+						payloadWritten, time.Since(requestStarted), errObservedRead)
 				}
-				if err == nil {
-					err = io.ErrShortWrite
-				}
-				return err
+				s.Metrics.NBD.QueueDepth.Add(-1)
 			}
+			if err == nil {
+				err = io.ErrShortWrite
+			}
+			return err
 		}
 		s.releaseRequestBuffer(readBuffer)
 		if s.metricsEnabled() {

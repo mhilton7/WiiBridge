@@ -1,0 +1,51 @@
+package gamecube
+
+import (
+	"context"
+	"fmt"
+	"path/filepath"
+	"testing"
+)
+
+func BenchmarkAuditGameCubeManaged(b *testing.B) {
+	for _, gib := range []int64{1, 512} {
+		root := b.TempDir()
+		sources := filepath.Join(root, "sources")
+		games := libraryGames(b, sources)
+		config := DefaultLibraryConfig()
+		config.SourceRoot = sources
+		config.SaveReserveMiB = gib * 1024
+		manager, err := NewLibraryManager(filepath.Join(root, "managed"), config)
+		if err != nil {
+			b.Fatal(err)
+		}
+		manifest, err := manager.Build(context.Background(), games)
+		if err != nil {
+			b.Fatal(err)
+		}
+		for _, operation := range []string{"fast", "active", "open"} {
+			b.Run(fmt.Sprintf("reserveGiB=%d/%s", gib, operation), func(b *testing.B) {
+				b.ReportAllocs()
+				b.ResetTimer()
+				for i := 0; i < b.N; i++ {
+					var err error
+					switch operation {
+					case "fast":
+						err = ValidateLibraryManifestFast(manager.Root(), manifest)
+					case "active":
+						_, err = manager.Active()
+					case "open":
+						backend, openErr := OpenLibraryBackend(manager.Root(), manifest)
+						err = openErr
+						if err == nil {
+							err = backend.Close()
+						}
+					}
+					if err != nil {
+						b.Fatal(err)
+					}
+				}
+			})
+		}
+	}
+}

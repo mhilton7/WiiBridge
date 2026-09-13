@@ -1223,3 +1223,50 @@
   configuration, games, database, certificates, or saves were changed.
   Publication, operator dataset paths, deployment, and physical retesting
   remain pending; physical results are `DEFERRED_HARDWARE_UNAVAILABLE`.
+
+## Full performance audit — 2026-09-12, implementation underway
+
+- Freshly cloned and resolved remote main to
+  `cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27` (2026-08-28). Preserved that
+  checkout, generated artifacts, logs, and exact local environment inventory.
+- Baseline PASS: `make test`, `make static`, `make server`, `make compose`,
+  `make oci`, full server/Pi/shared/tests race run, vet, and `make release`.
+  The release built all three firmware targets and passed offline validation,
+  including filesystem checks and QEMU application smoke tests. Release elapsed
+  time was 4033.057 seconds, with audit tooling also running during the build.
+- Additional baseline PASS: hardened OCI startup/restart, real read-only binds,
+  libnbd mutual TLS, plaintext rejection, matching FAT copies through NBD,
+  Linux NBD read-only mounts, and synthetic Wii/GameCube payload checksums.
+  Temporary containers and the audit-loaded NBD module were removed afterward.
+- Repeated benchmark comparison uses ext4 temporary storage after firmware
+  building finished. Exploratory Go fixtures used the machine's RAM-backed
+  temporary filesystem; their timings are not representative of disk storage.
+  Allocation and syscall-count findings were retained separately. Cold source
+  page tests now verify eviction with mincore; storage caches remain uncontrolled.
+- Opened a separate clean implementation worktree on
+  `perf/full-system-optimization`. Preserved the previously requested separate
+  Wii/GameCube paths by cherry-picking the existing implementation, separately
+  from performance changes and performance claims.
+- Implemented indexed Wii extent lookup, allocation-free batched FAT synthesis,
+  and complete NBD reply framing with short-read rejection. Focused vdisk,
+  protocol, and mutual-TLS NBD tests PASS. Remaining implementation and the
+  optimized full release validation are pending.
+- No operator game data, live TrueNAS deployment, Pi configuration, or Wii
+  settings were changed. Physical launch and save tests remain
+  `DEFERRED_HARDWARE_UNAVAILABLE`.
+
+## September full-performance implementation and validation
+
+Implemented logarithmic Wii extent lookup and allocation-free FAT sector reads;
+coalesced NBD response framing with strict short-read handling; compact GameCube
+FAT storage and non-copying validation; bounded cancellation; coalesced save
+reads; prepared SQLite reconciliation; dashboard pagination and visible-only,
+non-overlapping periodic polling. Durable writes and security gates remain.
+Corrected benchmark cache/fixture labels and release build-input provenance.
+
+All seven requested optimized software checks pass, including the full race
+suite. Six-sample ext4 measurements, preserved-baseline generation checks,
+actual readonly Docker/kernel NBD mounts, payload hashes, fsck without repairs,
+and separate-library recovery/activation integration pass. Physical results
+remain unavailable. The final clean release build and publication are pending.
+See docs/full-performance-audit.md and reports/performance/2026-09-full-audit.

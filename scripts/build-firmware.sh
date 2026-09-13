@@ -23,6 +23,10 @@ test -n "$project_version"
 build_revision=$(git rev-parse HEAD)
 build_timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 build_dirty=$([ -z "$(git status --porcelain --untracked-files=normal)" ] && echo false || echo true)
+source_tree_sha=$(
+  find Makefile go.mod go.sum versions.lock server pi shared config scripts tests deploy docs -type f -print0 |
+    sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1
+)
 tree="build/pi-gen-${target}"
 binary="build/pi/${target}/wiibridge-pi-controller"
 mkdir -p "$(dirname "$binary")"
@@ -48,9 +52,14 @@ export WIIBRIDGE_SOURCE="$source_root"
 export PI_GEN_DIR="$source_root/$tree"
 log="dist/wiibridge-${project_version}-${target}.build.log"
 mkdir -p dist
+jq -n --arg revision "$build_revision" --arg started "$build_timestamp" \
+  --arg source_tree_sha "$source_tree_sha" --argjson dirty "$build_dirty" \
+  '{revision:$revision,started:$started,sourceTreeSha256:$source_tree_sha,dirty:$dirty}' \
+  > "dist/wiibridge-${project_version}-${target}.build-input.json"
 if test -s "$log"; then
-  mkdir -p "reports/firmware/${target}/rejected-builds"
-  cp "$log" "reports/firmware/${target}/rejected-builds/$(date -u +%Y%m%dT%H%M%SZ).log"
+  report_dir="${FIRMWARE_REPORT_ROOT:-build/reports/firmware}/${target}/rejected-builds"
+  mkdir -p "$report_dir"
+  cp "$log" "$report_dir/$(date -u +%Y%m%dT%H%M%SZ).log"
 fi
 (
   cd "$tree"

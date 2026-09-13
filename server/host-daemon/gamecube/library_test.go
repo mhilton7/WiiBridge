@@ -85,6 +85,36 @@ func TestChangingConfiguredLibraryRootRequiresNewGeneration(t *testing.T) {
 	}
 }
 
+func TestGenerationDisplayHintDoesNotBypassActivationValidation(t *testing.T) {
+	sources, managed := t.TempDir(), t.TempDir()
+	manager := libraryManager(t, managed, sources)
+	manifest, err := manager.Build(context.Background(), libraryGames(t, sources))
+	if err != nil {
+		t.Fatal(err)
+	}
+	manager = libraryManager(t, managed, sources)
+	if manager.KnownGenerationID() != manifest.GenerationID {
+		t.Fatal("ready generation was not remembered")
+	}
+	data, err := os.ReadFile(manifest.MetadataPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data[0] ^= 1
+	if err = os.WriteFile(manifest.MetadataPath, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if manager.KnownGenerationID() != manifest.GenerationID {
+		t.Fatal("display hint unexpectedly accessed damaged metadata")
+	}
+	if _, err = manager.Active(); err == nil {
+		t.Fatal("display hint authorized tampered metadata")
+	}
+	if _, err = OpenLibraryBackend(manager.Root(), manifest); err == nil {
+		t.Fatal("opening a previously checked generation skipped revalidation")
+	}
+}
+
 func TestCompleteLibraryIsNoCopyAndReadsEveryDisc(t *testing.T) {
 	root := t.TempDir()
 	sourceRoot := filepath.Join(root, "sources")

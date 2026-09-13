@@ -428,19 +428,23 @@ func reconcileCatalogTx(tx *sql.Tx, platform string, current []CatalogItem,
 	if confirmationThreshold < 1 {
 		confirmationThreshold = 2
 	}
-	var err error
+	upsert, err := tx.Prepare(`INSERT INTO catalog_items(
+ platform,item_id,payload_json,availability,missing_observations,last_seen_utc,missing_confirmed_utc)
+ VALUES(?,?,?,'playable',0,?,NULL)
+ ON CONFLICT(platform,item_id) DO UPDATE SET payload_json=excluded.payload_json,
+ availability='playable',missing_observations=0,last_seen_utc=excluded.last_seen_utc,
+ missing_confirmed_utc=NULL`)
+	if err != nil {
+		return err
+	}
+	defer upsert.Close()
 	seen := make(map[string]struct{}, len(current))
 	for _, item := range current {
 		if item.ID == "" || !json.Valid(item.Payload) {
 			return errors.New("invalid catalog item")
 		}
 		seen[item.ID] = struct{}{}
-		if _, err = tx.Exec(`INSERT INTO catalog_items(
- platform,item_id,payload_json,availability,missing_observations,last_seen_utc,missing_confirmed_utc)
- VALUES(?,?,?,'playable',0,?,NULL)
- ON CONFLICT(platform,item_id) DO UPDATE SET payload_json=excluded.payload_json,
- availability='playable',missing_observations=0,last_seen_utc=excluded.last_seen_utc,
-			missing_confirmed_utc=NULL`, platform, item.ID, []byte(item.Payload), now); err != nil {
+		if _, err = upsert.Exec(platform, item.ID, []byte(item.Payload), now); err != nil {
 			return err
 		}
 	}
@@ -466,9 +470,23 @@ func reconcileCatalogTx(tx *sql.Tx, platform string, current []CatalogItem,
 			missing = append(missing, item)
 		}
 	}
+	if err = rows.Err(); err != nil {
+		rows.Close()
+		return err
+	}
 	if err = rows.Close(); err != nil {
 		return err
 	}
+	if len(missing) == 0 {
+		return nil
+	}
+	markMissing, err := tx.Prepare(`UPDATE catalog_items SET availability=?,
+ missing_observations=?,missing_confirmed_utc=COALESCE(missing_confirmed_utc,?)
+ WHERE platform=? AND item_id=?`)
+	if err != nil {
+		return err
+	}
+	defer markMissing.Close()
 	for _, item := range missing {
 		count := item.count + 1
 		availability := sourcehealth.AvailabilityValidationRequired
@@ -477,9 +495,7 @@ func reconcileCatalogTx(tx *sql.Tx, platform string, current []CatalogItem,
 			availability = sourcehealth.AvailabilityMissingConfirmed
 			confirmed = now
 		}
-		if _, err = tx.Exec(`UPDATE catalog_items SET availability=?,
- missing_observations=?,missing_confirmed_utc=COALESCE(missing_confirmed_utc,?)
- WHERE platform=? AND item_id=?`, availability, count, confirmed, platform, item.id); err != nil {
+		if _, err = markMissing.Exec(availability, count, confirmed, platform, item.id); err != nil {
 			return err
 		}
 	}

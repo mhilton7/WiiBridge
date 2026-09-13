@@ -1,5 +1,18 @@
 # Known issues
 
+## Current September performance candidate
+
+The current audit starts from main cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27.
+Full optimized tests, race, vet, static checks, OCI/Compose builds, existing
+GameCube-generation compatibility, local kernel NBD/filesystem validation and
+separate-library recovery integration pass. Controlled measurements and limits
+are in [the full audit](docs/full-performance-audit.md).
+
+The optimized release artifact build/publication is pending. Physical console,
+Pi and TrueNAS qualification is DEFERRED_HARDWARE_UNAVAILABLE. The historical
+entries below describe prior revisions and do not qualify this candidate.
+
+
 ## Library relocation and separate platform paths
 
 A replaced ZFS mount can leave the saved `/library` identity different from
@@ -76,3 +89,15 @@ staged, with free-space and banner-cache work disabled.
 Status: `PENDING` — publish and deploy the clean split-boundary correction,
 then cold boot USB Loader GX with the repaired SD card and unchanged complete
 source catalog.
+# Full performance audit — current limitations
+
+- The optimized release is still being implemented and is not yet published.
+  Baseline validation at `cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27` passed.
+- Synthetic ext4 and loopback NBD measurements do not qualify real TrueNAS,
+  Raspberry Pi, USB gadget, cIOS, or Wii launch performance. Those physical
+  tests remain `DEFERRED_HARDWARE_UNAVAILABLE`.
+- Initial exploratory Go benchmarks used RAM-backed temporary storage. Final
+  comparisons use ext4 and explicitly identify source page-cache conditions.
+- Baseline firmware packaging modifies tracked reports between target builds
+  and hardcodes parts of provenance. Baseline evidence is retained as produced;
+  optimized release provenance still requires correction and validation.

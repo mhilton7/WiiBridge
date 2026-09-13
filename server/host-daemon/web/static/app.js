@@ -402,17 +402,28 @@
     } catch (_) {}
   }
 
-  refreshPi();
-  refreshBuild();
-  refreshSource();
-  refreshCompatibility();
-  refreshSaves();
-  refreshPerformance();
-  window.setInterval(refreshPi, 10000);
-  window.setInterval(refreshBuild, 3000);
-  window.setInterval(refreshSource, 15000);
-  window.setInterval(refreshCompatibility, 15000);
-  window.setInterval(refreshSaves, 10000);
-  window.setInterval(refreshPerformance,
+  const pollVisible = (refresh, interval) => {
+    let pending = false;
+    const poll = async () => {
+      if (document.hidden || pending) return;
+      pending = true;
+      try {
+        await refresh();
+      } finally {
+        pending = false;
+      }
+    };
+    poll();
+    window.setInterval(poll, interval);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) poll();
+    });
+  };
+  pollVisible(refreshPi, 10000);
+  pollVisible(refreshBuild, 3000);
+  pollVisible(refreshSource, 15000);
+  pollVisible(refreshCompatibility, 15000);
+  pollVisible(refreshSaves, 10000);
+  pollVisible(refreshPerformance,
     Number(performancePanel?.dataset.refreshMs || 5000));
 })();

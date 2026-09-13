@@ -1,0 +1,139 @@
+{
+  "fixture": "fully allocated synthetic files; no kernel-global cache eviction",
+  "results": [
+    {
+      "games": 1000,
+      "request_bytes": 4096,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 12.69,
+      "p95_us": 80.76,
+      "p99_us": 205.186,
+      "maximum_us": 941.741,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 1000,
+      "request_bytes": 4096,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 215.527,
+      "p95_us": 294.041,
+      "p99_us": 377.032,
+      "maximum_us": 689.994,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 1000,
+      "request_bytes": 65536,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 15.11,
+      "p95_us": 34.82,
+      "p99_us": 116.066,
+      "maximum_us": 242.281,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 1000,
+      "request_bytes": 65536,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 266.751,
+      "p95_us": 366.227,
+      "p99_us": 565.327,
+      "maximum_us": 891.636,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 1000,
+      "request_bytes": 1048576,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 39.361,
+      "p95_us": 91.17,
+      "p99_us": 159.951,
+      "maximum_us": 558.418,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 1000,
+      "request_bytes": 1048576,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 748.015,
+      "p95_us": 993.236,
+      "p99_us": 1433.628,
+      "maximum_us": 1591.459,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 10000,
+      "request_bytes": 4096,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 72.75,
+      "p95_us": 394.162,
+      "p99_us": 758.694,
+      "maximum_us": 3783.417,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 10000,
+      "request_bytes": 4096,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 273.456,
+      "p95_us": 513.733,
+      "p99_us": 1737.385,
+      "maximum_us": 4741.858,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 10000,
+      "request_bytes": 65536,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 70.92,
+      "p95_us": 387.228,
+      "p99_us": 1079.686,
+      "maximum_us": 3925.501,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 10000,
+      "request_bytes": 65536,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 314.267,
+      "p95_us": 606.074,
+      "p99_us": 1173.346,
+      "maximum_us": 1399.983,
+      "verified_cold_reads": 200
+    },
+    {
+      "games": 10000,
+      "request_bytes": 1048576,
+      "cache": "warm Linux source page cache; storage cache uncontrolled",
+      "samples": 1000,
+      "median_us": 99.07,
+      "p95_us": 259.871,
+      "p99_us": 870.305,
+      "maximum_us": 11039.27,
+      "verified_cold_reads": 0
+    },
+    {
+      "games": 10000,
+      "request_bytes": 1048576,
+      "cache": "fsync before run; POSIX_FADV_DONTNEED plus mincore before each read; storage caches uncontrolled",
+      "samples": 200,
+      "median_us": 848.214,
+      "p95_us": 1274.152,
+      "p99_us": 1648.465,
+      "maximum_us": 1708.345,
+      "verified_cold_reads": 200
+    }
+  ],
+  "source_bytes_each": 2097152,
+  "source_files": 32
+}

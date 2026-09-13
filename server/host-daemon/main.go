@@ -2082,10 +2082,11 @@ func (a *app) dashboard(w http.ResponseWriter, r *http.Request) {
 	saveError := a.gcSaveError
 	a.mu.RUnlock()
 	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	queryLower := strings.ToLower(query)
 	matches := func(title, id string) bool {
 		return query == "" ||
-			strings.Contains(strings.ToLower(title), strings.ToLower(query)) ||
-			strings.Contains(strings.ToLower(id), strings.ToLower(query))
+			strings.Contains(strings.ToLower(title), queryLower) ||
+			strings.Contains(strings.ToLower(id), queryLower)
 	}
 	filteredWii := make([]model.Game, 0, len(wiiGames))
 	for _, game := range wiiGames {
@@ -2158,16 +2159,17 @@ func (a *app) dashboard(w http.ResponseWriter, r *http.Request) {
 		{"Action": "attach", "Label": "Attach USB"},
 		{"Action": "reconcile", "Label": "Reconcile Connection"},
 	}
-	generation := ""
+	generation := a.gcLibrary.KnownGenerationID()
 	if activeReady {
 		generation = active.GenerationID
-	} else if managed, managedErr := a.gcLibrary.ManagedActive(); managedErr == nil {
-		generation = managed.GenerationID
 	}
 	compatibilityState := compatibility.Status
 	if compatibilityState == "" {
 		compatibilityState = compat.StateUnknown
 	}
+	filteredWii, wiiPage := catalogPage(r, "wii_page", "Wii", filteredWii)
+	filteredGC, gcPage := catalogPage(r, "gamecube_page", "GameCube", filteredGC)
+	review, reviewPage := catalogPage(r, "review_page", "Files needing attention", review)
 	data := map[string]any{
 		"Version": version, "Wii": filteredWii, "GameCube": filteredGC,
 		"Filter": filter, "Query": query, "CSRF": csrf,
@@ -2181,7 +2183,9 @@ func (a *app) dashboard(w http.ResponseWriter, r *http.Request) {
 		"GCBuild":            a.gcLibrary.Progress(), "GCReady": activeReady,
 		"GCGeneration": generation, "GCUpdate": gcUpdate,
 		"GCLegacy": len(a.gcLibrary.LegacyGenerations()) > 0,
-		"Rejected": len(review), "Review": review,
+		"Rejected": reviewPage.Total, "Review": review,
+		"WiiPage": wiiPage, "GameCubePage": gcPage, "ReviewPage": reviewPage,
+		"CatalogPaged":    wiiPage.Current > 1 || gcPage.Current > 1 || reviewPage.Current > 1,
 		"AutomaticSwitch": a.pi != nil, "PiAddress": piAddress,
 		"PiSwitchReady":   piSwitchReady,
 		"StorageControls": storageControls,

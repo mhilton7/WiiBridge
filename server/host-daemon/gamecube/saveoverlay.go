@@ -445,6 +445,9 @@ func (store *SaveStore) ReadSaveAt(objectID string, buffer []byte, offset int64)
 	if card == nil || offset < 0 || int64(len(buffer)) > card.spec.CardSize-offset {
 		return 0, errors.New("SAVE-WRITE-OUTSIDE-EXTENT")
 	}
+	if len(card.dirty) == 0 {
+		return card.file.ReadAt(buffer, offset)
+	}
 	done := 0
 	for done < len(buffer) {
 		position := offset + int64(done)
@@ -454,6 +457,12 @@ func (store *SaveStore) ReadSaveAt(objectID string, buffer []byte, offset int64)
 		if block := card.dirty[blockIndex]; block != nil {
 			copy(buffer[done:done+int(length)], block[inBlock:inBlock+length])
 		} else {
+			// Read an entire contiguous clean span. Dirty blocks remain the
+			// authority for their bytes and are never read from the base card.
+			remaining := int64(len(buffer) - done)
+			for length < remaining && card.dirty[(position+length)/SaveBlockSize] == nil {
+				length += min(remaining-length, SaveBlockSize)
+			}
 			count, err := card.file.ReadAt(buffer[done:done+int(length)], position)
 			done += count
 			if err != nil {

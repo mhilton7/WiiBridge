@@ -51,7 +51,9 @@ func main() {
 	runtime.ReadMemStats(&mem)
 	_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
 		"results": results, "heap_alloc_bytes": mem.HeapAlloc,
-		"iterations_per_case": 200, "cache": "cold-source/open-per-read",
+		"iterations_per_case": 200,
+		"cache":               "uncontrolled OS cache; source opened per payload read",
+		"fixture":             "sparse synthetic WBFS; virtual reads mix metadata, payload and zero-fill",
 	})
 }
 
@@ -75,7 +77,7 @@ func measure(disk *vdisk.Disk, size int, pattern string) result {
 		}
 		elapsed := time.Since(start)
 		total += elapsed
-		samples[i] = float64(elapsed.Microseconds())
+		samples[i] = float64(elapsed.Nanoseconds()) / 1000
 	}
 	sort.Float64s(samples)
 	seconds := total.Seconds()

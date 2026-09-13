@@ -1,5 +1,18 @@
 # Release gates
 
+## Current September performance candidate
+
+The current audit starts from main cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27.
+Full optimized tests, race, vet, static checks, OCI/Compose builds, existing
+GameCube-generation compatibility, local kernel NBD/filesystem validation and
+separate-library recovery integration pass. Controlled measurements and limits
+are in [the full audit](docs/full-performance-audit.md).
+
+The optimized release artifact build/publication is pending. Physical console,
+Pi and TrueNAS qualification is DEFERRED_HARDWARE_UNAVAILABLE. The historical
+entries below describe prior revisions and do not qualify this candidate.
+
+
 Status values are `PENDING`, `PASS`, `FAIL`, `BLOCKED_EXTERNAL`, and
 `DEFERRED_HARDWARE_UNAVAILABLE`. Only executed checks may be marked `PASS`.
 
@@ -149,3 +162,12 @@ Status values are `PENDING`, `PASS`, `FAIL`, `BLOCKED_EXTERNAL`, and
 | Separate-library container acceptance | PASS | Real read-only mounts, moved files, stale persisted identity, empty replacement preservation, and GameCube build/activation during Wii source outage pass; source hashes unchanged |
 | Separate-library image publication and TrueNAS deployment | PENDING | Local dirty build is tested; requires publication, actual operator dataset paths, updated runtime image, and mount verification |
 | Separate-library physical Pi/Wii/Nintendont acceptance | DEFERRED_HARDWARE_UNAVAILABLE | Container and synthetic tests do not establish physical gameplay/save behavior |
+# Full performance audit gate — in progress
+
+- Baseline main: `cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27`.
+- Baseline complete software validation and three-target firmware release: PASS.
+- Baseline hardened OCI, libnbd mTLS, Linux NBD and synthetic payload checks: PASS.
+- Repeated ext4 benchmark baseline: captured; optimized comparison pending.
+- Optimized complete validation, artifact provenance and publication: PENDING.
+- Physical Wii/GameCube launches, real TrueNAS storage and Pi USB timing:
+  `DEFERRED_HARDWARE_UNAVAILABLE`.

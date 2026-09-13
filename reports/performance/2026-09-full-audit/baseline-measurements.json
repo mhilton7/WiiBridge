@@ -1,0 +1,182 @@
+[
+  {
+    "name": "wii",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^Benchmark(AuditWii|LargeFAT)",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./server/host-daemon/vdisk"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 67.636,
+    "completed_utc": "2026-09-13T06:01:31.854663+00:00"
+  },
+  {
+    "name": "gc-managed",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^Benchmark(AuditGameCubeManaged|AuditSaveRead|SaveOverlayWriteAccounting)$",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./server/host-daemon/gamecube"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 106.083,
+    "completed_utc": "2026-09-13T06:03:17.937669+00:00"
+  },
+  {
+    "name": "gc-backend",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^Benchmark(AuditGameCubeLayout|SequentialReadsOneISO|RandomReadsOneISO|SwitchingThirtyTwoSources|ExtentLookup10000|ExtractedFSTFiveThousandFiles|ReadCrossingSourceExtents|ConcurrentReads|ReadPathMetrics)$",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./server/host-daemon/fat32virtual"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 66.625,
+    "completed_utc": "2026-09-13T06:04:24.562991+00:00"
+  },
+  {
+    "name": "store",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^BenchmarkAuditReconcile$",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./server/host-daemon/store"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 26.785,
+    "completed_utc": "2026-09-13T06:04:51.348635+00:00"
+  },
+  {
+    "name": "nbd-tls",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^BenchmarkAuditNBDTLS$",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./tests/nbd"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 23.273,
+    "completed_utc": "2026-09-13T06:05:14.621990+00:00"
+  },
+  {
+    "name": "nbd-framing",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^Benchmark(NBDReadPathMetrics|RequestBuffer64KiB)$",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./server/nbd-plugin"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 16.463,
+    "completed_utc": "2026-09-13T06:05:31.085126+00:00"
+  },
+  {
+    "name": "dashboard",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^Benchmark(AuditDashboard|AuditScan|PerformanceSummarySerialization)$",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./server/host-daemon"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 54.468,
+    "completed_utc": "2026-09-13T06:06:25.553863+00:00"
+  },
+  {
+    "name": "pi",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^Benchmark(CachedPiMetrics|PiMetricsEndpoint)$",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./pi/controller"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 11.508,
+    "completed_utc": "2026-09-13T06:06:37.061838+00:00"
+  },
+  {
+    "name": "metrics",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "build/perf-audit/harness/overlay.json",
+      "-run",
+      "^$",
+      "-bench",
+      "^BenchmarkObserveNBDRead",
+      "-benchmem",
+      "-benchtime=750ms",
+      "-count=6",
+      "./shared/perf"
+    ],
+    "status": "PASS",
+    "elapsed_seconds": 11.79,
+    "completed_utc": "2026-09-13T06:06:48.852541+00:00"
+  }
+]

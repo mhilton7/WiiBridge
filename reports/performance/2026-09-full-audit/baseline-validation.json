@@ -1,0 +1,98 @@
+[
+  {
+    "command": [
+      "make",
+      "test"
+    ],
+    "started_utc": "2026-09-13T04:52:15.747467+00:00",
+    "status": "PASS",
+    "log": "01-make-test.log",
+    "exit_code": 0,
+    "elapsed_seconds": 23.419
+  },
+  {
+    "command": [
+      "make",
+      "static"
+    ],
+    "started_utc": "2026-09-13T04:52:39.166682+00:00",
+    "status": "PASS",
+    "log": "02-make-static.log",
+    "exit_code": 0,
+    "elapsed_seconds": 14.419
+  },
+  {
+    "command": [
+      "make",
+      "server"
+    ],
+    "started_utc": "2026-09-13T04:52:53.585649+00:00",
+    "status": "PASS",
+    "log": "03-make-server.log",
+    "exit_code": 0,
+    "elapsed_seconds": 0.336
+  },
+  {
+    "command": [
+      "make",
+      "compose"
+    ],
+    "started_utc": "2026-09-13T04:52:53.921668+00:00",
+    "status": "PASS",
+    "log": "04-make-compose.log",
+    "exit_code": 0,
+    "elapsed_seconds": 0.086
+  },
+  {
+    "command": [
+      "make",
+      "oci"
+    ],
+    "started_utc": "2026-09-13T04:52:54.008497+00:00",
+    "status": "PASS",
+    "log": "05-make-oci.log",
+    "exit_code": 0,
+    "elapsed_seconds": 0.978
+  },
+  {
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "./server/...",
+      "./pi/...",
+      "./shared/...",
+      "./tests/..."
+    ],
+    "started_utc": "2026-09-13T04:52:54.986948+00:00",
+    "status": "PASS",
+    "log": "06-go-test.log",
+    "exit_code": 0,
+    "elapsed_seconds": 15.393
+  },
+  {
+    "command": [
+      "go",
+      "vet",
+      "./server/...",
+      "./pi/...",
+      "./shared/..."
+    ],
+    "started_utc": "2026-09-13T04:53:10.380013+00:00",
+    "status": "PASS",
+    "log": "07-go-vet.log",
+    "exit_code": 0,
+    "elapsed_seconds": 0.677
+  },
+  {
+    "command": [
+      "make",
+      "release"
+    ],
+    "started_utc": "2026-09-13T04:53:11.057351+00:00",
+    "status": "PASS",
+    "log": "08-make-release.log",
+    "exit_code": 0,
+    "elapsed_seconds": 4033.057
+  }
+]

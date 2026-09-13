@@ -1,0 +1,17 @@
+goos: linux
+goarch: amd64
+pkg: wiibridge/server/host-daemon/gamecube
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     145	   7580781 ns/op	 9039697 B/op	     530 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     100	   9556587 ns/op	 9039834 B/op	     531 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     126	   7701028 ns/op	 9039829 B/op	     531 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     127	   9114870 ns/op	 9039914 B/op	     531 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     123	   6735678 ns/op	 9039630 B/op	     529 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     130	   8070736 ns/op	 9039828 B/op	     531 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 267949025 ns/op	538569632 B/op	     536 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 261698113 ns/op	538570520 B/op	     540 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 276886350 ns/op	538569792 B/op	     538 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 263508102 ns/op	538570210 B/op	     539 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 267008009 ns/op	538569912 B/op	     537 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 265993193 ns/op	538570525 B/op	     541 allocs/op
+PASS
+ok  	wiibridge/server/host-daemon/gamecube	25.225s

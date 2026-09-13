@@ -1,0 +1,430 @@
+goos: linux
+goarch: amd64
+pkg: wiibridge/pi/controller
+                    │ baseline.txt │           optimized.txt           │
+                    │    sec/op    │   sec/op     vs base              │
+CachedPiMetrics-8      31.34n ± 0%   31.28n ± 1%       ~ (p=0.357 n=6)
+PiMetricsEndpoint-8    2.184µ ± 3%   2.234µ ± 2%       ~ (p=0.102 n=6)
+geomean                261.6n        264.3n       +1.03%
+
+                    │  baseline.txt  │            optimized.txt             │
+                    │      B/op      │     B/op      vs base                │
+CachedPiMetrics-8       0.000 ± 0%       0.000 ± 0%       ~ (p=1.000 n=6) ¹
+PiMetricsEndpoint-8   1.924Ki ± 0%     1.924Ki ± 0%       ~ (p=1.000 n=6) ¹
+geomean                            ²                 +0.00%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                    │ baseline.txt │           optimized.txt            │
+                    │  allocs/op   │ allocs/op   vs base                │
+CachedPiMetrics-8     0.000 ± 0%     0.000 ± 0%       ~ (p=1.000 n=6) ¹
+PiMetricsEndpoint-8   13.00 ± 0%     13.00 ± 0%       ~ (p=1.000 n=6) ¹
+geomean                          ²               +0.00%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+pkg: wiibridge/server/host-daemon
+                                  │  baseline.txt  │           optimized.txt            │
+                                  │     sec/op     │   sec/op     vs base               │
+PerformanceSummarySerialization-8      171.2µ ± 4%   169.6µ ± 1%        ~ (p=0.132 n=6)
+AuditDashboard/games=100-8             387.7µ ± 1%   403.0µ ± 1%   +3.95% (p=0.002 n=6)
+AuditDashboard/games=1000-8           3231.0µ ± 2%   483.1µ ± 2%  -85.05% (p=0.002 n=6)
+AuditDashboard/games=10000-8          37.975m ± 8%   1.273m ± 4%  -96.65% (p=0.002 n=6)
+AuditDashboard/pendingGC512GiB-8    137098.7µ ± 5%   117.6µ ± 5%  -99.91% (p=0.002 n=6)
+AuditScan/wii/files=1000-8             11.93m ± 3%   12.22m ± 1%   +2.41% (p=0.041 n=6)
+AuditScan/gamecube/files=1000-8        10.11m ± 1%   10.42m ± 1%   +3.01% (p=0.002 n=6)
+geomean                                5.405m        936.0µ       -82.68%
+
+                                  │   baseline.txt   │            optimized.txt            │
+                                  │       B/op       │     B/op      vs base               │
+PerformanceSummarySerialization-8       32.55Ki ± 0%   32.55Ki ± 0%        ~ (p=0.734 n=6)
+AuditDashboard/games=100-8              189.7Ki ± 0%   197.8Ki ± 0%   +4.24% (p=0.002 n=6)
+AuditDashboard/games=1000-8            1512.2Ki ± 0%   343.1Ki ± 0%  -77.31% (p=0.002 n=6)
+AuditDashboard/games=10000-8           13.275Mi ± 0%   1.711Mi ± 0%  -87.11% (p=0.002 n=6)
+AuditDashboard/pendingGC512GiB-8    262964.16Ki ± 0%   74.19Ki ± 0%  -99.97% (p=0.002 n=6)
+AuditScan/wii/files=1000-8              2.928Mi ± 0%   2.928Mi ± 0%        ~ (p=0.589 n=6)
+AuditScan/gamecube/files=1000-8         3.649Mi ± 0%   3.649Mi ± 0%        ~ (p=0.589 n=6)
+geomean                                 2.276Mi        440.5Ki       -81.11%
+
+                                  │ baseline.txt  │            optimized.txt             │
+                                  │   allocs/op   │  allocs/op   vs base                 │
+PerformanceSummarySerialization-8      306.0 ± 0%    306.0 ± 0%        ~ (p=1.000 n=6) ¹
+AuditDashboard/games=100-8            4.042k ± 0%   4.375k ± 0%   +8.24% (p=0.002 n=6)
+AuditDashboard/games=1000-8          32.694k ± 0%   4.418k ± 0%  -86.49% (p=0.002 n=6)
+AuditDashboard/games=10000-8        320.736k ± 0%   4.421k ± 0%  -98.62% (p=0.002 n=6)
+AuditDashboard/pendingGC512GiB-8      1.230k ± 0%   1.289k ± 0%   +4.75% (p=0.002 n=6)
+AuditScan/wii/files=1000-8            22.11k ± 0%   22.11k ± 0%        ~ (p=1.000 n=6)
+AuditScan/gamecube/files=1000-8       17.12k ± 0%   17.12k ± 0%        ~ (p=0.545 n=6)
+geomean                               9.305k        3.860k       -58.52%
+¹ all samples are equal
+
+                                 │ baseline.txt  │           optimized.txt            │
+                                 │  html_bytes   │ html_bytes   vs base               │
+AuditDashboard/games=100-8           30.68k ± 0%   33.09k ± 0%   +7.86% (p=0.002 n=6)
+AuditDashboard/games=1000-8         169.28k ± 0%   33.25k ± 0%  -80.36% (p=0.002 n=6)
+AuditDashboard/games=10000-8       1555.29k ± 0%   33.25k ± 0%  -97.86% (p=0.002 n=6)
+AuditDashboard/pendingGC512GiB-8     15.32k ± 0%   17.73k ± 0%  +15.73% (p=0.002 n=6)
+geomean                              105.5k        28.38k       -73.09%
+
+pkg: wiibridge/server/host-daemon/fat32virtual
+                                │ baseline.txt  │            optimized.txt            │
+                                │    sec/op     │    sec/op     vs base               │
+SequentialReadsOneISO-8            5.091µ ±  2%   4.978µ ±  4%   -2.21% (p=0.004 n=6)
+ReadPathMetrics/disabled-8         3.744µ ±  2%   3.665µ ±  1%   -2.11% (p=0.004 n=6)
+ReadPathMetrics/enabled-8          3.885µ ±  1%   3.859µ ±  1%        ~ (p=0.093 n=6)
+RandomReadsOneISO-8                2.418µ ±  1%   2.413µ ±  1%        ~ (p=0.729 n=6)
+SwitchingThirtyTwoSources-8        2.375µ ±  1%   2.345µ ±  1%   -1.28% (p=0.006 n=6)
+ExtentLookup10000-8                9.930n ±  1%   9.925n ±  1%        ~ (p=0.937 n=6)
+ExtractedFSTFiveThousandFiles-8    2.353µ ±  2%   2.349µ ±  1%        ~ (p=0.563 n=6)
+ReadCrossingSourceExtents-8        6.690µ ±  1%   6.668µ ±  1%        ~ (p=0.699 n=6)
+ConcurrentReads-8                  2.512µ ±  1%   2.492µ ±  2%        ~ (p=0.394 n=6)
+AuditGameCubeLayout/GiB=8-8       2828.6µ ± 39%   863.2µ ± 49%  -69.48% (p=0.002 n=6)
+AuditGameCubeLayout/GiB=512-8      83.58m ± 28%   31.79m ±  1%  -61.96% (p=0.002 n=6)
+geomean                            9.189µ         7.501µ        -18.36%
+
+                           │ baseline.txt │           optimized.txt            │
+                           │     B/s      │     B/s       vs base              │
+ReadPathMetrics/disabled-8   16.31Gi ± 2%   16.66Gi ± 1%  +2.15% (p=0.002 n=6)
+ReadPathMetrics/enabled-8    15.71Gi ± 1%   15.82Gi ± 1%       ~ (p=0.093 n=6)
+geomean                      16.01Gi        16.23Gi       +1.41%
+
+                                │  baseline.txt  │             optimized.txt             │
+                                │      B/op      │     B/op      vs base                 │
+SequentialReadsOneISO-8             384.0 ± 0%       384.0 ± 0%        ~ (p=1.000 n=6) ¹
+ReadPathMetrics/disabled-8          400.0 ± 0%       384.0 ± 0%   -4.00% (p=0.002 n=6)
+ReadPathMetrics/enabled-8           384.0 ± 0%       384.0 ± 0%        ~ (p=1.000 n=6) ¹
+RandomReadsOneISO-8                 384.0 ± 0%       384.0 ± 0%        ~ (p=1.000 n=6) ¹
+SwitchingThirtyTwoSources-8         400.0 ± 0%       400.0 ± 4%        ~ (p=1.000 n=6)
+ExtentLookup10000-8                 0.000 ± 0%       0.000 ± 0%        ~ (p=1.000 n=6) ¹
+ExtractedFSTFiveThousandFiles-8     400.0 ± 0%       400.0 ± 0%        ~ (p=1.000 n=6) ¹
+ReadCrossingSourceExtents-8         800.0 ± 0%       800.0 ± 0%        ~ (p=1.000 n=6) ¹
+ConcurrentReads-8                   384.0 ± 0%       384.0 ± 0%        ~ (p=1.000 n=6) ¹
+AuditGameCubeLayout/GiB=8-8       6.585Mi ± 0%     2.202Mi ± 0%  -66.57% (p=0.002 n=6)
+AuditGameCubeLayout/GiB=512-8     412.4Mi ± 0%     128.2Mi ± 0%  -68.91% (p=0.002 n=6)
+geomean                                        ²                 -18.90%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                                │ baseline.txt │            optimized.txt            │
+                                │  allocs/op   │ allocs/op   vs base                 │
+SequentialReadsOneISO-8           2.000 ± 0%     2.000 ± 0%        ~ (p=1.000 n=6) ¹
+ReadPathMetrics/disabled-8        2.000 ± 0%     2.000 ± 0%        ~ (p=1.000 n=6) ¹
+ReadPathMetrics/enabled-8         2.000 ± 0%     2.000 ± 0%        ~ (p=1.000 n=6) ¹
+RandomReadsOneISO-8               2.000 ± 0%     2.000 ± 0%        ~ (p=1.000 n=6) ¹
+SwitchingThirtyTwoSources-8       2.000 ± 0%     2.000 ± 0%        ~ (p=1.000 n=6) ¹
+ExtentLookup10000-8               0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+ExtractedFSTFiveThousandFiles-8   2.000 ± 0%     2.000 ± 0%        ~ (p=1.000 n=6) ¹
+ReadCrossingSourceExtents-8       4.000 ± 0%     4.000 ± 0%        ~ (p=1.000 n=6) ¹
+ConcurrentReads-8                 2.000 ± 0%     2.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditGameCubeLayout/GiB=8-8       130.0 ± 1%     113.0 ± 0%  -13.08% (p=0.002 n=6)
+AuditGameCubeLayout/GiB=512-8     134.0 ± 1%     114.0 ± 1%  -14.93% (p=0.002 n=6)
+geomean                                      ²                -2.71%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                                │ baseline.txt │            optimized.txt            │
+                                │ cache-hit-%  │ cache-hit-%  vs base                │
+SequentialReadsOneISO-8             100.0 ± 0%    100.0 ± 0%       ~ (p=1.000 n=6) ¹
+RandomReadsOneISO-8                 100.0 ± 0%    100.0 ± 0%       ~ (p=1.000 n=6) ¹
+SwitchingThirtyTwoSources-8         99.99 ± 0%    99.99 ± 0%       ~ (p=1.000 n=6) ¹
+ExtractedFSTFiveThousandFiles-8     100.0 ± 0%    100.0 ± 0%       ~ (p=1.000 n=6) ¹
+ReadCrossingSourceExtents-8         100.0 ± 0%    100.0 ± 0%       ~ (p=1.000 n=6) ¹
+ConcurrentReads-8                   100.0 ± 0%    100.0 ± 0%       ~ (p=1.000 n=6) ¹
+geomean                             100.0         100.0       +0.00%
+¹ all samples are equal
+
+                                │  baseline.txt   │              optimized.txt              │
+                                │ peak-open-files │ peak-open-files  vs base                │
+SequentialReadsOneISO-8                1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+RandomReadsOneISO-8                    1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+SwitchingThirtyTwoSources-8            32.00 ± 0%        32.00 ± 0%       ~ (p=1.000 n=6) ¹
+ExtractedFSTFiveThousandFiles-8        1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+ReadCrossingSourceExtents-8            2.000 ± 0%        2.000 ± 0%       ~ (p=1.000 n=6) ¹
+ConcurrentReads-8                      1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+geomean                                2.000             2.000       +0.00%
+¹ all samples are equal
+
+                                │ baseline.txt │            optimized.txt             │
+                                │ source-opens │ source-opens  vs base                │
+SequentialReadsOneISO-8             1.000 ± 0%     1.000 ± 0%       ~ (p=1.000 n=6) ¹
+RandomReadsOneISO-8                 1.000 ± 0%     1.000 ± 0%       ~ (p=1.000 n=6) ¹
+SwitchingThirtyTwoSources-8         32.00 ± 0%     32.00 ± 0%       ~ (p=1.000 n=6) ¹
+ExtractedFSTFiveThousandFiles-8     1.000 ± 0%     1.000 ± 0%       ~ (p=1.000 n=6) ¹
+ReadCrossingSourceExtents-8         2.000 ± 0%     2.000 ± 0%       ~ (p=1.000 n=6) ¹
+ConcurrentReads-8                   1.000 ± 0%     1.000 ± 0%       ~ (p=1.000 n=6) ¹
+geomean                             2.000          2.000       +0.00%
+¹ all samples are equal
+
+                                │  baseline.txt   │              optimized.txt              │
+                                │ source-reads/op │ source-reads/op  vs base                │
+SequentialReadsOneISO-8                1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+RandomReadsOneISO-8                    1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+SwitchingThirtyTwoSources-8            1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+ExtractedFSTFiveThousandFiles-8        1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+ReadCrossingSourceExtents-8            2.000 ± 0%        2.000 ± 0%       ~ (p=1.000 n=6) ¹
+ConcurrentReads-8                      1.000 ± 0%        1.000 ± 0%       ~ (p=1.000 n=6) ¹
+geomean                                1.122             1.122       +0.00%
+¹ all samples are equal
+
+                              │  baseline.txt  │             optimized.txt             │
+                              │ metadata_bytes │ metadata_bytes  vs base               │
+AuditGameCubeLayout/GiB=8-8        2.198M ± 0%      1.149M ± 0%  -47.71% (p=0.002 n=6)
+AuditGameCubeLayout/GiB=512-8     134.32M ± 0%      67.21M ± 0%  -49.96% (p=0.002 n=6)
+geomean                            17.18M           8.789M       -48.85%
+
+pkg: wiibridge/server/host-daemon/gamecube
+                                             │ baseline.txt  │           optimized.txt            │
+                                             │    sec/op     │   sec/op     vs base               │
+AuditGameCubeManaged/reserveGiB=1/fast-8       3368.5µ ± 17%   942.5µ ± 4%  -72.02% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=1/active-8     6972.8µ ± 30%   988.2µ ± 1%  -85.83% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=1/open-8        6.352m ± 12%   1.701m ± 3%  -73.21% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/fast-8     137.02m ±  0%   34.13m ± 1%  -75.09% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/active-8   276.97m ±  9%   34.36m ± 0%  -87.59% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/open-8     230.68m ±  3%   69.46m ± 3%  -69.89% (p=0.002 n=6)
+AuditSaveRead/mixed=false/bytes=4096-8         4077.0n ±  1%   809.1n ± 2%  -80.15% (p=0.002 n=6)
+AuditSaveRead/mixed=false/bytes=65536-8        54.405µ ±  1%   2.788µ ± 2%  -94.88% (p=0.002 n=6)
+AuditSaveRead/mixed=false/bytes=1048576-8      858.44µ ±  2%   41.57µ ± 0%  -95.16% (p=0.002 n=6)
+AuditSaveRead/mixed=true/bytes=4096-8          3936.0n ±  1%   876.6n ± 1%  -77.73% (p=0.002 n=6)
+AuditSaveRead/mixed=true/bytes=65536-8         52.543µ ±  2%   3.914µ ± 2%  -92.55% (p=0.002 n=6)
+AuditSaveRead/mixed=true/bytes=1048576-8       834.27µ ±  0%   61.63µ ± 2%  -92.61% (p=0.002 n=6)
+SaveOverlayWriteAccounting-8                    966.9µ ±  4%   936.2µ ± 3%   -3.18% (p=0.015 n=6)
+AuditGameCubeStartup/reserveGiB=1-8             7.886m ± 21%   1.055m ± 3%  -86.62% (p=0.002 n=6)
+AuditGameCubeStartup/reserveGiB=512-8          266.50m ±  4%   32.20m ± 2%  -87.92% (p=0.002 n=6)
+geomean                                         2.135m         336.8µ       -84.22%
+
+                                          │ baseline.txt │             optimized.txt              │
+                                          │     B/s      │      B/s       vs base                 │
+AuditSaveRead/mixed=false/bytes=4096-8      958.1Mi ± 1%   4827.6Mi ± 2%   +403.90% (p=0.002 n=6)
+AuditSaveRead/mixed=false/bytes=65536-8     1.122Gi ± 1%   21.897Gi ± 2%  +1851.82% (p=0.002 n=6)
+AuditSaveRead/mixed=false/bytes=1048576-8   1.138Gi ± 2%   23.492Gi ± 0%  +1965.07% (p=0.002 n=6)
+AuditSaveRead/mixed=true/bytes=4096-8       992.4Mi ± 1%   4456.4Mi ± 1%   +349.03% (p=0.002 n=6)
+AuditSaveRead/mixed=true/bytes=65536-8      1.162Gi ± 2%   15.594Gi ± 2%  +1242.39% (p=0.002 n=6)
+AuditSaveRead/mixed=true/bytes=1048576-8    1.171Gi ± 0%   15.846Gi ± 2%  +1253.75% (p=0.002 n=6)
+SaveOverlayWriteAccounting-8                4.044Mi ± 4%    4.172Mi ± 3%     +3.18% (p=0.013 n=6)
+geomean                                     495.5Mi         3.760Gi        +677.02%
+
+                                             │  baseline.txt   │             optimized.txt             │
+                                             │      B/op       │     B/op      vs base                 │
+AuditGameCubeManaged/reserveGiB=1/fast-8        4.293Mi ± 0%     1.158Mi ± 0%  -73.03% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=1/active-8      8.597Mi ± 0%     1.174Mi ± 0%  -86.34% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=1/open-8        8.580Mi ± 0%     2.298Mi ± 0%  -73.22% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/fast-8     256.79Mi ± 0%     64.28Mi ± 0%  -74.97% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/active-8   513.60Mi ± 0%     64.30Mi ± 0%  -87.48% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/open-8      513.6Mi ± 0%     128.5Mi ± 0%  -74.97% (p=0.002 n=6)
+AuditSaveRead/mixed=false/bytes=4096-8            0.000 ± 0%       0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=false/bytes=65536-8           0.000 ± 0%       0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=false/bytes=1048576-8         0.000 ± 0%       0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=true/bytes=4096-8             0.000 ± 0%       0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=true/bytes=65536-8            0.000 ± 0%       0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=true/bytes=1048576-8          0.000 ± 0%       0.000 ± 0%        ~ (p=1.000 n=6) ¹
+SaveOverlayWriteAccounting-8                    5.075Ki ± 5%     5.238Ki ± 4%        ~ (p=0.331 n=6)
+AuditGameCubeStartup/reserveGiB=1-8             8.621Mi ± 0%     1.191Mi ± 0%  -86.19% (p=0.002 n=6)
+AuditGameCubeStartup/reserveGiB=512-8          513.62Mi ± 0%     64.32Mi ± 0%  -87.48% (p=0.002 n=6)
+geomean                                                      ²                 -59.32%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                                             │ baseline.txt │            optimized.txt            │
+                                             │  allocs/op   │ allocs/op   vs base                 │
+AuditGameCubeManaged/reserveGiB=1/fast-8       189.0 ± 1%     178.0 ± 1%   -5.82% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=1/active-8     453.5 ± 0%     298.0 ± 0%  -34.29% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=1/open-8       336.5 ± 0%     263.0 ± 0%  -21.84% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/fast-8     193.0 ± 1%     182.0 ± 1%   -5.70% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/active-8   464.0 ± 0%     301.0 ± 0%  -35.13% (p=0.002 n=6)
+AuditGameCubeManaged/reserveGiB=512/open-8     345.5 ± 1%     268.0 ± 1%  -22.43% (p=0.002 n=6)
+AuditSaveRead/mixed=false/bytes=4096-8         0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=false/bytes=65536-8        0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=false/bytes=1048576-8      0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=true/bytes=4096-8          0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=true/bytes=65536-8         0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditSaveRead/mixed=true/bytes=1048576-8       0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+SaveOverlayWriteAccounting-8                   8.000 ± 0%     8.000 ± 0%        ~ (p=1.000 n=6) ¹
+AuditGameCubeStartup/reserveGiB=1-8            531.0 ± 0%     371.0 ± 0%  -30.13% (p=0.002 n=6)
+AuditGameCubeStartup/reserveGiB=512-8          538.5 ± 0%     375.5 ± 1%  -30.27% (p=0.002 n=6)
+geomean                                                   ²               -13.59%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+pkg: wiibridge/server/host-daemon/store
+                             │ baseline.txt │           optimized.txt            │
+                             │    sec/op    │   sec/op     vs base               │
+AuditReconcile/items=100-8     1.817m ± 13%   1.111m ± 1%  -38.86% (p=0.002 n=6)
+AuditReconcile/items=1000-8    9.953m ±  2%   4.846m ± 1%  -51.31% (p=0.002 n=6)
+AuditReconcile/items=10000-8   98.17m ±  5%   45.09m ± 2%  -54.07% (p=0.002 n=6)
+geomean                        12.11m         6.238m       -48.48%
+
+                             │ baseline.txt │           optimized.txt            │
+                             │     B/op     │     B/op      vs base              │
+AuditReconcile/items=100-8     126.0Ki ± 0%   123.9Ki ± 0%  -1.65% (p=0.002 n=6)
+AuditReconcile/items=1000-8    1.135Mi ± 0%   1.113Mi ± 0%  -1.99% (p=0.002 n=6)
+AuditReconcile/items=10000-8   13.49Mi ± 0%   13.26Mi ± 0%  -1.69% (p=0.002 n=6)
+geomean                        1.235Mi        1.213Mi       -1.78%
+
+                             │ baseline.txt │           optimized.txt           │
+                             │  allocs/op   │  allocs/op   vs base              │
+AuditReconcile/items=100-8      2.967k ± 0%   2.873k ± 0%  -3.17% (p=0.002 n=6)
+AuditReconcile/items=1000-8     29.07k ± 0%   28.08k ± 0%  -3.42% (p=0.002 n=6)
+AuditReconcile/items=10000-8    290.1k ± 0%   280.1k ± 0%  -3.44% (p=0.002 n=6)
+geomean                         29.25k        28.27k       -3.35%
+
+pkg: wiibridge/server/host-daemon/vdisk
+                                              │ baseline.txt  │           optimized.txt            │
+                                              │    sec/op     │   sec/op     vs base               │
+AuditWiiCatalogRead/games=1/bytes=4096-8          6.427µ ± 1%   6.415µ ± 1%        ~ (p=0.255 n=6)
+AuditWiiCatalogRead/games=1/bytes=65536-8         7.731µ ± 2%   7.466µ ± 1%   -3.43% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1000/bytes=4096-8      18.656µ ± 1%   6.398µ ± 2%  -65.71% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1000/bytes=65536-8     19.524µ ± 1%   7.477µ ± 1%  -61.71% (p=0.002 n=6)
+AuditWiiCatalogRead/games=10000/bytes=4096-8    132.658µ ± 2%   6.486µ ± 1%  -95.11% (p=0.002 n=6)
+AuditWiiCatalogRead/games=10000/bytes=65536-8   133.692µ ± 1%   7.613µ ± 1%  -94.31% (p=0.002 n=6)
+AuditWiiFATRead/bytes=512-8                       652.2n ± 2%   104.4n ± 0%  -83.99% (p=0.002 n=6)
+AuditWiiFATRead/bytes=65536-8                     83.04µ ± 2%   13.48µ ± 1%  -83.77% (p=0.002 n=6)
+AuditWiiFATRead/bytes=1048576-8                  1467.1µ ± 1%   216.2µ ± 1%  -85.26% (p=0.002 n=6)
+LargeFATSynthesis-8                               239.7µ ± 3%   239.2µ ± 4%        ~ (p=0.509 n=6)
+LargeFATSectorRead-8                              644.3n ± 1%   104.9n ± 0%  -83.72% (p=0.002 n=6)
+geomean                                           26.17µ        6.492µ       -75.19%
+
+                                              │ baseline.txt │             optimized.txt              │
+                                              │     B/s      │      B/s       vs base                 │
+AuditWiiCatalogRead/games=1/bytes=4096-8        607.8Mi ± 1%    608.9Mi ± 1%          ~ (p=0.310 n=6)
+AuditWiiCatalogRead/games=1/bytes=65536-8       7.897Gi ± 2%    8.175Gi ± 1%     +3.53% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1000/bytes=4096-8     209.4Mi ± 1%    610.6Mi ± 2%   +191.60% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1000/bytes=65536-8    3.126Gi ± 1%    8.164Gi ± 1%   +161.14% (p=0.002 n=6)
+AuditWiiCatalogRead/games=10000/bytes=4096-8    29.44Mi ± 2%   602.24Mi ± 1%  +1945.33% (p=0.002 n=6)
+AuditWiiCatalogRead/games=10000/bytes=65536-8   467.5Mi ± 1%   8209.6Mi ± 1%  +1656.11% (p=0.002 n=6)
+AuditWiiFATRead/bytes=512-8                     748.7Mi ± 2%   4677.7Mi ± 0%   +524.77% (p=0.002 n=6)
+AuditWiiFATRead/bytes=65536-8                   752.7Mi ± 3%   4637.2Mi ± 1%   +516.11% (p=0.002 n=6)
+AuditWiiFATRead/bytes=1048576-8                 681.6Mi ± 1%   4625.4Mi ± 1%   +578.59% (p=0.002 n=6)
+LargeFATSectorRead-8                            757.8Mi ± 1%   4655.5Mi ± 0%   +514.30% (p=0.002 n=6)
+geomean                                         648.7Mi         2.935Gi        +363.26%
+
+                                              │ baseline.txt  │              optimized.txt               │
+                                              │     B/op      │     B/op      vs base                    │
+AuditWiiCatalogRead/games=1/bytes=4096-8           712.0 ± 0%     664.0 ± 0%    -6.74% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1/bytes=65536-8          712.0 ± 0%     664.0 ± 0%    -6.74% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1000/bytes=4096-8      24687.5 ± 0%     664.0 ± 0%   -97.31% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1000/bytes=65536-8     24688.0 ± 0%     664.0 ± 0%   -97.31% (p=0.002 n=6)
+AuditWiiCatalogRead/games=10000/bytes=4096-8    240700.5 ± 0%     664.0 ± 0%   -99.72% (p=0.002 n=6)
+AuditWiiCatalogRead/games=10000/bytes=65536-8   240683.5 ± 0%     664.0 ± 0%   -99.72% (p=0.002 n=6)
+AuditWiiFATRead/bytes=512-8                        512.0 ± 0%       0.0 ± 0%  -100.00% (p=0.002 n=6)
+AuditWiiFATRead/bytes=65536-8                    64.00Ki ± 0%    0.00Ki ± 0%  -100.00% (p=0.002 n=6)
+AuditWiiFATRead/bytes=1048576-8                  1.000Mi ± 0%   0.000Mi ± 0%  -100.00% (p=0.002 n=6)
+LargeFATSynthesis-8                              281.3Ki ± 0%   281.2Ki ± 0%         ~ (p=0.699 n=6)
+LargeFATSectorRead-8                               512.0 ± 0%       0.0 ± 0%  -100.00% (p=0.002 n=6)
+geomean                                          18.18Ki                      ?                      ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean
+
+                                              │ baseline.txt  │              optimized.txt              │
+                                              │   allocs/op   │  allocs/op   vs base                    │
+AuditWiiCatalogRead/games=1/bytes=4096-8           6.000 ± 0%    5.000 ± 0%   -16.67% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1/bytes=65536-8          6.000 ± 0%    5.000 ± 0%   -16.67% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1000/bytes=4096-8      505.000 ± 0%    5.000 ± 0%   -99.01% (p=0.002 n=6)
+AuditWiiCatalogRead/games=1000/bytes=65536-8     505.000 ± 0%    5.000 ± 0%   -99.01% (p=0.002 n=6)
+AuditWiiCatalogRead/games=10000/bytes=4096-8    5005.000 ± 0%    5.000 ± 0%   -99.90% (p=0.002 n=6)
+AuditWiiCatalogRead/games=10000/bytes=65536-8   5005.000 ± 0%    5.000 ± 0%   -99.90% (p=0.002 n=6)
+AuditWiiFATRead/bytes=512-8                        1.000 ± 0%    0.000 ± 0%  -100.00% (p=0.002 n=6)
+AuditWiiFATRead/bytes=65536-8                      128.0 ± 0%      0.0 ± 0%  -100.00% (p=0.002 n=6)
+AuditWiiFATRead/bytes=1048576-8                   2.048k ± 0%   0.000k ± 0%  -100.00% (p=0.002 n=6)
+LargeFATSynthesis-8                               2.134k ± 0%   2.134k ± 0%         ~ (p=1.000 n=6)
+LargeFATSectorRead-8                               1.000 ± 0%    0.000 ± 0%  -100.00% (p=0.002 n=6)
+geomean                                            126.1                     ?                      ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean
+
+pkg: wiibridge/server/nbd-plugin
+                              │ baseline.txt │           optimized.txt           │
+                              │    sec/op    │   sec/op     vs base              │
+RequestBuffer64KiB-8             7.949n ± 1%   8.134n ± 0%  +2.33% (p=0.002 n=6)
+NBDReadPathMetrics/disabled-8    938.8n ± 1%   852.2n ± 1%  -9.21% (p=0.002 n=6)
+NBDReadPathMetrics/enabled-8    1027.0n ± 1%   956.6n ± 1%  -6.85% (p=0.002 n=6)
+geomean                          197.2n        187.9n       -4.70%
+
+                              │ baseline.txt │            optimized.txt            │
+                              │     B/s      │     B/s       vs base               │
+NBDReadPathMetrics/disabled-8   65.02Gi ± 1%   71.62Gi ± 1%  +10.15% (p=0.002 n=6)
+NBDReadPathMetrics/enabled-8    59.42Gi ± 1%   63.80Gi ± 1%   +7.37% (p=0.002 n=6)
+geomean                         62.16Gi        67.60Gi        +8.75%
+
+                              │ baseline.txt │            optimized.txt            │
+                              │     B/op     │    B/op     vs base                 │
+RequestBuffer64KiB-8            0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+NBDReadPathMetrics/disabled-8   64.00 ± 0%     56.00 ± 0%  -12.50% (p=0.002 n=6)
+NBDReadPathMetrics/enabled-8    64.00 ± 0%     56.00 ± 0%  -12.50% (p=0.002 n=6)
+geomean                                    ²                -8.52%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                              │ baseline.txt  │            optimized.txt            │
+                              │   allocs/op   │ allocs/op   vs base                 │
+RequestBuffer64KiB-8             0.000 ± 0%     0.000 ± 0%        ~ (p=1.000 n=6) ¹
+NBDReadPathMetrics/disabled-8   10.000 ± 0%     3.000 ± 0%  -70.00% (p=0.002 n=6)
+NBDReadPathMetrics/enabled-8    10.000 ± 0%     3.000 ± 0%  -70.00% (p=0.002 n=6)
+geomean                                     ²               -55.19%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+pkg: wiibridge/shared/perf
+                         │ baseline.txt │           optimized.txt            │
+                         │    sec/op    │    sec/op     vs base              │
+ObserveNBDReadEnabled-8     61.66n ± 0%    61.95n ± 0%  +0.45% (p=0.004 n=6)
+ObserveNBDReadDisabled-8   0.8620n ± 2%   0.8659n ± 1%       ~ (p=0.290 n=6)
+geomean                     7.291n         7.324n       +0.46%
+
+                         │ baseline.txt │           optimized.txt            │
+                         │     B/op     │    B/op     vs base                │
+ObserveNBDReadEnabled-8    0.000 ± 0%     0.000 ± 0%       ~ (p=1.000 n=6) ¹
+ObserveNBDReadDisabled-8   0.000 ± 0%     0.000 ± 0%       ~ (p=1.000 n=6) ¹
+geomean                               ²               +0.00%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                         │ baseline.txt │           optimized.txt            │
+                         │  allocs/op   │ allocs/op   vs base                │
+ObserveNBDReadEnabled-8    0.000 ± 0%     0.000 ± 0%       ~ (p=1.000 n=6) ¹
+ObserveNBDReadDisabled-8   0.000 ± 0%     0.000 ± 0%       ~ (p=1.000 n=6) ¹
+geomean                               ²               +0.00%               ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+pkg: wiibridge/tests/nbd
+                            │ baseline.txt │           optimized.txt            │
+                            │    sec/op    │   sec/op     vs base               │
+AuditNBDTLS/bytes=4096-8       27.03µ ± 1%   13.03µ ± 1%  -51.78% (p=0.002 n=6)
+AuditNBDTLS/bytes=65536-8      59.42µ ± 3%   50.64µ ± 1%  -14.79% (p=0.002 n=6)
+AuditNBDTLS/bytes=1048576-8    680.8µ ± 1%   666.4µ ± 2%   -2.12% (p=0.004 n=6)
+geomean                        103.0µ        76.04µ       -26.19%
+
+                            │ baseline.txt │            optimized.txt             │
+                            │     B/s      │     B/s       vs base                │
+AuditNBDTLS/bytes=4096-8      144.5Mi ± 1%   299.7Mi ± 1%  +107.40% (p=0.002 n=6)
+AuditNBDTLS/bytes=65536-8     1.027Gi ± 3%   1.205Gi ± 1%   +17.35% (p=0.002 n=6)
+AuditNBDTLS/bytes=1048576-8   1.434Gi ± 1%   1.465Gi ± 2%    +2.16% (p=0.004 n=6)
+geomean                       606.7Mi        821.9Mi        +35.48%
+
+                            │ baseline.txt  │            optimized.txt             │
+                            │     B/op      │     B/op       vs base               │
+AuditNBDTLS/bytes=4096-8        96.00 ±  0%     48.00 ±  0%  -50.00% (p=0.002 n=6)
+AuditNBDTLS/bytes=65536-8      130.50 ±  3%     81.00 ±  5%  -37.93% (p=0.002 n=6)
+AuditNBDTLS/bytes=1048576-8   2.419Ki ± 35%   2.389Ki ± 30%        ~ (p=0.937 n=6)
+geomean                         314.3           211.9        -32.58%
+
+                            │ baseline.txt │           optimized.txt           │
+                            │  allocs/op   │ allocs/op   vs base               │
+AuditNBDTLS/bytes=4096-8       10.000 ± 0%   2.000 ± 0%  -80.00% (p=0.002 n=6)
+AuditNBDTLS/bytes=65536-8      11.000 ± 0%   3.000 ± 0%  -72.73% (p=0.002 n=6)
+AuditNBDTLS/bytes=1048576-8     41.00 ± 0%   33.00 ± 0%  -19.51% (p=0.002 n=6)
+geomean                         16.52        5.828       -64.72%
+
+                            │ baseline.txt │           optimized.txt            │
+                            │ TLS_bytes/op │ TLS_bytes/op  vs base              │
+AuditNBDTLS/bytes=4096-8       4.228k ± 0%    4.141k ± 0%  -2.06% (p=0.002 n=6)
+AuditNBDTLS/bytes=65536-8      65.75k ± 0%    65.70k ± 0%  -0.09% (p=0.002 n=6)
+AuditNBDTLS/bytes=1048576-8    1.051M ± 0%    1.050M ± 0%  -0.01% (p=0.002 n=6)
+geomean                        66.35k         65.87k       -0.72%
+
+                            │ baseline.txt  │            optimized.txt             │
+                            │ TLS_writes/op │ TLS_writes/op  vs base               │
+AuditNBDTLS/bytes=4096-8         4.000 ± 0%      1.000 ± 0%  -75.00% (p=0.002 n=6)
+AuditNBDTLS/bytes=65536-8        7.000 ± 0%      5.000 ± 0%  -28.57% (p=0.002 n=6)
+AuditNBDTLS/bytes=1048576-8      67.00 ± 0%      65.00 ± 0%   -2.99% (p=0.002 n=6)
+geomean                          12.33           6.875       -44.25%

@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project_version": "0.1.0-rc.1",
   "prompt_version": 3,
-  "status": "separate-library-paths-locally-validated-publication-deployment-pending",
+  "status": "full-performance-audit-software-validation-passed-release-build-pending",
   "final_label": "SOFTWARE-COMPLETE RELEASE CANDIDATE \u2014 HARDWARE UNVERIFIED",
   "application_commit": "7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92",
   "implementation_base_commit": "ce732427b1805cfa580ba0d5a865e2aed47eeeac",
   "last_published_application_commit": "7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92",
-  "worktree_state": "separate-library-paths-and-mount-recovery-unpublished",
+  "worktree_state": "performance-candidate-awaiting-commit",
   "published_oci_digest": "sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b",
   "local_oci_digest": "sha256:93d6056a9ce0dab0030a55e7a74abf76c7ee64f564c8899b430fbb50cc350ce8",
   "controller_armv6_sha256": "c380f33b36f6408c46619e81f07585fe1b2f7e77e5a4225c5736988618b02b01",
@@ -45,7 +45,7 @@
     "truenas_startup": "exact-fsinfo-host-deployed-ready-and-live-block-verified"
   },
   "physical_tests": "exact FSInfo large-library retest passes USB initialization; post-enumeration stall and absent useful reads retained; live export contains 59 4GiB-minus-4KiB segments whose 32KiB-cluster chains span exactly 2^32 bytes; USB Loader GX-compatible 4GiB-minus-32KiB correction passes focused sparse fsck/source-byte tests but is not deployed or physically retested; gamecube-emulated-save-DEFERRED_HARDWARE_UNAVAILABLE",
-  "updated_utc": "2026-09-12T17:44:30Z",
+  "updated_utc": "2026-09-13T06:44:35.665648+00:00",
   "library_locations": {
     "branch": "fix/separate-library-paths",
     "settings": [
@@ -58,5 +58,28 @@
     "publication": "PENDING",
     "truenas_deployment": "PENDING",
     "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
+  },
+  "performance_audit": {
+    "repository": "https://github.com/mhilton7/WiiBridge.git",
+    "baseline_main_commit": "cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27",
+    "baseline_commit_date": "2026-08-28T14:53:07-07:00",
+    "branch": "perf/full-system-optimization",
+    "separate_library_prerequisite_commit": "51a42992f0b1aa9dd153bab3279524a4a04bb73c",
+    "baseline_validation": "PASS: make test/static/server/compose/oci/release; firmware-all and validate-firmware; race and vet",
+    "baseline_release_seconds": 4033.057,
+    "baseline_integration": "PASS: hardened OCI, libnbd mTLS, Linux NBD read-only mounts, Wii and GameCube synthetic source checksums",
+    "measurement_method": "Six samples per benchmark, Go 1.25.12, GOMAXPROCS=8, GOGC=100, CGO=0, ext4-backed temporary fixtures; separate warm and mincore-verified source-page eviction latency samples",
+    "implementation": "Wii indexed extents and FAT batching; NBD complete reply framing implemented; focused tests PASS; remaining optimizations in progress",
+    "optimized_release": "PENDING",
+    "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE",
+    "historical_release_fields": "Existing top-level publication and hardware fields describe earlier work, not this audit release.",
+    "optimized_software_validation": "PASS: make test/static/server/compose/oci, full race suite and vet",
+    "controlled_benchmarks": "PASS: six samples per canonical case; ext4 TMPDIR; baseline and optimized evidence in reports/performance/2026-09-full-audit",
+    "legacy_generation_compatibility": "PASS: baseline metadata hashes and source bytes preserved",
+    "hardened_kernel_integration": "PASS: Wii and GameCube readonly mounts, both FAT copies, payload hashes, denied writes, fsck -n",
+    "separate_library_integration": "PASS",
+    "report": "docs/full-performance-audit.md",
+    "final_release": "PENDING",
+    "physical_qualification": "DEFERRED_HARDWARE_UNAVAILABLE"
   }
 }

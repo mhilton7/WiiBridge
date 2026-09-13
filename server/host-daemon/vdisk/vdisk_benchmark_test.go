@@ -62,22 +62,33 @@ func BenchmarkPayloadRead1MiB(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	if err = f.Truncate(0); err != nil {
-		f.Close()
+	// Preserve the synthetic header while physically writing every existing
+	// byte; recreating SyntheticWBFS here would truncate the allocation again.
+	header := make([]byte, 1<<20)
+	input, err := os.Open(path)
+	if err != nil {
 		b.Fatal(err)
 	}
+	if _, err = input.ReadAt(header, 0); err != nil {
+		input.Close()
+		b.Fatal(err)
+	}
+	input.Close()
 	block := make([]byte, 1<<20)
 	for off := int64(0); off < 64<<20; off += int64(len(block)) {
-		if _, err = f.Write(block); err != nil {
+		data := block
+		if off == 0 {
+			data = header
+		}
+		if _, err = f.WriteAt(data, off); err != nil {
 			f.Close()
 			b.Fatal(err)
 		}
 	}
-	if err = f.Close(); err != nil {
+	if err = f.Sync(); err != nil {
 		b.Fatal(err)
 	}
-	// Restore a valid synthetic header after allocating the complete file.
-	if err = testutil.SyntheticWBFS(path, "PERF01", "Performance", 64<<20); err != nil {
+	if err = f.Close(); err != nil {
 		b.Fatal(err)
 	}
 	scan, err := scanner.Scan(root)

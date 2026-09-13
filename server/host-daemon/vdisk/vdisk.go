@@ -436,9 +436,31 @@ func (d *Disk) fatValue(cluster uint32) uint32 {
 func (d *Disk) fillFATSector(target []byte, fatSector int64) {
 	clear(target)
 	firstCluster := uint32(fatSector * (sectorSize / 4))
-	for offset := 0; offset < len(target); offset += 4 {
-		binary.LittleEndian.PutUint32(target[offset:offset+4],
-			d.fatValue(firstCluster+uint32(offset/4)))
+	lastCluster := firstCluster + uint32(len(target)/4)
+	if firstCluster == 0 {
+		binary.LittleEndian.PutUint32(target[0:4], 0x0ffffff8)
+		binary.LittleEndian.PutUint32(target[4:8], 0xffffffff)
+	}
+	// Chains are immutable and ordered. Search once for the sector, then walk
+	// only its intersecting chains instead of searching for every FAT entry.
+	index := sort.Search(len(d.fatChains), func(index int) bool {
+		chain := d.fatChains[index]
+		return chain.first+chain.count > firstCluster
+	})
+	for ; index < len(d.fatChains); index++ {
+		chain := d.fatChains[index]
+		if chain.first >= lastCluster {
+			break
+		}
+		end := chain.first + chain.count
+		for cluster := max(firstCluster, chain.first, uint32(2)); cluster < min(lastCluster, end); cluster++ {
+			value := cluster + 1
+			if cluster+1 == end {
+				value = 0x0fffffff
+			}
+			offset := int(cluster-firstCluster) * 4
+			binary.LittleEndian.PutUint32(target[offset:offset+4], value)
+		}
 	}
 }
 
@@ -492,12 +514,13 @@ func (d *Disk) ReadAt(p []byte, off int64) (int, error) {
 	if off < 0 || int64(len(p)) > d.size-off {
 		return 0, io.EOF
 	}
+	var scratch [sectorSize]byte
 	for done := 0; done < len(p); {
 		pos := off + int64(done)
 		sector := pos / sectorSize
 		inSector := pos % sectorSize
 		n := len(p) - done
-		if data, ok := d.metadataSector(sector); ok {
+		if data, ok := d.metadata[sector]; ok {
 			if max := int(sectorSize - inSector); n > max {
 				n = max
 			}
@@ -505,13 +528,28 @@ func (d *Disk) ReadAt(p []byte, off int64) (int, error) {
 			if d.metricsEnabled() {
 				d.metrics.Disk.MetadataReads.Add(1)
 			}
+		} else if fatSector, ok := d.fatSectorIndex(sector); ok {
+			n = min(n, int(sectorSize-inSector))
+			if inSector == 0 && n == int(sectorSize) {
+				d.fillFATSector(p[done:done+n], fatSector)
+			} else {
+				d.fillFATSector(scratch[:], fatSector)
+				copy(p[done:done+n], scratch[inSector:inSector+int64(n)])
+			}
+			if d.metricsEnabled() {
+				d.metrics.Disk.MetadataReads.Add(1)
+			}
 		} else {
 			var mapped *extent
-			for _, e := range d.extents {
-				if pos >= e.start && pos < e.start+e.length {
-					mapped = &e
-					break
-				}
+			// Build appends disjoint extents in virtual-offset order. Taking
+			// the slice element's address also avoids escaping a range-variable
+			// copy for every extent examined on every read.
+			index := sort.Search(len(d.extents), func(index int) bool {
+				e := &d.extents[index]
+				return e.start+e.length > pos
+			})
+			if index < len(d.extents) && d.extents[index].start <= pos {
+				mapped = &d.extents[index]
 			}
 			if mapped == nil {
 				// Metadata occupies whole sectors, so an unmapped gap can be

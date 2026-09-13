@@ -1,0 +1,102 @@
+package gamecube
+
+import (
+	"bytes"
+	"fmt"
+	"os"
+	"path/filepath"
+	"testing"
+)
+
+// This fixed workload makes pread64 counts reproducible with strace -f -c.
+// Fixture creation uses writes only, so preads belong to the measured reads.
+func TestAuditSaveReadSyscalls(t *testing.T) {
+	for _, mixed := range []bool{false, true} {
+		t.Run(fmt.Sprintf("mixed=%t", mixed), func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "synthetic-card.raw")
+			reference := bytes.Repeat([]byte{0x63}, 2<<20)
+			if err := os.WriteFile(path, reference, 0600); err != nil {
+				t.Fatal(err)
+			}
+			file, err := os.Open(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(func() { _ = file.Close() })
+			card := &cardObject{spec: SaveObject{CardSize: int64(len(reference))}, file: file, dirty: make(map[int64][]byte)}
+			if mixed {
+				for offset := 0; offset < len(reference); offset += 64 << 10 {
+					for block := 0; block < 8; block++ {
+						data := bytes.Repeat([]byte{0xa7}, 512)
+						card.dirty[int64(offset/512+block)] = data
+						copy(reference[offset+block*512:], data)
+					}
+				}
+			}
+			store := &SaveStore{objects: map[string]*cardObject{"audit": card}}
+			buffer := make([]byte, 1<<20)
+			for i := 0; i < 100; i++ {
+				if n, err := store.ReadSaveAt("audit", buffer, 117); err != nil || n != len(buffer) {
+					t.Fatalf("read: %d %v", n, err)
+				}
+				if !bytes.Equal(buffer, reference[117:117+len(buffer)]) {
+					t.Fatal("save bytes differ")
+				}
+			}
+		})
+	}
+}
+
+func BenchmarkAuditSaveRead(b *testing.B) {
+	for _, mixed := range []bool{false, true} {
+		root := b.TempDir()
+		objects, err := PlanSaveObjects(MemoryCardEmulatedIndividual,
+			[]Game{{ID: "GAUD01"}}, "", 16<<20)
+		if err != nil {
+			b.Fatal(err)
+		}
+		if err = EnsureSaveObjects(root, objects, true, "audit", "generation"); err != nil {
+			b.Fatal(err)
+		}
+		store, err := OpenSaveStore(SaveStoreConfig{
+			Root: root, Application: "audit", GenerationID: "generation",
+			LayoutChecksum: "layout",
+		}, objects)
+		if err != nil {
+			b.Fatal(err)
+		}
+		b.Cleanup(func() { _ = store.Close() })
+		reference := make([]byte, 16<<20)
+		if _, err := store.ReadSaveAt(objects[0].ID, reference, 0); err != nil {
+			b.Fatal(err)
+		}
+		if mixed {
+			data := bytes.Repeat([]byte{0xa7}, 4096)
+			for offset := 0; offset < len(reference); offset += 64 << 10 {
+				if _, err := store.WriteSaveAt(objects[0].ID, data, int64(offset)); err != nil {
+					b.Fatal(err)
+				}
+				copy(reference[offset:], data)
+			}
+		}
+		for _, size := range []int{4096, 65536, 1 << 20} {
+			b.Run(fmt.Sprintf("mixed=%t/bytes=%d", mixed, size), func(b *testing.B) {
+				buffer := make([]byte, size)
+				b.ReportAllocs()
+				b.SetBytes(int64(size))
+				b.ResetTimer()
+				for i := 0; i < b.N; i++ {
+					// Unaligned reads exercise partial first/last card sectors.
+					offset := (i * 7919) % (len(reference) - size)
+					n, err := store.ReadSaveAt(objects[0].ID, buffer, int64(offset))
+					if err != nil || n != len(buffer) {
+						b.Fatalf("read: %d, %v", n, err)
+					}
+					if !bytes.Equal(buffer, reference[offset:offset+size]) {
+						b.Fatal("save bytes differ")
+					}
+				}
+			})
+		}
+	}
+}

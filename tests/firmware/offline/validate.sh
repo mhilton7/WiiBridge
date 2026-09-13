@@ -26,6 +26,10 @@ sudo /usr/sbin/e2fsck -fn "${loop}p2"
 sudo mount -o ro "${loop}p2" "$tmp/root"
 sudo mount -o ro "${loop}p1" "$tmp/boot"
 test -x "$tmp/root/usr/bin/wiibridge-pi-controller"
+# Verify the packaged executable is the one produced for this board. This
+# catches accidentally packaging an older controller from a cached image.
+cmp "build/pi/${target}/wiibridge-pi-controller" \
+  "$tmp/root/usr/bin/wiibridge-pi-controller"
 test -f "$tmp/root/etc/systemd/system/wiibridge-controller.service"
 test -f "$tmp/root/etc/systemd/system/wiibridge-auto-attach.service"
 test -L "$tmp/root/etc/systemd/system/multi-user.target.wants/wiibridge-auto-attach.service"
@@ -110,7 +114,7 @@ jq -n --arg target "$target" --arg architecture "$arch" \
     services:"PASS",
     nbd_kernel_modules:"PASS",nbd_boot_preload:"PASS",
     usb_gadget_kernel_modules:"PASS",
-    qemu_application_smoke:"PASS",
+    qemu_application_smoke:"PASS",controller_matches_build:"PASS",
     no_payloads:"PASS",no_embedded_identity:"PASS",
     kernel_versions:$kernel_versions,
     physical_tests:"DEFERRED_HARDWARE_UNAVAILABLE"}' > "$report"

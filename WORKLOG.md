@@ -1280,3 +1280,29 @@ remaining audit mounts and restored the original host devpts mount topology.
 No failed firmware was published. Added private mount namespaces per builder
 and a mount-presence guard before build-tree deletion. Final validation and a
 fresh full build of every board remain pending after this correction.
+
+## Validated performance prerelease publication
+
+Completed the clean release at `3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2`: full software validation,
+all three complete firmware builds, repeated offline checks and final packaging
+PASS. The corrected parallel firmware build took 1,884 seconds; no controlled
+build-speed claim is made. Parent mount inspection found no remaining pi-gen
+mounts. Final Wii/GameCube hardened OCI, mTLS/libnbd/Linux NBD, readonly payload
+hashes, both FAT copies, denied writes, fsck and separate-source recovery PASS.
+
+Published immutable GHCR digest `sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09` and
+[the prerelease](https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91). All 30 uploaded sizes and SHA-256 values were
+verified before publication. A draft-release lookup by tag returned 404 after
+upload; verification resumed using the existing draft's release ID, without
+reuploading or replacing assets. Final public lookup passed.
+
+Finalized separate-library YAML after binary packaging: remove the nested
+required shared-path fallback, require both dedicated paths, reject empty/missing
+paths, validate every shipped Compose definition and replace the obsolete GHCR
+example with the tested image pin. These deployment and audit records do not
+change packaged host/Pi runtime code. The manifest records its exact revision.
+
+Baseline/main is preserved; work is on `perf/full-system-optimization` and PR 14.
+Physical board boots, Wii launches, TrueNAS/ZFS behavior and emulated-save
+hardware qualification remain `DEFERRED_HARDWARE_UNAVAILABLE`. No operator
+repository was reset and no live appliance deployment was performed.

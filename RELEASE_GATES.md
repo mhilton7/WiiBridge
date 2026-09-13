@@ -2,16 +2,38 @@
 
 ## Current September performance candidate
 
-The current audit starts from main cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27.
-Full optimized tests, race, vet, static checks, OCI/Compose builds, existing
-GameCube-generation compatibility, local kernel NBD/filesystem validation and
-separate-library recovery integration pass. Controlled measurements and limits
-are in [the full audit](docs/full-performance-audit.md).
+**SOFTWARE-COMPLETE RELEASE CANDIDATE — HARDWARE UNVERIFIED**
 
-The initial parallel firmware attempt failed due to shared chroot mount propagation; cleanup is complete and the builder now uses private mount namespaces. A fresh full retry is required. The optimized release artifact build/publication is pending. Physical console,
-Pi and TrueNAS qualification is DEFERRED_HARDWARE_UNAVAILABLE. The historical
-entries below describe prior revisions and do not qualify this candidate.
+[Published prerelease](https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91) from clean source
+`3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2`, compared with fresh main
+`cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27`. The [audit](docs/full-performance-audit.md),
+[manifest](reports/performance/2026-09-full-audit/release-manifest.json) and
+[publication verification](reports/performance/2026-09-full-audit/release-publication.json)
+record measurements, exact artifacts and limits.
 
+| Current gate | Status | Evidence |
+|---|---|---|
+| Fresh main baseline and complete baseline release | PASS | Preserved baseline source/artifacts and validation record |
+| Complete tests, static checks, race detector and vet | PASS | Final clean source validation |
+| Server, OCI and Compose | PASS | Final digest matches tested container; all three Compose definitions parse |
+| Wii/GameCube Linux NBD and libnbd mTLS | PASS | Readonly mounts, source hashes, both FAT copies, denied writes, fsck without repairs |
+| Source relocation and independent console paths | PASS | Real readonly container recovery/activation and missing-path parser checks |
+| Existing GameCube generation compatibility | PASS | Preserved baseline metadata and source-byte checks |
+| Zero W, Pi 4 and Pi 5 complete firmware builds | PASS | Fresh successful retry with private mount namespaces |
+| All-board offline validation and controller identity | PASS | Filesystems, boot/module/service checks, QEMU smoke and embedded binary match |
+| Compression, checksums, SBOM and provenance | PASS | Full decompressed hashes and captured clean build inputs |
+| Immutable GHCR publication and GitHub release assets | PASS | Published digest plus all 30 remote sizes/hashes verified |
+| Independent byte-for-byte build reproducibility | PENDING | Not performed; unsigned local provenance is not an independent attestation |
+| Physical board boot, Wii launches, TrueNAS/ZFS performance and save recovery | DEFERRED_HARDWARE_UNAVAILABLE | Requires operator hardware qualification |
+
+The failed initial parallel firmware attempt was rejected and cleaned. The
+corrected all-board retry passed. Deployment YAML and publication records were
+finalized after binary packaging; the manifest retains the exact clean binary
+source revision. No operator TrueNAS/Pi deployment was performed.
+
+## Historical gates from earlier revisions
+
+The entries below describe earlier work and do not qualify this candidate.
 
 Status values are `PENDING`, `PASS`, `FAIL`, `BLOCKED_EXTERNAL`, and
 `DEFERRED_HARDWARE_UNAVAILABLE`. Only executed checks may be marked `PASS`.

@@ -16,8 +16,38 @@ the pinned main baseline. Its extra dashboard controls are included in the
 before/after comparison; they are not attributed to a performance optimization.
 
 The application version remains `0.1.0-rc.1`; immutable source revisions and
-image digests distinguish the optimized candidate. Final artifact identity and
-validation are recorded in the release manifest accompanying this report.
+image digests distinguish the optimized candidate. Host and all three firmware
+artifacts were built from clean source
+`3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2`. Runtime performance changes are
+in `18346a0`; the subsequent source commit only corrects firmware build isolation.
+Final artifact identity and validation are recorded in the
+[release manifest](../reports/performance/2026-09-full-audit/release-manifest.json).
+
+The final container manifest is
+`sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09`.
+Final software checks, all three full firmware builds, repeated offline
+validation and release packaging passed. The final OCI image separately passed
+Wii and GameCube libnbd/Linux NBD integration and source-recovery tests. See
+[final validation](../reports/performance/2026-09-full-audit/release-validation.json),
+[Wii integration](../reports/performance/2026-09-full-audit/release-wii-kernel.json),
+[GameCube integration](../reports/performance/2026-09-full-audit/release-gamecube-kernel.json)
+and [source recovery](../reports/performance/2026-09-full-audit/release-separate-libraries.json).
+
+The final release command uses `make -o firmware-all release` after the fresh
+`make -j3 firmware-all` and `make validate-firmware` pass at the same unchanged,
+clean revision. It reruns the remaining release dependencies while avoiding a
+second identical firmware build. The baseline used literal `make release`.
+Packaging verifies each compressed image by hashing its full decompressed
+stream and records the matching embedded controller. No independently
+reproduced byte-for-byte build is claimed.
+
+Deployment YAML and release records were finalized after binary packaging.
+The standalone separate-library YAML now requires both dedicated dataset paths:
+the earlier nested required-variable fallback incorrectly demanded a legacy
+shared path even when both dedicated paths were supplied. Real Compose parser
+checks cover that configuration and reject missing or empty paths. The shared
+root remains supported through `compose.yaml`. This deployment correction and
+the generated digest pin do not change the packaged host/Pi runtime code.
 
 ## Environment and baseline
 
@@ -205,6 +235,11 @@ Cancellation is cooperative: it stops between bounded storage reads, but
 cannot interrupt a storage syscall that has not returned. Full source hashing
 still consumes I/O during a requested build or deep validation. GameCube
 backend reads still use the existing lock and bounded descriptor cache.
+Emulated-save status requests still validate the managed generation and list
+backup metadata; this path benefits from the smaller, cheaper generation
+validation but was not given a separate status-endpoint benchmark. Physical
+memory-card mode returns before that work. No claim of eliminating all
+foreground polling I/O is made.
 
 Physical qualification remains `DEFERRED_HARDWARE_UNAVAILABLE`: cold and warm
 launches across several Wii/GameCube titles; USB Loader GX IOS selection;
@@ -227,3 +262,8 @@ audit mounts removed normally. The original host mount topology was restored.
 The correction isolates each pi-gen job in a private mount namespace and
 refuses build-tree deletion if any mount remains below it. This build-only
 correction does not change the benchmarked host/Pi runtime code.
+
+The corrected concurrent firmware retry passed for Zero W, Pi 4 and Pi 5.
+Its firmware-all command took 1,884 seconds; this is a build execution record,
+not a controlled comparison with the serial baseline. Parent mount inspection
+confirmed that no audit pi-gen mounts remained.

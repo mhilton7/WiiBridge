@@ -54,6 +54,7 @@ AUDIT_PHASE=optimized AUDIT_CASE=wii-interop AUDIT_KERNEL=1 \
 AUDIT_PHASE=optimized AUDIT_CASE=gc-interop AUDIT_PLATFORM=gamecube AUDIT_KERNEL=1 \
   python3 tests/performance/container-interop.py
 sudo python3 tests/truenas/separate-libraries-test.py
+python3 tests/truenas/compose-separate-parser-test.py
 ```
 
 The optional kernel test requires Docker, skopeo, OpenSSL, libnbd tools,

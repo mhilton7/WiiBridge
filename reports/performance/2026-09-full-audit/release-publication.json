@@ -1,0 +1,189 @@
+{
+  "status": "PASS",
+  "release_tag": "perf-2026-09-13-3c5dd91",
+  "url": "https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91",
+  "target_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+  "host_reference": "ghcr.io/mhilton7/wiibridge-host:sha-3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2@sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+  "assets": [
+    {
+      "name": "full-performance-audit.md",
+      "size": 19966,
+      "digest": "sha256:b562ea07dc8f51eb44a094bf8204172971f8ca15c6d5db09f4822a6540eefbc2",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/full-performance-audit.md"
+    },
+    {
+      "name": "performance-evidence.tar.gz",
+      "size": 27616,
+      "digest": "sha256:d7309f1240c4211de985e766260cd76f7d780a9ab17945f79d8d1368ba2baff5",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/performance-evidence.tar.gz"
+    },
+    {
+      "name": "release-manifest.json",
+      "size": 18174,
+      "digest": "sha256:76a40a38b11bb0d11bd2a93311ced4e6496a5156df69541c50ed6ca0b7115c7b",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/release-manifest.json"
+    },
+    {
+      "name": "SHA256SUMS",
+      "size": 3166,
+      "digest": "sha256:be28d7bf35e7d74665c8367c0607265705900fda10512f6bd1679fffb30f78df",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/SHA256SUMS"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi4-arm64.bmap",
+      "size": 18889,
+      "digest": "sha256:425c5a1d4ef87dde1b9d7fafb43263b2512c24e4cf622c9185a4b12963a007f2",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi4-arm64.bmap"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi4-arm64.build-input.json",
+      "size": 206,
+      "digest": "sha256:018a20796b8f5cbd17b8bf98bde59b29ddf4f103309820d7d1a925a9a8bf84e2",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi4-arm64.build-input.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi4-arm64.img.xz",
+      "size": 539553268,
+      "digest": "sha256:0baa2cc4d2e04c94b52c5c6805d60d1968f90bbbe7f5c14694291ddb0861e907",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi4-arm64.img.xz"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi4-arm64.offline-validation.json",
+      "size": 775,
+      "digest": "sha256:25726b6595daafa2329ffefc46032e0d6b5b834145fedba08f025d7fa058d08c",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi4-arm64.offline-validation.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi4-arm64.packages.txt",
+      "size": 16127,
+      "digest": "sha256:feaa6299a2f63652e935570218f2efb1e2e6bd814dee20d10773ab26afc923b8",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi4-arm64.packages.txt"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi4-arm64.provenance.json",
+      "size": 1489,
+      "digest": "sha256:74e10434d3e64646ab567e9dcc677b0862ae2f81e693f4254b681e200a79ae89",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi4-arm64.provenance.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi4-arm64.sbom.spdx.json",
+      "size": 177854,
+      "digest": "sha256:95f2937db41f501480dc0c34203e5734534b46fa7e6d4c899918dbff62df8770",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi4-arm64.sbom.spdx.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi5-arm64.bmap",
+      "size": 19228,
+      "digest": "sha256:9acd67fc58b4cade65e9bc8a5ef176e810f71f244b29af039e66a77654f9242b",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi5-arm64.bmap"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi5-arm64.build-input.json",
+      "size": 206,
+      "digest": "sha256:018a20796b8f5cbd17b8bf98bde59b29ddf4f103309820d7d1a925a9a8bf84e2",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi5-arm64.build-input.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi5-arm64.img.xz",
+      "size": 537348580,
+      "digest": "sha256:b83c118f558e4a110a831fa8edf29ea68002e18825dc3600f94a9a80477cbdce",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi5-arm64.img.xz"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi5-arm64.offline-validation.json",
+      "size": 775,
+      "digest": "sha256:514b462520139933ab86069bde5f6532cbb34595a6cc1c9aa25638a0f1ef70bd",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi5-arm64.offline-validation.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi5-arm64.packages.txt",
+      "size": 16127,
+      "digest": "sha256:feaa6299a2f63652e935570218f2efb1e2e6bd814dee20d10773ab26afc923b8",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi5-arm64.packages.txt"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi5-arm64.provenance.json",
+      "size": 1489,
+      "digest": "sha256:ddc6d56324e66f24437ef1785de72dc5c0713134d57551ec9be6f191e8a345c4",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi5-arm64.provenance.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-pi5-arm64.sbom.spdx.json",
+      "size": 177854,
+      "digest": "sha256:02b4dc7584690e8a6c8804417c72488e211ab72badb3fabce59947a346f0b53b",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-pi5-arm64.sbom.spdx.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-zero-w-armhf.bmap",
+      "size": 19673,
+      "digest": "sha256:7ff5c9ee8fc8208ed792e131d25078e67a3515521742f650090f5d2c01f35020",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-zero-w-armhf.bmap"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-zero-w-armhf.build-input.json",
+      "size": 206,
+      "digest": "sha256:018a20796b8f5cbd17b8bf98bde59b29ddf4f103309820d7d1a925a9a8bf84e2",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-zero-w-armhf.build-input.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-zero-w-armhf.img.xz",
+      "size": 529534096,
+      "digest": "sha256:be3540662e6bb0bc6169de37b9d6cb435baef1da28e420361b7233814b88d645",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-zero-w-armhf.img.xz"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-zero-w-armhf.offline-validation.json",
+      "size": 800,
+      "digest": "sha256:352a104c796fd2aa3d3e788c48934b6170156b0c452a1c067059b01e12b83c7f",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-zero-w-armhf.offline-validation.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-zero-w-armhf.packages.txt",
+      "size": 16588,
+      "digest": "sha256:ff6b83ca9c6abbd0bd3cb0a8a6dd7989240680d72f6844304adf680d10d5bf6f",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-zero-w-armhf.packages.txt"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-zero-w-armhf.provenance.json",
+      "size": 1501,
+      "digest": "sha256:227a4543ffabc0cf8c43f764dd35443d97699091397b699461c085cb887211e2",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-zero-w-armhf.provenance.json"
+    },
+    {
+      "name": "wiibridge-0.1.0-rc.1-zero-w-armhf.sbom.spdx.json",
+      "size": 180164,
+      "digest": "sha256:e43b4a2b482fd9abb9c4428ce3c3a3ca4742b7bc3879697df1bd60cfdb4ee3e0",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-0.1.0-rc.1-zero-w-armhf.sbom.spdx.json"
+    },
+    {
+      "name": "wiibridge-compose.separate-libraries.yaml",
+      "size": 4998,
+      "digest": "sha256:4f9caff5712dab36691060fbfedfde8d15d0358a66cdd43d15e1d42dd22a69a1",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-compose.separate-libraries.yaml"
+    },
+    {
+      "name": "wiibridge-host-0.1.0-rc.1-3c5dd91.oci.tar.gz",
+      "size": 6769002,
+      "digest": "sha256:16de2859bd2b2662e0889643e453183021ec8b8ad7bceb65d86e8c7474961f35",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-host-0.1.0-rc.1-3c5dd91.oci.tar.gz"
+    },
+    {
+      "name": "wiibridge-host-0.1.0-rc.1.build-input.json",
+      "size": 286,
+      "digest": "sha256:0cb4da69a0fea6c0bcedc07f01e6dfcac75348a216c1dc4235a0b3a64d293aa3",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-host-0.1.0-rc.1.build-input.json"
+    },
+    {
+      "name": "wiibridge-host-0.1.0-rc.1.provenance.json",
+      "size": 911,
+      "digest": "sha256:81fe4c2bc1ff14214865f65a0256c3e39c23f23eb59c8be8e286550b775b277b",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-host-0.1.0-rc.1.provenance.json"
+    },
+    {
+      "name": "wiibridge-host-0.1.0-rc.1.sbom.spdx.json",
+      "size": 13676,
+      "digest": "sha256:5f842adf6eb0897adf56d868098bf202fd1b0bc8081978edb4f61015fe1da3b5",
+      "browser_download_url": "https://github.com/mhilton7/WiiBridge/releases/download/perf-2026-09-13-3c5dd91/wiibridge-host-0.1.0-rc.1.sbom.spdx.json"
+    }
+  ]
+}

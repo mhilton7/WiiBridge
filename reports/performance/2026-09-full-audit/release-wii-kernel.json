@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "source_sha256": "eaba87bcc134b961d892cc725cb9b90559cd5024afc540cf0c3e3713f758fa65",
+  "free_space_query": {
+    "mount_option": "usefree",
+    "free_clusters": 65011,
+    "nbd_bytes": 0,
+    "nbd_requests": 0
+  },
+  "kernel_nbd": {
+    "status": "PASS",
+    "synthetic_payload_sha256": "eaba87bcc134b961d892cc725cb9b90559cd5024afc540cf0c3e3713f758fa65",
+    "mounted_readonly": true,
+    "block_write_rejected": true,
+    "fsck_readonly": "PASS"
+  },
+  "image_id": "sha256:d3576d3002fdc8530a38a2fb62b707c94424ba0e698379d4822686eeedd33ec3",
+  "readonly_root": true,
+  "cap_drop": [
+    "ALL"
+  ],
+  "virtual_bytes": 269979648,
+  "fat_bytes": 262144,
+  "verified_reads": 10,
+  "tests": [
+    "hardened OCI startup",
+    "healthcheck",
+    "libnbd mTLS",
+    "read-only export",
+    "plaintext rejected",
+    "MBR and FAT boot signatures",
+    "both FAT copies equal over NBD",
+    "restart with catalog persistence",
+    "source bytes unchanged"
+  ]
+}

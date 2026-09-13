@@ -1,0 +1,513 @@
+{
+  "schema_version": 1,
+  "label": "SOFTWARE-COMPLETE RELEASE CANDIDATE \u2014 HARDWARE UNVERIFIED",
+  "repository": "https://github.com/mhilton7/WiiBridge.git",
+  "baseline_main_revision": "cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27",
+  "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+  "source_worktree_dirty": false,
+  "version": "0.1.0-rc.1",
+  "created_utc": "2026-09-13T22:41:24.956204+00:00",
+  "validation": [
+    {
+      "command": [
+        "make",
+        "test"
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:07:10.337149+00:00",
+      "status": "PASS",
+      "log": "1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.569
+    },
+    {
+      "command": [
+        "make",
+        "static"
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:07:10.911255+00:00",
+      "status": "PASS",
+      "log": "2.log",
+      "exit_code": 0,
+      "elapsed_seconds": 1.244
+    },
+    {
+      "command": [
+        "make",
+        "server"
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:07:12.161451+00:00",
+      "status": "PASS",
+      "log": "3.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.323
+    },
+    {
+      "command": [
+        "make",
+        "compose"
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:07:12.490669+00:00",
+      "status": "PASS",
+      "log": "4.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.09
+    },
+    {
+      "command": [
+        "make",
+        "oci"
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:07:12.586547+00:00",
+      "status": "PASS",
+      "log": "5.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.448
+    },
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "./server/...",
+        "./pi/...",
+        "./shared/...",
+        "./tests/..."
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:07:13.041214+00:00",
+      "status": "PASS",
+      "log": "6.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3
+    },
+    {
+      "command": [
+        "go",
+        "vet",
+        "./server/...",
+        "./pi/...",
+        "./shared/..."
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:07:13.347404+00:00",
+      "status": "PASS",
+      "log": "7.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.252
+    },
+    {
+      "command": [
+        "make",
+        "-j3",
+        "firmware-all"
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:07:13.605170+00:00",
+      "status": "PASS",
+      "log": "8.log",
+      "exit_code": 0,
+      "elapsed_seconds": 1884.042
+    },
+    {
+      "command": [
+        "make",
+        "validate-firmware"
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:38:37.658831+00:00",
+      "status": "PASS",
+      "log": "9.log",
+      "exit_code": 0,
+      "elapsed_seconds": 4.315
+    },
+    {
+      "command": [
+        "make",
+        "-o",
+        "firmware-all",
+        "release"
+      ],
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started_utc": "2026-09-13T07:38:41.979432+00:00",
+      "status": "PASS",
+      "log": "10.log",
+      "note": "All three fresh firmware builds and offline validation already passed at this unchanged clean revision; avoid rebuilding completed firmware in the final release target.",
+      "exit_code": 0,
+      "elapsed_seconds": 9.058
+    }
+  ],
+  "integration": {
+    "wii-kernel": {
+      "status": "PASS",
+      "source_sha256": "eaba87bcc134b961d892cc725cb9b90559cd5024afc540cf0c3e3713f758fa65",
+      "free_space_query": {
+        "mount_option": "usefree",
+        "free_clusters": 65011,
+        "nbd_bytes": 0,
+        "nbd_requests": 0
+      },
+      "kernel_nbd": {
+        "status": "PASS",
+        "synthetic_payload_sha256": "eaba87bcc134b961d892cc725cb9b90559cd5024afc540cf0c3e3713f758fa65",
+        "mounted_readonly": true,
+        "block_write_rejected": true,
+        "fsck_readonly": "PASS"
+      },
+      "image_id": "sha256:d3576d3002fdc8530a38a2fb62b707c94424ba0e698379d4822686eeedd33ec3",
+      "readonly_root": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "virtual_bytes": 269979648,
+      "fat_bytes": 262144,
+      "verified_reads": 10,
+      "tests": [
+        "hardened OCI startup",
+        "healthcheck",
+        "libnbd mTLS",
+        "read-only export",
+        "plaintext rejected",
+        "MBR and FAT boot signatures",
+        "both FAT copies equal over NBD",
+        "restart with catalog persistence",
+        "source bytes unchanged"
+      ]
+    },
+    "gc-kernel": {
+      "status": "PASS",
+      "source_sha256": "ab3cd6b033969575ca9bc93325c9f2df45245184f10375fbb75ba0847c2edf57",
+      "free_space_query": {
+        "mount_option": "usefree",
+        "free_clusters": 261980,
+        "nbd_bytes": 0,
+        "nbd_requests": 0
+      },
+      "kernel_nbd": {
+        "status": "PASS",
+        "synthetic_payload_sha256": "ab3cd6b033969575ca9bc93325c9f2df45245184f10375fbb75ba0847c2edf57",
+        "mounted_readonly": true,
+        "block_write_rejected": true,
+        "fsck_readonly": "PASS"
+      },
+      "image_id": "sha256:d3576d3002fdc8530a38a2fb62b707c94424ba0e698379d4822686eeedd33ec3",
+      "readonly_root": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "virtual_bytes": 8589934592,
+      "fat_bytes": 1048576,
+      "verified_reads": 34,
+      "tests": [
+        "hardened OCI startup",
+        "healthcheck",
+        "libnbd mTLS",
+        "read-only export",
+        "plaintext rejected",
+        "MBR and FAT boot signatures",
+        "both FAT copies equal over NBD",
+        "restart with catalog persistence",
+        "source bytes unchanged"
+      ]
+    },
+    "separate-libraries": {
+      "status": "PASS",
+      "checks": [
+        "separate read-only mounts scan and build",
+        "moved GameCube file rebuild",
+        "persisted stale mount rejected then explicitly recovered",
+        "empty replacement preserves GameCube catalog and Wii readiness",
+        "GameCube builds and activates while Wii mount is unavailable",
+        "source bytes unchanged"
+      ]
+    }
+  },
+  "firmware": [
+    {
+      "target": "zero-w-armhf",
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "raw_image_bytes": 2759852032,
+      "raw_image_sha256": "3c5ecc921be55ad829a02cbb6871f63075558034b869b78c4b7d662ae5bcf138",
+      "compressed_sha256": "be3540662e6bb0bc6169de37b9d6cb435baef1da28e420361b7233814b88d645",
+      "controller_sha256": "a2b778e718496e3e1542e38db810b124c1245d3047c7b20698f6585a552ad809",
+      "offline_validation": {
+        "status": "firmware-offline-verified",
+        "target": "zero-w-armhf",
+        "architecture": "ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), statically linked, stripped",
+        "partition_table": "PASS",
+        "filesystems_non_destructive_fsck": "PASS",
+        "filesystems_read_only_inspection": "PASS",
+        "board_metadata": "PASS",
+        "boot_files": "PASS",
+        "usb_gadget_boot_config": "PASS",
+        "services": "PASS",
+        "nbd_kernel_modules": "PASS",
+        "nbd_boot_preload": "PASS",
+        "usb_gadget_kernel_modules": "PASS",
+        "qemu_application_smoke": "PASS",
+        "controller_matches_build": "PASS",
+        "no_payloads": "PASS",
+        "no_embedded_identity": "PASS",
+        "kernel_versions": [
+          "6.18.39+rpt-rpi-v6",
+          "6.18.39+rpt-rpi-v7",
+          "6.18.39+rpt-rpi-v8"
+        ],
+        "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
+      }
+    },
+    {
+      "target": "pi4-arm64",
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "raw_image_bytes": 3070230528,
+      "raw_image_sha256": "3787b3a00829f0ed86f0686f878b288dfb9d88a86fca963a87521aca3957965a",
+      "compressed_sha256": "0baa2cc4d2e04c94b52c5c6805d60d1968f90bbbe7f5c14694291ddb0861e907",
+      "controller_sha256": "0e65592980e5416e654f4ed559f730c26cf59c64bf96ca8e5e8c924567f552fe",
+      "offline_validation": {
+        "status": "firmware-offline-verified",
+        "target": "pi4-arm64",
+        "architecture": "ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, stripped",
+        "partition_table": "PASS",
+        "filesystems_non_destructive_fsck": "PASS",
+        "filesystems_read_only_inspection": "PASS",
+        "board_metadata": "PASS",
+        "boot_files": "PASS",
+        "usb_gadget_boot_config": "PASS",
+        "services": "PASS",
+        "nbd_kernel_modules": "PASS",
+        "nbd_boot_preload": "PASS",
+        "usb_gadget_kernel_modules": "PASS",
+        "qemu_application_smoke": "PASS",
+        "controller_matches_build": "PASS",
+        "no_payloads": "PASS",
+        "no_embedded_identity": "PASS",
+        "kernel_versions": [
+          "6.18.39+rpt-rpi-2712",
+          "6.18.39+rpt-rpi-v8"
+        ],
+        "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
+      }
+    },
+    {
+      "target": "pi5-arm64",
+      "source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "raw_image_bytes": 3070230528,
+      "raw_image_sha256": "8f4612df8a0fa659726c608cee4c96cf02e5c6f50bc657968661f80743c110f3",
+      "compressed_sha256": "b83c118f558e4a110a831fa8edf29ea68002e18825dc3600f94a9a80477cbdce",
+      "controller_sha256": "0e65592980e5416e654f4ed559f730c26cf59c64bf96ca8e5e8c924567f552fe",
+      "offline_validation": {
+        "status": "firmware-offline-verified",
+        "target": "pi5-arm64",
+        "architecture": "ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, stripped",
+        "partition_table": "PASS",
+        "filesystems_non_destructive_fsck": "PASS",
+        "filesystems_read_only_inspection": "PASS",
+        "board_metadata": "PASS",
+        "boot_files": "PASS",
+        "usb_gadget_boot_config": "PASS",
+        "services": "PASS",
+        "nbd_kernel_modules": "PASS",
+        "nbd_boot_preload": "PASS",
+        "usb_gadget_kernel_modules": "PASS",
+        "qemu_application_smoke": "PASS",
+        "controller_matches_build": "PASS",
+        "no_payloads": "PASS",
+        "no_embedded_identity": "PASS",
+        "kernel_versions": [
+          "6.18.39+rpt-rpi-2712",
+          "6.18.39+rpt-rpi-v8"
+        ],
+        "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
+      }
+    }
+  ],
+  "host": {
+    "reference": "ghcr.io/mhilton7/wiibridge-host:sha-3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2@sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+    "manifest_digest": "sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+    "config_digest": "sha256:d3576d3002fdc8530a38a2fb62b707c94424ba0e698379d4822686eeedd33ec3",
+    "build_inputs": {
+      "revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+      "started": "2026-09-13T07:38:46Z",
+      "digest": "d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+      "sourceTreeSha256": "36efb469fcd4d3fbb5995fdfc36dd9183bcf873ee93058a9c9a6188c8898dce2",
+      "dirty": false
+    }
+  },
+  "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE",
+  "artifacts": [
+    {
+      "file": "wiibridge-host-0.1.0-rc.1-3c5dd91.oci.tar.gz",
+      "bytes": 6769002,
+      "sha256": "16de2859bd2b2662e0889643e453183021ec8b8ad7bceb65d86e8c7474961f35",
+      "kind": "oci-layout-archive"
+    },
+    {
+      "file": "wiibridge-host-0.1.0-rc.1.build-input.json",
+      "bytes": 286,
+      "sha256": "0cb4da69a0fea6c0bcedc07f01e6dfcac75348a216c1dc4235a0b3a64d293aa3",
+      "kind": "host-build-input.json"
+    },
+    {
+      "file": "wiibridge-host-0.1.0-rc.1.provenance.json",
+      "bytes": 911,
+      "sha256": "81fe4c2bc1ff14214865f65a0256c3e39c23f23eb59c8be8e286550b775b277b",
+      "kind": "host-provenance.json"
+    },
+    {
+      "file": "wiibridge-host-0.1.0-rc.1.sbom.spdx.json",
+      "bytes": 13676,
+      "sha256": "5f842adf6eb0897adf56d868098bf202fd1b0bc8081978edb4f61015fe1da3b5",
+      "kind": "host-sbom.spdx.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-zero-w-armhf.img.xz",
+      "bytes": 529534096,
+      "sha256": "be3540662e6bb0bc6169de37b9d6cb435baef1da28e420361b7233814b88d645",
+      "kind": "firmware-zero-w-armhf.img.xz"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-zero-w-armhf.bmap",
+      "bytes": 19673,
+      "sha256": "7ff5c9ee8fc8208ed792e131d25078e67a3515521742f650090f5d2c01f35020",
+      "kind": "firmware-zero-w-armhf.bmap"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-zero-w-armhf.packages.txt",
+      "bytes": 16588,
+      "sha256": "ff6b83ca9c6abbd0bd3cb0a8a6dd7989240680d72f6844304adf680d10d5bf6f",
+      "kind": "firmware-zero-w-armhf.packages.txt"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-zero-w-armhf.build-input.json",
+      "bytes": 206,
+      "sha256": "018a20796b8f5cbd17b8bf98bde59b29ddf4f103309820d7d1a925a9a8bf84e2",
+      "kind": "firmware-zero-w-armhf.build-input.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-zero-w-armhf.sbom.spdx.json",
+      "bytes": 180164,
+      "sha256": "e43b4a2b482fd9abb9c4428ce3c3a3ca4742b7bc3879697df1bd60cfdb4ee3e0",
+      "kind": "firmware-zero-w-armhf.sbom.spdx.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-zero-w-armhf.provenance.json",
+      "bytes": 1501,
+      "sha256": "227a4543ffabc0cf8c43f764dd35443d97699091397b699461c085cb887211e2",
+      "kind": "firmware-zero-w-armhf.provenance.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-zero-w-armhf.offline-validation.json",
+      "bytes": 800,
+      "sha256": "352a104c796fd2aa3d3e788c48934b6170156b0c452a1c067059b01e12b83c7f",
+      "kind": "firmware-offline-validation"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi4-arm64.img.xz",
+      "bytes": 539553268,
+      "sha256": "0baa2cc4d2e04c94b52c5c6805d60d1968f90bbbe7f5c14694291ddb0861e907",
+      "kind": "firmware-pi4-arm64.img.xz"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi4-arm64.bmap",
+      "bytes": 18889,
+      "sha256": "425c5a1d4ef87dde1b9d7fafb43263b2512c24e4cf622c9185a4b12963a007f2",
+      "kind": "firmware-pi4-arm64.bmap"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi4-arm64.packages.txt",
+      "bytes": 16127,
+      "sha256": "feaa6299a2f63652e935570218f2efb1e2e6bd814dee20d10773ab26afc923b8",
+      "kind": "firmware-pi4-arm64.packages.txt"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi4-arm64.build-input.json",
+      "bytes": 206,
+      "sha256": "018a20796b8f5cbd17b8bf98bde59b29ddf4f103309820d7d1a925a9a8bf84e2",
+      "kind": "firmware-pi4-arm64.build-input.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi4-arm64.sbom.spdx.json",
+      "bytes": 177854,
+      "sha256": "95f2937db41f501480dc0c34203e5734534b46fa7e6d4c899918dbff62df8770",
+      "kind": "firmware-pi4-arm64.sbom.spdx.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi4-arm64.provenance.json",
+      "bytes": 1489,
+      "sha256": "74e10434d3e64646ab567e9dcc677b0862ae2f81e693f4254b681e200a79ae89",
+      "kind": "firmware-pi4-arm64.provenance.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi4-arm64.offline-validation.json",
+      "bytes": 775,
+      "sha256": "25726b6595daafa2329ffefc46032e0d6b5b834145fedba08f025d7fa058d08c",
+      "kind": "firmware-offline-validation"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi5-arm64.img.xz",
+      "bytes": 537348580,
+      "sha256": "b83c118f558e4a110a831fa8edf29ea68002e18825dc3600f94a9a80477cbdce",
+      "kind": "firmware-pi5-arm64.img.xz"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi5-arm64.bmap",
+      "bytes": 19228,
+      "sha256": "9acd67fc58b4cade65e9bc8a5ef176e810f71f244b29af039e66a77654f9242b",
+      "kind": "firmware-pi5-arm64.bmap"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi5-arm64.packages.txt",
+      "bytes": 16127,
+      "sha256": "feaa6299a2f63652e935570218f2efb1e2e6bd814dee20d10773ab26afc923b8",
+      "kind": "firmware-pi5-arm64.packages.txt"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi5-arm64.build-input.json",
+      "bytes": 206,
+      "sha256": "018a20796b8f5cbd17b8bf98bde59b29ddf4f103309820d7d1a925a9a8bf84e2",
+      "kind": "firmware-pi5-arm64.build-input.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi5-arm64.sbom.spdx.json",
+      "bytes": 177854,
+      "sha256": "02b4dc7584690e8a6c8804417c72488e211ab72badb3fabce59947a346f0b53b",
+      "kind": "firmware-pi5-arm64.sbom.spdx.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi5-arm64.provenance.json",
+      "bytes": 1489,
+      "sha256": "ddc6d56324e66f24437ef1785de72dc5c0713134d57551ec9be6f191e8a345c4",
+      "kind": "firmware-pi5-arm64.provenance.json"
+    },
+    {
+      "file": "wiibridge-0.1.0-rc.1-pi5-arm64.offline-validation.json",
+      "bytes": 775,
+      "sha256": "514b462520139933ab86069bde5f6532cbb34595a6cc1c9aa25638a0f1ef70bd",
+      "kind": "firmware-offline-validation"
+    },
+    {
+      "file": "wiibridge-compose.separate-libraries.yaml",
+      "bytes": 4998,
+      "sha256": "4f9caff5712dab36691060fbfedfde8d15d0358a66cdd43d15e1d42dd22a69a1",
+      "kind": "digest-pinned-compose"
+    },
+    {
+      "file": "full-performance-audit.md",
+      "bytes": 19966,
+      "sha256": "b562ea07dc8f51eb44a094bf8204172971f8ca15c6d5db09f4822a6540eefbc2",
+      "kind": "audit-report"
+    },
+    {
+      "file": "performance-evidence.tar.gz",
+      "bytes": 27616,
+      "sha256": "d7309f1240c4211de985e766260cd76f7d780a9ab17945f79d8d1368ba2baff5",
+      "kind": "public-benchmark-and-validation-evidence"
+    }
+  ],
+  "provenance_note": "Locally generated unsigned build metadata; independent reproducibility and physical boot are not claimed.",
+  "deployment_note": "The supplied YAML includes a separately parser-validated interpolation correction and the final immutable image reference; host/Pi binaries were built from the exact clean source_revision above."
+}

@@ -54,13 +54,13 @@ services:
       - "${WIIBRIDGE_NBD_BIND:?set NBD bind IP}:${WIIBRIDGE_NBD_PORT:-10809}:10809/tcp"
     volumes:
       - type: bind
-        source: ${WIIBRIDGE_WII_LIBRARY_PATH:-${WIIBRIDGE_LIBRARY_PATH:?set Wii dataset path}}
+        source: ${WIIBRIDGE_WII_LIBRARY_PATH:?set Wii dataset path}
         target: /library/wii
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: ${WIIBRIDGE_GAMECUBE_LIBRARY_PATH:-${WIIBRIDGE_LIBRARY_PATH:?set GameCube dataset path}}
+        source: ${WIIBRIDGE_GAMECUBE_LIBRARY_PATH:?set GameCube dataset path}
         target: /library/gamecube
         read_only: true
         bind:

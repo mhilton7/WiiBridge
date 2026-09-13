@@ -83,3 +83,12 @@ unavailable merely because its old paths no longer exist.
   `confirm=relocate`, with the existing administrator authentication and CSRF
   protection. It accepts only the configured location, not an arbitrary path.
 - Diagnostic exports include both platform source records.
+
+The standalone separate-library definition requires both
+`WIIBRIDGE_WII_LIBRARY_PATH` and `WIIBRIDGE_GAMECUBE_LIBRARY_PATH`; it does not
+require `WIIBRIDGE_LIBRARY_PATH`. Missing or empty dedicated paths are rejected.
+The shared-root definition remains `compose.yaml`. The digest-pinned optimized
+candidate is in [`compose.ghcr.yaml`](../deploy/truenas/compose.ghcr.yaml); use
+the same dedicated paths and your existing credentials, certificates and
+persistent directories. See [the performance audit](full-performance-audit.md)
+for its exact build identity and hardware qualification limits.

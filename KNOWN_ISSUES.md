@@ -2,16 +2,39 @@
 
 ## Current September performance candidate
 
-The current audit starts from main cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27.
-Full optimized tests, race, vet, static checks, OCI/Compose builds, existing
-GameCube-generation compatibility, local kernel NBD/filesystem validation and
-separate-library recovery integration pass. Controlled measurements and limits
-are in [the full audit](docs/full-performance-audit.md).
+[The optimized prerelease](https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91) passes complete software, firmware-offline
+and local container/kernel validation. The previously pending firmware build
+and publication work is complete. Exact identities and results are in
+[the audit](docs/full-performance-audit.md).
 
-The initial parallel firmware attempt failed due to shared chroot mount propagation; cleanup is complete and the builder now uses private mount namespaces. A fresh full retry is required. The optimized release artifact build/publication is pending. Physical console,
-Pi and TrueNAS qualification is DEFERRED_HARDWARE_UNAVAILABLE. The historical
-entries below describe prior revisions and do not qualify this candidate.
+Physical qualification remains `DEFERRED_HARDWARE_UNAVAILABLE`. The candidate
+has not been installed on the operator's TrueNAS/Pi or tested in repeated Wii
+launches. The earlier isolated fast LEGO Star Wars launch does not establish
+that other multi-minute loader stalls are fixed.
 
+Actual TrueNAS ARC/pool behavior, Pi Wi-Fi/USB resets, loader IOS choices,
+board boot times and emulated-save crash/reconnect behavior need physical
+measurement. Deep validation still performs source I/O; cancellation waits for
+an active storage syscall to return. GameCube backend reads retain their
+existing lock and bounded descriptor cache. Emulated-save status still
+validates the managed generation and reads backup metadata. Physical card
+mode avoids that status work. No separate emulated-status endpoint benchmark
+or independent byte-for-byte full rebuild is claimed.
+
+The separate-path interpolation defect is corrected: the dedicated Compose
+definition requires both console paths and rejects missing/empty values. The
+shared-root definition remains available. The immutable GHCR definition now
+uses current WiiBridge settings and the tested candidate image. Moved mounts
+still need an explicit authenticated recovery confirmation.
+
+The first parallel firmware attempt failed shared mount cleanup and was
+rejected. Private namespaces and a mounted-tree deletion guard corrected the
+builder; the fresh all-board retry and cleanup passed.
+
+## Historical issues and observations from earlier revisions
+
+The entries below preserve earlier investigation history. Their pending and
+publication statements refer to those earlier snapshots, not this candidate.
 
 ## Library relocation and separate platform paths
 

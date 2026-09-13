@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "commands": [
+    "make compose",
+    "python3 tests/truenas/compose-separate-parser-test.py"
+  ],
+  "checks": [
+    "shared and separate Compose definitions parsed",
+    "distinct console paths without legacy path",
+    "library binds readonly and missing-host creation disabled",
+    "missing and empty console paths rejected even with legacy path set"
+  ],
+  "artifact_source_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+  "note": "Deployment YAML and parser check finalized after binary packaging; runtime code unchanged."
+}

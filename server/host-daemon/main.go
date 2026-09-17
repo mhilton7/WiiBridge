@@ -69,7 +69,9 @@ func displayRevision(revision string) string {
 type app struct {
 	mu                   sync.RWMutex
 	switchMu             sync.Mutex
+	scanMu               sync.Mutex
 	root                 string
+	gcRoot               string
 	dataDir              string
 	disk                 *vdisk.Disk
 	scan                 scanner.Result
@@ -99,6 +101,7 @@ type app struct {
 	gcSaveError          string
 	metricsRegistry      *perf.Registry
 	source               sourcehealth.Record
+	gcSource             sourcehealth.Record
 	hostDescriptor       compat.Descriptor
 	compatibility        compat.Result
 	maxSessions          int
@@ -385,7 +388,10 @@ func serve() error {
 		"version", version, "revision", gitCommit, "built", buildTime,
 		"dirty", buildDirty, "go_version", runtime.Version(),
 		"target", runtime.GOOS+"/"+runtime.GOARCH)
-	root := env("WIIBRIDGE_LIBRARY", "/library")
+	root, gcRoot, pathErr := configuredLibraryRoots()
+	if pathErr != nil {
+		return pathErr
+	}
 	dataDir := env("WIIBRIDGE_DATA", "/data")
 	token := os.Getenv("WIIBRIDGE_ADMIN_TOKEN")
 	if len(token) < 20 {
@@ -394,17 +400,13 @@ func serve() error {
 	slog.Info("Host configuration validated",
 		"event", "startup", "phase", "configuration validation",
 		"elapsed_ms", time.Since(hostStarted).Milliseconds())
-	if err := assertReadOnly(root); err != nil {
-		if !isUnavailableLibraryError(err) {
-			return fmt.Errorf("library safety check: %w", err)
+	for platform, sourceRoot := range map[string]string{"wii": root, "gamecube": gcRoot} {
+		if err := assertReadOnly(sourceRoot); err != nil {
+			if !isUnavailableLibraryError(err) {
+				return fmt.Errorf("%s library safety check: %w", platform, err)
+			}
+			slog.Warn("Library source is unavailable; startup will preserve its catalog", "platform", platform, "code", "SOURCE-OFFLINE")
 		}
-		slog.Warn("Library source is unavailable during the read-only proof; "+
-			"startup will continue in offline-source mode",
-			"code", "SOURCE-OFFLINE")
-	} else {
-		slog.Info("Read-only library proof complete",
-			"event", "startup", "phase", "read-only library proof",
-			"elapsed_ms", time.Since(hostStarted).Milliseconds())
 	}
 	dataStarted := time.Now()
 	if err := os.MkdirAll(filepath.Join(dataDir, "snapshots"), 0o700); err != nil {
@@ -474,7 +476,7 @@ func serve() error {
 
 	startup.SetPhase("Opening persistent state")
 	gcConfig := gamecube.DefaultLibraryConfig()
-	gcConfig.SourceRoot = root
+	gcConfig.SourceRoot = gcRoot
 	gcConfig.HeadroomPercent, err = intEnv("WIIBRIDGE_GAMECUBE_HEADROOM_PERCENT", 5)
 	if err != nil {
 		return failStartup("GameCube headroom configuration is invalid", err)
@@ -652,10 +654,6 @@ func serve() error {
 		"event", "startup", "phase", "Wii scan started",
 		"elapsed_ms", time.Since(hostStarted).Milliseconds())
 	result, sourceRecord, scanErr := scanWiiCatalog(database, root)
-	if scanErr != nil && len(result.Games) == 0 {
-		return failStartup("Wii library scan failed and no prior complete catalog is available",
-			scanErr)
-	}
 	if scanErr != nil {
 		slog.Warn("Wii source unavailable; preserving prior complete catalog",
 			"code", sourceRecord.FailureCode, "state", sourceRecord.State,
@@ -683,7 +681,7 @@ func serve() error {
 		"elapsed_ms", time.Since(hostStarted).Milliseconds())
 	startup.SetPhase("Finalizing validated exports")
 	csrfSum := sha256.Sum256([]byte("wiibridge-host-csrf\x00" + token))
-	a := &app{root: root, dataDir: dataDir, disk: disk, scan: result,
+	a := &app{root: root, gcRoot: gcRoot, dataDir: dataDir, disk: disk, scan: result,
 		tokenSum: sha256.Sum256([]byte(token)), started: hostStarted, store: database,
 		failures: make(map[string]authFailure), csrf: hex.EncodeToString(csrfSum[:]),
 		imports: make(map[string]importJob), gcLibrary: gcLibrary, gcMode: gcConfig.Mode,
@@ -773,6 +771,7 @@ func serve() error {
 	mux.HandleFunc("GET /api/v1/sources", a.auth(a.sourceStatusAPI))
 	mux.HandleFunc("GET /api/v1/sources/diagnostic", a.auth(a.sourceDiagnosticAPI))
 	mux.HandleFunc("POST /api/v1/sources/acknowledge", a.auth(a.acknowledgeSourceRemoval))
+	mux.HandleFunc("POST /api/v1/sources/relocate", a.auth(a.acceptSourceLocation))
 	mux.HandleFunc("POST /api/v1/pi/address", a.auth(a.setPiAddress))
 	mux.HandleFunc("GET /api/v1/scan", a.auth(a.scanResult))
 	mux.HandleFunc("POST /api/v1/scan", a.auth(a.rescan))
@@ -813,6 +812,7 @@ func serve() error {
 	go a.initializeGameCube(ctx)
 	go a.runAutomaticSaveBackups(ctx)
 	go a.runSourceFailureReconciler(ctx)
+	go a.runSourceRecovery(ctx)
 	go a.runMetricsPersistence(ctx)
 	select {
 	case <-ctx.Done():
@@ -1151,16 +1151,23 @@ func (a *app) health(w http.ResponseWriter, _ *http.Request) {
 
 func (a *app) readyHealth(w http.ResponseWriter, _ *http.Request) {
 	a.mu.RLock()
-	ready := a.ready && a.disk != nil && a.exports != nil
+	exports := a.exports
+	wiiReady := a.ready && a.disk != nil
+	gcAvailable := a.librarySourceLocked("gamecube").State == sourcehealth.StateAvailable
 	a.mu.RUnlock()
-	if !ready {
-		writeJSONStatus(w, http.StatusServiceUnavailable,
-			map[string]string{"status": "not-ready", "phase": "Finalizing validated exports"})
-		return
+	ready, phase := false, "Library source unavailable"
+	if exports != nil {
+		if exports.Platform() == "gamecube" {
+			_, validated := a.gcLibrary.ValidatedSummary()
+			ready = gcAvailable && validated
+			phase = "GameCube library validation required"
+		} else {
+			ready = wiiReady && a.wii.Validate() == nil
+			phase = "Wii library source unavailable"
+		}
 	}
-	if err := a.wii.Validate(); err != nil {
-		writeJSONStatus(w, http.StatusServiceUnavailable,
-			map[string]string{"status": "not-ready", "phase": "Wii export validation failed"})
+	if !ready {
+		writeJSONStatus(w, http.StatusServiceUnavailable, map[string]string{"status": "not-ready", "phase": phase})
 		return
 	}
 	writeJSON(w, map[string]string{"status": "ready", "phase": "Ready"})
@@ -1171,28 +1178,27 @@ func (a *app) initializeGameCube(ctx context.Context) {
 	slog.Info("GameCube background initialization started",
 		"event", "startup", "phase", "GameCube scan started",
 		"elapsed_ms", 0)
-	a.mu.RLock()
-	sourceRecord := a.source
-	a.mu.RUnlock()
-	result, sourceRecord, err := scanGameCubeCatalog(a.store, a.root, sourceRecord)
+	a.scanMu.Lock()
+	root := a.libraryRoot("gamecube")
+	preflight, preflightErr := sourcehealth.Preflight(root, previousPlatformSource(a.store, root, "gamecube"))
+	sourceRecord := preflight.Record
+	if preflightErr != nil {
+		_ = a.store.UpsertSource(sourceRecord)
+	}
+	result, sourceRecord, err := scanGameCubeCatalog(a.store, root, sourceRecord, root == a.root)
+	a.mu.Lock()
+	a.gcScan, a.gcSource = result, sourceRecord
 	if err != nil {
-		a.mu.Lock()
-		a.gcScan = result
-		a.source = sourceRecord
-		a.gcStartupPhase = "Source offline"
-		a.gcStartupError = sourceRecord.FailureMessage
-		a.mu.Unlock()
-		slog.Warn("GameCube source unavailable; prior catalog and generation retained",
-			"event", "startup", "phase", "GameCube source offline",
-			"elapsed_ms", time.Since(started).Milliseconds(),
-			"code", sourceRecord.FailureCode, "games_preserved", len(result.Games))
+		a.gcStartupPhase, a.gcStartupError = "Source offline", sourceRecord.FailureMessage
+	} else {
+		a.gcStartupPhase, a.gcStartupError = "Checking existing GameCube generation", ""
+	}
+	a.mu.Unlock()
+	a.scanMu.Unlock()
+	if err != nil {
+		slog.Warn("GameCube source unavailable; prior catalog and generation retained", "code", sourceRecord.FailureCode, "games_preserved", len(result.Games))
 		return
 	}
-	a.mu.Lock()
-	a.gcScan = result
-	a.source = sourceRecord
-	a.gcStartupPhase = "Checking existing GameCube generation"
-	a.mu.Unlock()
 	slog.Info("GameCube library scan result", "games", len(result.Games),
 		"rejected", len(result.Rejected), "candidate_files", result.FileCount,
 		"event", "startup", "phase", "GameCube scan completed",
@@ -1200,35 +1206,11 @@ func (a *app) initializeGameCube(ctx context.Context) {
 
 	if _, managedErr := a.gcLibrary.ManagedActive(); managedErr == nil {
 		if recheckErr := a.gcLibrary.RecheckActive(); recheckErr != nil {
-			if errors.Is(recheckErr, gamecube.ErrGameCubeSourceUnavailable) {
-				offline := sourcehealth.RuntimeFailure(sourceRecord, "SOURCE-READ-FAILED")
-				_ = a.store.UpsertSource(offline)
+			if errors.Is(recheckErr, gamecube.ErrGameCubeSourceUnavailable) || errors.Is(recheckErr, gamecube.ErrGameCubeSourceChanged) {
 				a.mu.Lock()
-				a.source = offline
-				for index := range a.gcScan.Games {
-					a.gcScan.Games[index].Availability =
-						string(sourcehealth.AvailabilitySourceOffline)
-				}
-				a.gcStartupPhase = "Source offline"
-				a.gcStartupError = "SOURCE-READ-FAILED: source became unavailable"
+				a.gcUpdate = true
+				a.gcStartupPhase, a.gcStartupError = "Rebuild required", "The previous GameCube generation refers to moved or changed files. Rebuild from the scanned library."
 				a.mu.Unlock()
-				return
-			}
-			if errors.Is(recheckErr, gamecube.ErrGameCubeSourceChanged) {
-				changed := sourcehealth.RuntimeFailure(
-					sourceRecord, "SOURCE-IDENTITY-CHANGED")
-				_ = a.store.UpsertSource(changed)
-				a.mu.Lock()
-				a.source = changed
-				for index := range a.gcScan.Games {
-					a.gcScan.Games[index].Availability =
-						string(sourcehealth.AvailabilitySourceChanged)
-				}
-				a.gcStartupPhase = "Source changed"
-				a.gcStartupError = "SOURCE-IDENTITY-CHANGED: rebuild validation is required"
-				a.mu.Unlock()
-				slog.Warn("GameCube active source identity changed; generation retained but blocked",
-					"code", "SOURCE-IDENTITY-CHANGED")
 				return
 			}
 			a.mu.Lock()
@@ -1444,7 +1426,7 @@ func (a *app) gamecubeLibraryStatus(w http.ResponseWriter, _ *http.Request) {
 func (a *app) buildGameCubeLibrary(w http.ResponseWriter, r *http.Request) {
 	a.mu.RLock()
 	games := append([]gamecube.Game(nil), a.gcScan.Games...)
-	sourceState := a.source.State
+	sourceState := a.librarySourceLocked("gamecube").State
 	saveError := a.gcSaveError
 	a.mu.RUnlock()
 	if sourceState != sourcehealth.StateAvailable {
@@ -1481,133 +1463,7 @@ func (a *app) cancelGameCubeLibrary(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *app) rescan(w http.ResponseWriter, r *http.Request) {
-	a.mu.RLock()
-	previous := a.source
-	a.mu.RUnlock()
-	if safetyErr := assertReadOnly(a.root); safetyErr != nil &&
-		!isUnavailableLibraryError(safetyErr) {
-		record := sourcehealth.RuntimeFailure(
-			previous, "SOURCE-READONLY-GUARANTEE-FAILED")
-		_ = a.store.UpsertSource(record)
-		a.mu.Lock()
-		a.source, a.ready = record, false
-		a.mu.Unlock()
-		writeJSONStatus(w, http.StatusConflict, map[string]any{
-			"status": "preserved", "source": record,
-			"message": "Source is not provably read-only; prior catalogs were preserved.",
-		})
-		return
-	}
-	preflight, err := sourcehealth.Preflight(a.root, &previous)
-	if err != nil {
-		_ = a.store.UpsertSource(preflight.Record)
-		a.mu.Lock()
-		a.source = preflight.Record
-		a.ready = false
-		for index := range a.scan.Games {
-			a.scan.Games[index].Availability = string(sourcehealth.AvailabilitySourceOffline)
-		}
-		for index := range a.gcScan.Games {
-			a.gcScan.Games[index].Availability = string(sourcehealth.AvailabilitySourceOffline)
-		}
-		a.mu.Unlock()
-		writeJSONStatus(w, http.StatusServiceUnavailable, map[string]any{
-			"status": "preserved", "source": preflight.Record,
-			"message": "Source unavailable; the prior complete catalog was preserved.",
-		})
-		return
-	}
-	result, err := scanner.Scan(a.root)
-	if err != nil {
-		record := sourcehealth.Partial(preflight.Record, err)
-		_ = a.store.UpsertSource(record)
-		a.mu.Lock()
-		a.source, a.ready = record, false
-		a.mu.Unlock()
-		http.Error(w, "source scan was partial; prior catalog preserved",
-			http.StatusServiceUnavailable)
-		return
-	}
-	gcResult, err := gamecube.Scan(a.root)
-	if err != nil {
-		record := sourcehealth.Partial(preflight.Record, err)
-		_ = a.store.UpsertSource(record)
-		a.mu.Lock()
-		a.source, a.ready = record, false
-		a.mu.Unlock()
-		http.Error(w, "source scan was partial; prior catalogs preserved",
-			http.StatusServiceUnavailable)
-		return
-	}
-	wiiCount, gameCubeCount := len(result.Games), len(gcResult.Games)
-	wiiItems, err := wiiCatalogItems(result.Games)
-	if err == nil {
-		var gameCubeItems []store.CatalogItem
-		gameCubeItems, err = gameCubeCatalogItems(gcResult.Games)
-		if err == nil {
-			var catalogs map[string][]store.CatalogItem
-			catalogs, err = a.store.ReconcileCatalogs(map[string][]store.CatalogItem{
-				"wii": wiiItems, "gamecube": gameCubeItems,
-			}, 2)
-			if err == nil {
-				result.Games, err = decodeWiiItems(
-					catalogs["wii"], sourcehealth.StateAvailable)
-			}
-			if err == nil {
-				gcResult.Games, err = decodeGameCubeItems(
-					catalogs["gamecube"], sourcehealth.StateAvailable)
-			}
-		}
-	}
-	if err != nil {
-		http.Error(w, "catalog reconciliation failed; prior runtime catalog preserved",
-			http.StatusInternalServerError)
-		return
-	}
-	disk, err := vdisk.Build("all", result.Games, version)
-	if err != nil {
-		http.Error(w, "snapshot build failed", http.StatusInternalServerError)
-		return
-	}
-	disk.SetObserver(a.metricsRegistry, a.queueSourceFailure)
-	record := sourcehealth.Successful(preflight.Record, wiiCount+gameCubeCount)
-	if err = a.store.UpsertSource(record); err != nil {
-		http.Error(w, "source status persistence failed", http.StatusInternalServerError)
-		return
-	}
-	gcUpdate := false
-	if _, managedErr := a.gcLibrary.ManagedActive(); managedErr == nil {
-		gcUpdate = true
-		if recheckErr := a.gcLibrary.RecheckActive(); recheckErr != nil {
-			switch {
-			case errors.Is(recheckErr, gamecube.ErrGameCubeSourceChanged):
-				record = sourcehealth.RuntimeFailure(
-					record, "SOURCE-IDENTITY-CHANGED")
-				for index := range gcResult.Games {
-					gcResult.Games[index].Availability =
-						string(sourcehealth.AvailabilitySourceChanged)
-				}
-			case errors.Is(recheckErr, gamecube.ErrGameCubeSourceUnavailable):
-				record = sourcehealth.RuntimeFailure(record, "SOURCE-READ-FAILED")
-				for index := range gcResult.Games {
-					gcResult.Games[index].Availability =
-						string(sourcehealth.AvailabilitySourceOffline)
-				}
-			}
-			_ = a.store.UpsertSource(record)
-		}
-	}
-	a.mu.Lock()
-	a.scan, a.disk, a.gcScan = result, disk, gcResult
-	a.source, a.ready = record, true
-	a.gcUpdate = gcUpdate
-	a.mu.Unlock()
-	if err := a.persistSnapshot(); err != nil {
-		http.Error(w, "snapshot persistence failed", http.StatusInternalServerError)
-		return
-	}
-	respondAction(w, r, http.StatusOK, disk.Snapshot(),
-		"Library rescan completed.", "all")
+	a.rescanLibraries(w, r, false)
 }
 
 func (a *app) findGameCube(id string, revision byte) (gamecube.Game, bool) {
@@ -1760,7 +1616,7 @@ func (a *app) selectExport(w http.ResponseWriter, r *http.Request) {
 	connectAction := "connect-wii"
 	if platform == "gamecube" {
 		a.mu.RLock()
-		sourceState, saveError := a.source.State, a.gcSaveError
+		sourceState, saveError := a.librarySourceLocked("gamecube").State, a.gcSaveError
 		a.mu.RUnlock()
 		if sourceState != sourcehealth.StateAvailable {
 			http.Error(w, "GameCube source is unavailable; its generation and saves were retained",
@@ -1789,7 +1645,7 @@ func (a *app) selectExport(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "GameCube backend open failed", http.StatusInternalServerError)
 			return
 		}
-		backend.SetSourceFailureHandler(a.queueSourceFailure)
+		backend.SetSourceFailureHandler(a.queueGameCubeSourceFailure)
 		next = &exportprofile.BasicProfile{
 			Name: "gamecube", BlockBackend: backend,
 			Immutable: a.gcMode == gamecube.MemoryCardPhysical,
@@ -2153,12 +2009,24 @@ func (a *app) restoreGameCubeSave(w http.ResponseWriter, r *http.Request) {
 
 func (a *app) persistSnapshot() error {
 	a.mu.RLock()
-	data, err := json.MarshalIndent(a.disk.Snapshot(), "", "  ")
+	snapshot := a.disk.Snapshot()
 	a.mu.RUnlock()
+	if err := a.writeSnapshotFile(snapshot); err != nil {
+		return err
+	}
+	return a.store.Publish(snapshot)
+}
+
+func (a *app) writeSnapshotFile(snapshot model.Snapshot) error {
+	data, err := json.MarshalIndent(snapshot, "", "  ")
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(a.dataDir, "snapshots", a.disk.Snapshot().SnapshotID+".json")
+	directory := filepath.Join(a.dataDir, "snapshots")
+	if err = os.MkdirAll(directory, 0o700); err != nil {
+		return err
+	}
+	path := filepath.Join(directory, snapshot.SnapshotID+".json")
 	temp := path + ".tmp"
 	if err := os.WriteFile(temp, data, 0o600); err != nil {
 		return err
@@ -2166,7 +2034,7 @@ func (a *app) persistSnapshot() error {
 	if err := os.Rename(temp, path); err != nil {
 		return err
 	}
-	return a.store.Publish(a.disk.Snapshot())
+	return nil
 }
 
 func (a *app) metrics(w http.ResponseWriter, _ *http.Request) {
@@ -2209,15 +2077,17 @@ func (a *app) dashboard(w http.ResponseWriter, r *http.Request) {
 	libraryRoot := a.root
 	gcUpdate := a.gcUpdate
 	sourceRecord := a.source
+	gcSourceRecord := a.librarySourceLocked("gamecube")
 	compatibility := a.compatibility
 	saveSelection := a.gcSaveSelection
 	saveError := a.gcSaveError
 	a.mu.RUnlock()
 	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	queryLower := strings.ToLower(query)
 	matches := func(title, id string) bool {
 		return query == "" ||
-			strings.Contains(strings.ToLower(title), strings.ToLower(query)) ||
-			strings.Contains(strings.ToLower(id), strings.ToLower(query))
+			strings.Contains(strings.ToLower(title), queryLower) ||
+			strings.Contains(strings.ToLower(id), queryLower)
 	}
 	filteredWii := make([]model.Game, 0, len(wiiGames))
 	for _, game := range wiiGames {
@@ -2247,8 +2117,8 @@ func (a *app) dashboard(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	type reviewRow struct{ Platform, Path, Reason string }
-	displayPath := func(path string) string {
-		relative, err := filepath.Rel(libraryRoot, path)
+	displayPath := func(root, path string) string {
+		relative, err := filepath.Rel(root, path)
 		if err == nil && relative != "." && relative != ".." &&
 			!strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
 			return relative
@@ -2257,10 +2127,10 @@ func (a *app) dashboard(w http.ResponseWriter, r *http.Request) {
 	}
 	review := make([]reviewRow, 0, len(wiiRejections)+len(gameCubeRejections))
 	for _, item := range wiiRejections {
-		review = append(review, reviewRow{"Wii", displayPath(item.Path), item.Reason})
+		review = append(review, reviewRow{"Wii", displayPath(libraryRoot, item.Path), item.Reason})
 	}
 	for _, item := range gameCubeRejections {
-		review = append(review, reviewRow{"GameCube", displayPath(item.Path), item.Reason})
+		review = append(review, reviewRow{"GameCube", displayPath(a.libraryRoot("gamecube"), item.Path), item.Reason})
 	}
 	sort.Slice(review, func(i, j int) bool {
 		if review[i].Platform == review[j].Platform {
@@ -2290,16 +2160,17 @@ func (a *app) dashboard(w http.ResponseWriter, r *http.Request) {
 		{"Action": "attach", "Label": "Attach USB"},
 		{"Action": "reconcile", "Label": "Reconcile Connection"},
 	}
-	generation := ""
+	generation := a.gcLibrary.KnownGenerationID()
 	if activeReady {
 		generation = active.GenerationID
-	} else if managed, managedErr := a.gcLibrary.ManagedActive(); managedErr == nil {
-		generation = managed.GenerationID
 	}
 	compatibilityState := compatibility.Status
 	if compatibilityState == "" {
 		compatibilityState = compat.StateUnknown
 	}
+	filteredWii, wiiPage := catalogPage(r, "wii_page", "Wii", filteredWii)
+	filteredGC, gcPage := catalogPage(r, "gamecube_page", "GameCube", filteredGC)
+	review, reviewPage := catalogPage(r, "review_page", "Files needing attention", review)
 	data := map[string]any{
 		"Version": version, "Wii": filteredWii, "GameCube": filteredGC,
 		"Filter": filter, "Query": query, "CSRF": csrf,
@@ -2313,12 +2184,17 @@ func (a *app) dashboard(w http.ResponseWriter, r *http.Request) {
 		"GCBuild":            a.gcLibrary.Progress(), "GCReady": activeReady,
 		"GCGeneration": generation, "GCUpdate": gcUpdate,
 		"GCLegacy": len(a.gcLibrary.LegacyGenerations()) > 0,
-		"Rejected": len(review), "Review": review,
+		"Rejected": reviewPage.Total, "Review": review,
+		"WiiPage": wiiPage, "GameCubePage": gcPage, "ReviewPage": reviewPage,
+		"CatalogPaged":    wiiPage.Current > 1 || gcPage.Current > 1 || reviewPage.Current > 1,
 		"AutomaticSwitch": a.pi != nil, "PiAddress": piAddress,
 		"PiSwitchReady":   piSwitchReady,
 		"StorageControls": storageControls,
 		"DefaultPassword": a.browser.DefaultActive(),
-		"Source":          sourceRecord, "Compatibility": map[string]any{"Status": compatibilityState},
+		"Source":          sourceRecord, "LibrarySources": []map[string]any{
+			{"Platform": "wii", "Label": "Wii", "Source": sourceRecord},
+			{"Platform": "gamecube", "Label": "GameCube", "Source": gcSourceRecord},
+		}, "Compatibility": map[string]any{"Status": compatibilityState},
 		"HostRevision":       gitCommit,
 		"HostRevisionShort":  displayRevision(gitCommit),
 		"HostProtocol":       fmt.Sprintf("%d–%d", compat.ProtocolMin, compat.ProtocolMax),

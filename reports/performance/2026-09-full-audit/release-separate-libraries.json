@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": [
+    "separate read-only mounts scan and build",
+    "moved GameCube file rebuild",
+    "persisted stale mount rejected then explicitly recovered",
+    "empty replacement preserves GameCube catalog and Wii readiness",
+    "GameCube builds and activates while Wii mount is unavailable",
+    "source bytes unchanged"
+  ]
+}

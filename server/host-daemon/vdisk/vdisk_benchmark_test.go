@@ -58,31 +58,35 @@ func BenchmarkPayloadRead1MiB(b *testing.B) {
 	}
 	// Allocate the otherwise sparse synthetic fixture so this benchmark
 	// measures the virtual-disk read path rather than sparse-hole behavior.
-	f, err := os.OpenFile(path, os.O_WRONLY, 0)
+	f, err := os.OpenFile(path, os.O_RDWR, 0)
 	if err != nil {
 		b.Fatal(err)
 	}
-	if err = f.Truncate(0); err != nil {
-		f.Close()
-		b.Fatal(err)
-	}
+	// Preserve every block, including the disc header at offset 1 MiB.
+	// Recreating SyntheticWBFS here would truncate the allocation again.
 	block := make([]byte, 1<<20)
 	for off := int64(0); off < 64<<20; off += int64(len(block)) {
-		if _, err = f.Write(block); err != nil {
+		if _, err = f.ReadAt(block, off); err != nil {
+			f.Close()
+			b.Fatal(err)
+		}
+		if _, err = f.WriteAt(block, off); err != nil {
 			f.Close()
 			b.Fatal(err)
 		}
 	}
-	if err = f.Close(); err != nil {
+	if err = f.Sync(); err != nil {
 		b.Fatal(err)
 	}
-	// Restore a valid synthetic header after allocating the complete file.
-	if err = testutil.SyntheticWBFS(path, "PERF01", "Performance", 64<<20); err != nil {
+	if err = f.Close(); err != nil {
 		b.Fatal(err)
 	}
 	scan, err := scanner.Scan(root)
 	if err != nil {
 		b.Fatal(err)
+	}
+	if len(scan.Games) != 1 || len(scan.Rejected) != 0 {
+		b.Fatalf("invalid benchmark fixture: games=%d rejected=%v", len(scan.Games), scan.Rejected)
 	}
 	disk, err := Build("performance", scan.Games, "benchmark")
 	if err != nil {

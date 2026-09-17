@@ -4,6 +4,7 @@ package gamecube
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
@@ -430,21 +431,56 @@ func within(root, path string) error {
 }
 
 func hashFile(path string) (string, error) {
+	return hashFileContext(context.Background(), path)
+}
+
+func hashFileContext(ctx context.Context, path string) (string, error) {
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
 	f, err := os.Open(path)
 	if err != nil {
 		return "", err
 	}
 	defer f.Close()
 	hash := sha256.New()
-	if _, err = io.Copy(hash, f); err != nil {
+	if _, err = io.Copy(hash, contextReader{ctx: ctx, reader: f}); err != nil {
+		return "", err
+	}
+	if err = ctx.Err(); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
+// Wrapping the file also prevents io.Copy from bypassing cancellation through
+// WriterTo. Cancellation is checked between bounded reads; a blocked storage
+// read still has to return before cancellation can take effect.
+type contextReader struct {
+	ctx    context.Context
+	reader io.Reader
+}
+
+func (reader contextReader) Read(buffer []byte) (int, error) {
+	if err := reader.ctx.Err(); err != nil {
+		return 0, err
+	}
+	if len(buffer) > 32<<10 {
+		buffer = buffer[:32<<10]
+	}
+	return reader.reader.Read(buffer)
+}
+
 func hashTree(root string) (string, int64, error) {
+	return hashTreeContext(context.Background(), root)
+}
+
+func hashTreeContext(ctx context.Context, root string) (string, int64, error) {
 	var paths []string
 	err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, walkErr error) error {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		if walkErr != nil {
 			return walkErr
 		}
@@ -469,6 +505,9 @@ func hashTree(root string) (string, int64, error) {
 	hash := sha256.New()
 	var total int64
 	for _, path := range paths {
+		if err := ctx.Err(); err != nil {
+			return "", 0, err
+		}
 		relative, _ := filepath.Rel(root, path)
 		info, err := os.Lstat(path)
 		if err != nil {
@@ -480,7 +519,7 @@ func hashTree(root string) (string, int64, error) {
 		if err != nil {
 			return "", 0, err
 		}
-		_, copyErr := io.Copy(hash, f)
+		_, copyErr := io.Copy(hash, contextReader{ctx: ctx, reader: f})
 		closeErr := f.Close()
 		if copyErr != nil {
 			return "", 0, copyErr
@@ -488,6 +527,9 @@ func hashTree(root string) (string, int64, error) {
 		if closeErr != nil {
 			return "", 0, closeErr
 		}
+	}
+	if err = ctx.Err(); err != nil {
+		return "", 0, err
 	}
 	return hex.EncodeToString(hash.Sum(nil)), total, nil
 }

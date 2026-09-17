@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"wiibridge/shared/perf"
+	"wiibridge/shared/sourceidentity"
 )
 
 var ErrSourceIdentityChanged = errors.New("GameCube source identity changed")
@@ -39,6 +40,7 @@ type Backend struct {
 	metrics           *perf.Registry
 	onSourceFailure   func(string)
 	lastSourceFailure atomic.Int64
+	sourceFilesystems map[string]string
 }
 
 type Stats struct {
@@ -59,9 +61,11 @@ type SaveStore interface {
 }
 
 type OpenOptions struct {
-	CacheLimit int
-	SaveStore  SaveStore
-	Metrics    *perf.Registry
+	// SourceFilesystems supplements legacy immutable layouts after receipt validation.
+	SourceFilesystems map[string]string
+	CacheLimit        int
+	SaveStore         SaveStore
+	Metrics           *perf.Registry
 }
 
 func Open(layout Layout, metadata []byte, cacheLimit int) (*Backend, error) {
@@ -75,38 +79,14 @@ func OpenWithOptions(layout Layout, metadata []byte, options OpenOptions) (*Back
 	if len(layout.SaveExtents) > 0 && options.SaveStore == nil {
 		return nil, errors.New("writable save extents require a save store")
 	}
-	for _, extent := range layout.MetadataExtents {
-		if extent.StorageOffset < 0 || extent.Length < 0 ||
-			extent.StorageOffset > int64(len(metadata))-extent.Length {
-			return nil, errors.New("metadata extent exceeds metadata store")
-		}
-	}
-	sum := sha256.Sum256(metadata)
-	if hex.EncodeToString(sum[:]) != layout.MetadataHash ||
-		hashExtents(layout.SourceExtents) != layout.ExtentMapHash {
-		return nil, errors.New("virtual FAT32 metadata or extent-map hash mismatch")
-	}
-	if len(layout.SaveExtents) > 0 {
-		if hashSaveExtents(layout.SaveExtents, true) != layout.SaveExtentHash {
-			return nil, errors.New("virtual FAT32 save-extent hash mismatch")
-		}
-		baseSaveHash := hashSaveExtents(layout.SaveExtents, false)
-		layoutSum := sha256.Sum256([]byte(
-			layout.MetadataHash + "\x00" + layout.ExtentMapHash + "\x00" + baseSaveHash))
-		if hex.EncodeToString(layoutSum[:]) != layout.LayoutChecksum {
-			return nil, errors.New("virtual FAT32 layout checksum mismatch")
-		}
-		for _, extent := range layout.SaveExtents {
-			if extent.LayoutChecksum != layout.LayoutChecksum {
-				return nil, errors.New("writable extent layout checksum mismatch")
-			}
-		}
-	}
-	if err := validateRanges(layout.VirtualSize, layout.MetadataExtents,
-		layout.SourceExtents, layout.SaveExtents); err != nil {
+	if err := Validate(layout, metadata); err != nil {
 		return nil, err
 	}
-	return &Backend{
+	filesystems := make(map[string]string, len(options.SourceFilesystems))
+	for path, id := range options.SourceFilesystems {
+		filesystems[path] = id
+	}
+	return &Backend{sourceFilesystems: filesystems,
 		size: layout.VirtualSize, metadata: append([]byte(nil), metadata...),
 		meta:    append([]MetadataExtent(nil), layout.MetadataExtents...),
 		extents: append([]Extent(nil), layout.SourceExtents...),
@@ -114,6 +94,45 @@ func OpenWithOptions(layout Layout, metadata []byte, options OpenOptions) (*Back
 		limit:   options.CacheLimit, cache: make(map[string]*list.Element), lru: list.New(),
 		saveStore: options.SaveStore, metrics: options.Metrics,
 	}, nil
+}
+
+// Validate checks the complete immutable metadata and extent maps without
+// allocating a backend or copying the metadata store. It does not authorize
+// source access or writes; OpenWithOptions still requires a save store for
+// writable extents and retains its own defensive copies.
+func Validate(layout Layout, metadata []byte) error {
+	if layout.Schema != 2 || layout.VirtualSize <= 0 {
+		return errors.New("invalid virtual FAT32 backend configuration")
+	}
+	for _, extent := range layout.MetadataExtents {
+		if extent.StorageOffset < 0 || extent.Length < 0 ||
+			extent.StorageOffset > int64(len(metadata))-extent.Length {
+			return errors.New("metadata extent exceeds metadata store")
+		}
+	}
+	sum := sha256.Sum256(metadata)
+	if hex.EncodeToString(sum[:]) != layout.MetadataHash ||
+		hashExtents(layout.SourceExtents) != layout.ExtentMapHash {
+		return errors.New("virtual FAT32 metadata or extent-map hash mismatch")
+	}
+	if len(layout.SaveExtents) > 0 {
+		if hashSaveExtents(layout.SaveExtents, true) != layout.SaveExtentHash {
+			return errors.New("virtual FAT32 save-extent hash mismatch")
+		}
+		baseSaveHash := hashSaveExtents(layout.SaveExtents, false)
+		layoutSum := sha256.Sum256([]byte(
+			layout.MetadataHash + "\x00" + layout.ExtentMapHash + "\x00" + baseSaveHash))
+		if hex.EncodeToString(layoutSum[:]) != layout.LayoutChecksum {
+			return errors.New("virtual FAT32 layout checksum mismatch")
+		}
+		for _, extent := range layout.SaveExtents {
+			if extent.LayoutChecksum != layout.LayoutChecksum {
+				return errors.New("writable extent layout checksum mismatch")
+			}
+		}
+	}
+	return validateRanges(layout.VirtualSize, layout.MetadataExtents,
+		layout.SourceExtents, layout.SaveExtents)
 }
 
 func (b *Backend) Size() int64 { return b.size }
@@ -261,7 +280,11 @@ func (b *Backend) ReadAt(buffer []byte, offset int64) (int, error) {
 				count = int(available)
 			}
 			started := time.Now()
-			if err := verifyIdentity(item.SourcePath, item.Identity); err != nil {
+			expected := item.Identity
+			if expected.FilesystemID == "" {
+				expected.FilesystemID = b.sourceFilesystems[item.SourcePath]
+			}
+			if err := verifyIdentity(item.SourcePath, expected); err != nil {
 				if b.metricsEnabled() {
 					b.metrics.Source.IdentityErrors.Add(1)
 					b.metrics.ObserveSourceRead(0, time.Since(started), err)
@@ -393,8 +416,15 @@ func verifyIdentity(path string, expected Identity) error {
 		info.Size() != expected.Size || info.ModTime().UnixNano() != expected.ModTimeUnixNano {
 		return ErrSourceIdentityChanged
 	}
-	if stat, ok := info.Sys().(*syscall.Stat_t); ok &&
-		(uint64(stat.Dev) != expected.Device || stat.Ino != expected.Inode) {
+	filesystemID := ""
+	if expected.FilesystemID != "" {
+		filesystemID, err = sourceidentity.FilesystemID(path)
+		if err != nil {
+			return err
+		}
+	}
+	if stat, ok := info.Sys().(*syscall.Stat_t); !ok ||
+		(!sourceidentity.SameFilesystem(expected.FilesystemID, expected.Device, filesystemID, uint64(stat.Dev)) || stat.Ino != expected.Inode) {
 		return ErrSourceIdentityChanged
 	}
 	return nil

@@ -2,48 +2,204 @@
   "schema_version": 1,
   "project_version": "0.1.0-rc.1",
   "prompt_version": 3,
-  "status": "pi-certificate-lifetime-host-published-truenas-deployment-pending",
-  "final_label": "SOFTWARE-COMPLETE RELEASE CANDIDATE — HARDWARE UNVERIFIED",
-  "application_commit": "7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92",
-  "implementation_base_commit": "ce732427b1805cfa580ba0d5a865e2aed47eeeac",
-  "last_published_application_commit": "7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92",
-  "worktree_state": "lifetime-certificate-host-published-truenas-yaml-pinned-deployment-pending",
-  "published_oci_digest": "sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b",
-  "local_oci_digest": "sha256:93d6056a9ce0dab0030a55e7a74abf76c7ee64f564c8899b430fbb50cc350ce8",
-  "controller_armv6_sha256": "c380f33b36f6408c46619e81f07585fe1b2f7e77e5a4225c5736988618b02b01",
-  "firmware_zero_w_image_sha256": "89167db6b8dcd7e544589e90306f36e42c9066779430b5964ef19073f6a3f8e5",
-  "firmware_zero_w_xz_sha256": "2873476d07fa63f5b3b3ef25cf71379b0179322297f1a1915aca860a765a3e73",
+  "status": "stable-source-identity-software-validated-publication-pending",
+  "final_label": "SOFTWARE-COMPLETE RELEASE CANDIDATE \u2014 HARDWARE UNVERIFIED",
+  "baseline_main_commit": "cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27",
+  "last_published_application_commit": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+  "branch": "fix/stable-library-identity",
+  "worktree_state": "Stable filesystem identity and automatic source recovery implemented; clean commit and GHCR publication pending.",
   "build_host": {
-    "os": "Debian GNU/Linux 13 (trixie)",
-    "kernel": "6.12.96+deb13-amd64",
+    "os": "Debian GNU/Linux 13.6 (trixie)",
+    "kernel": "6.12.107+deb13-amd64",
     "architecture": "x86_64",
-    "available_bytes": 179314884608
-  },
-  "truenas_target": {
-    "version": null,
-    "apps_backend": null,
-    "architecture": null,
-    "pool_paths": [],
-    "dataset_paths": [],
-    "acls": null,
-    "ports": {
-      "https": 8445,
-      "nbd_tls": 10809,
-      "availability_verified_on_target": true
-    },
-    "state": "LIVE_32K_EXACT_FSINFO_EXPORT_ARCHIVE_ATTRIBUTES_PASS_59_INCOMPATIBLE_SPLIT_SEGMENTS"
+    "virtual_cpus": 8,
+    "ram_bytes": 16737259520,
+    "filesystem": "ext4",
+    "go": "go1.25.12",
+    "docker": "26.1.5+dfsg1",
+    "podman": "unavailable"
   },
   "phases": {
-    "baseline": "complete",
-    "server": "large-wii-split-boundary-full-tests-race-static-fat32-verified",
-    "container": "lifetime-certificate-host-published-by-immutable-ghcr-digest",
-    "pi_bridge": "lifetime-certificate-host-published-firmware-rebuild-pending",
-    "firmware_zero_w": "current-full-image-offline-verified-physical-retest-deferred",
-    "firmware_pi4": "firmware-offline-verified",
-    "firmware_pi5": "firmware-offline-verified",
-    "release": "software-complete-four-features-hardware-validation-deferred",
-    "truenas_startup": "exact-fsinfo-host-deployed-ready-and-live-block-verified"
+    "server": "PASS: full test, static, race and vet suites",
+    "container": "PASS: real read-only bind mounts, restart, renumbered saved device and automatic late-source recovery",
+    "firmware": "No firmware change required; ARMv6 controller cross-compile PASS; prior released firmware retained",
+    "release": "PENDING: main merge and immutable GHCR publication",
+    "truenas_deployment": "NOT_PERFORMED for this fix"
   },
-  "physical_tests": "exact FSInfo large-library retest passes USB initialization; post-enumeration stall and absent useful reads retained; live export contains 59 4GiB-minus-4KiB segments whose 32KiB-cluster chains span exactly 2^32 bytes; USB Loader GX-compatible 4GiB-minus-32KiB correction passes focused sparse fsck/source-byte tests but is not deployed or physically retested; gamecube-emulated-save-DEFERRED_HARDWARE_UNAVAILABLE",
-  "updated_utc": "2026-08-28T21:51:55Z"
+  "physical_tests": "TrueNAS reboot/pool export-import and physical Pi/Wii/GameCube acceptance: DEFERRED_HARDWARE_UNAVAILABLE",
+  "library_locations": {
+    "settings": [
+      "WIIBRIDGE_WII_LIBRARY",
+      "WIIBRIDGE_GAMECUBE_LIBRARY"
+    ],
+    "legacy_shared_root": "supported by compose.yaml",
+    "relocation": "explicit confirmation and atomic catalog commit",
+    "local_validation": "PASS",
+    "publication": "PASS",
+    "truenas_deployment": "NOT_PERFORMED"
+  },
+  "performance_audit": {
+    "baseline_commit_date": "2026-08-28T14:53:07-07:00",
+    "separate_library_prerequisite_commit": "51a42992f0b1aa9dd153bab3279524a4a04bb73c",
+    "runtime_optimization_commit": "18346a03f2b33639eea155fc114c913bc935c373",
+    "artifact_source_commit": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+    "measurement_method": "Six samples per canonical benchmark; same Go 1.25.12, ext4 fixtures, GOMAXPROCS=8, GOGC=100; separately verified warm/page-evicted distributions",
+    "report": "docs/full-performance-audit.md",
+    "manifest": "reports/performance/2026-09-full-audit/release-manifest.json",
+    "publication": "reports/performance/2026-09-full-audit/release-publication.json",
+    "baseline_validation": "PASS",
+    "optimized_validation": "PASS",
+    "physical_qualification": "DEFERRED_HARDWARE_UNAVAILABLE",
+    "rejected_firmware_attempt": {
+      "revision": "18346a03f2b33639eea155fc114c913bc935c373",
+      "status": "FAIL",
+      "reason": "Shared chroot mount propagation broke concurrent cleanup; owned builders stopped and mounts cleaned normally.",
+      "correction": "Private builder mount namespaces and mounted-tree deletion guard. Fresh all-board retry at artifact_source_commit PASS."
+    },
+    "deployment_followup": "Correct separate-path Compose interpolation, reject absent/empty paths, update immutable digest pin, validate all three Compose definitions."
+  },
+  "firmware": [
+    {
+      "target": "zero-w-armhf",
+      "raw_image_sha256": "3c5ecc921be55ad829a02cbb6871f63075558034b869b78c4b7d662ae5bcf138",
+      "compressed_sha256": "be3540662e6bb0bc6169de37b9d6cb435baef1da28e420361b7233814b88d645",
+      "controller_sha256": "a2b778e718496e3e1542e38db810b124c1245d3047c7b20698f6585a552ad809",
+      "offline_validation": "PASS"
+    },
+    {
+      "target": "pi4-arm64",
+      "raw_image_sha256": "3787b3a00829f0ed86f0686f878b288dfb9d88a86fca963a87521aca3957965a",
+      "compressed_sha256": "0baa2cc4d2e04c94b52c5c6805d60d1968f90bbbe7f5c14694291ddb0861e907",
+      "controller_sha256": "0e65592980e5416e654f4ed559f730c26cf59c64bf96ca8e5e8c924567f552fe",
+      "offline_validation": "PASS"
+    },
+    {
+      "target": "pi5-arm64",
+      "raw_image_sha256": "8f4612df8a0fa659726c608cee4c96cf02e5c6f50bc657968661f80743c110f3",
+      "compressed_sha256": "b83c118f558e4a110a831fa8edf29ea68002e18825dc3600f94a9a80477cbdce",
+      "controller_sha256": "0e65592980e5416e654f4ed559f730c26cf59c64bf96ca8e5e8c924567f552fe",
+      "offline_validation": "PASS"
+    }
+  ],
+  "historical_pre_audit": {
+    "note": "Inherited earlier release/deployment observations; these do not qualify the current candidate.",
+    "application_commit": "7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92",
+    "implementation_base_commit": "ce732427b1805cfa580ba0d5a865e2aed47eeeac",
+    "last_published_application_commit": "7fd0c3ae8ef4318e11c1b36595cf3e5c40eaaa92",
+    "published_oci_digest": "sha256:4df501302aee625f50f125b5e21c4f3c7402408cd40cdfebaab8d7991227749b",
+    "local_oci_digest": "sha256:93d6056a9ce0dab0030a55e7a74abf76c7ee64f564c8899b430fbb50cc350ce8",
+    "controller_armv6_sha256": "c380f33b36f6408c46619e81f07585fe1b2f7e77e5a4225c5736988618b02b01",
+    "firmware_zero_w_image_sha256": "89167db6b8dcd7e544589e90306f36e42c9066779430b5964ef19073f6a3f8e5",
+    "firmware_zero_w_xz_sha256": "2873476d07fa63f5b3b3ef25cf71379b0179322297f1a1915aca860a765a3e73",
+    "build_host": {
+      "os": "Debian GNU/Linux 13 (trixie)",
+      "kernel": "6.12.96+deb13-amd64",
+      "architecture": "x86_64",
+      "available_bytes": 179314884608
+    },
+    "truenas_target": {
+      "version": null,
+      "apps_backend": null,
+      "architecture": null,
+      "pool_paths": [],
+      "dataset_paths": [],
+      "acls": null,
+      "ports": {
+        "https": 8445,
+        "nbd_tls": 10809,
+        "availability_verified_on_target": true
+      },
+      "state": "LIVE_32K_EXACT_FSINFO_EXPORT_ARCHIVE_ATTRIBUTES_PASS_59_INCOMPATIBLE_SPLIT_SEGMENTS"
+    },
+    "phases": {
+      "baseline": "complete",
+      "server": "large-wii-split-boundary-full-tests-race-static-fat32-verified",
+      "container": "lifetime-certificate-host-published-by-immutable-ghcr-digest",
+      "pi_bridge": "lifetime-certificate-host-published-firmware-rebuild-pending",
+      "firmware_zero_w": "current-full-image-offline-verified-physical-retest-deferred",
+      "firmware_pi4": "firmware-offline-verified",
+      "firmware_pi5": "firmware-offline-verified",
+      "release": "software-complete-four-features-hardware-validation-deferred",
+      "truenas_startup": "exact-fsinfo-host-deployed-ready-and-live-block-verified"
+    },
+    "physical_tests": "exact FSInfo large-library retest passes USB initialization; post-enumeration stall and absent useful reads retained; live export contains 59 4GiB-minus-4KiB segments whose 32KiB-cluster chains span exactly 2^32 bytes; USB Loader GX-compatible 4GiB-minus-32KiB correction passes focused sparse fsck/source-byte tests but is not deployed or physically retested; gamecube-emulated-save-DEFERRED_HARDWARE_UNAVAILABLE",
+    "library_locations": {
+      "branch": "fix/separate-library-paths",
+      "settings": [
+        "WIIBRIDGE_WII_LIBRARY",
+        "WIIBRIDGE_GAMECUBE_LIBRARY"
+      ],
+      "legacy_shared_root": "supported",
+      "relocation": "explicit-confirmation-and-atomic-catalog-commit",
+      "local_validation": "PASS",
+      "publication": "PENDING",
+      "truenas_deployment": "PENDING",
+      "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
+    }
+  },
+  "updated_utc": "2026-09-17T18:04:08.402096+00:00",
+  "operator_zero_w_card_flash": {
+    "status": "PASS",
+    "release_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+    "report": "reports/firmware/zero-w-armhf/performance-card-flash-2026-09-13.json",
+    "configuration_preserved": true,
+    "full_readback": "PASS",
+    "safe_eject": "PASS",
+    "physical_boot": "DEFERRED_HARDWARE_UNAVAILABLE"
+  },
+  "historical_performance_release": {
+    "application_commit": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+    "branch": "perf/full-system-optimization",
+    "worktree_state": "Artifacts built from clean pinned application_commit; later Compose and audit records do not change host/Pi runtime code.",
+    "published_oci_digest": "sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+    "local_oci_digest": "sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+    "published_oci_reference": "ghcr.io/mhilton7/wiibridge-host:sha-3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2@sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+    "release_url": "https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91",
+    "pull_request": "https://github.com/mhilton7/WiiBridge/pull/14",
+    "phases": {
+      "baseline": "PASS: fresh pinned main; complete release including all firmware",
+      "server": "PASS: full tests, static, race, vet",
+      "container": "PASS: final OCI tested, immutable GHCR digest verified",
+      "firmware_zero_w": "PASS: full build, offline validation, operator card flash and whole-image readback; physical boot deferred",
+      "firmware_pi4": "PASS: full build and offline validation",
+      "firmware_pi5": "PASS: full build and offline validation",
+      "integration": "PASS: final Wii/GameCube kernel NBD and separate-source recovery",
+      "release": "PASS: public prerelease; 30 asset sizes and hashes verified",
+      "truenas_deployment": "NOT_PERFORMED"
+    },
+    "firmware": [
+      {
+        "target": "zero-w-armhf",
+        "raw_image_sha256": "3c5ecc921be55ad829a02cbb6871f63075558034b869b78c4b7d662ae5bcf138",
+        "compressed_sha256": "be3540662e6bb0bc6169de37b9d6cb435baef1da28e420361b7233814b88d645",
+        "controller_sha256": "a2b778e718496e3e1542e38db810b124c1245d3047c7b20698f6585a552ad809",
+        "offline_validation": "PASS"
+      },
+      {
+        "target": "pi4-arm64",
+        "raw_image_sha256": "3787b3a00829f0ed86f0686f878b288dfb9d88a86fca963a87521aca3957965a",
+        "compressed_sha256": "0baa2cc4d2e04c94b52c5c6805d60d1968f90bbbe7f5c14694291ddb0861e907",
+        "controller_sha256": "0e65592980e5416e654f4ed559f730c26cf59c64bf96ca8e5e8c924567f552fe",
+        "offline_validation": "PASS"
+      },
+      {
+        "target": "pi5-arm64",
+        "raw_image_sha256": "8f4612df8a0fa659726c608cee4c96cf02e5c6f50bc657968661f80743c110f3",
+        "compressed_sha256": "b83c118f558e4a110a831fa8edf29ea68002e18825dc3600f94a9a80477cbdce",
+        "controller_sha256": "0e65592980e5416e654f4ed559f730c26cf59c64bf96ca8e5e8c924567f552fe",
+        "offline_validation": "PASS"
+      }
+    ],
+    "physical_tests": "Zero W SD flashing and whole-image readback PASS; physical board boot, Wii launches and hardware save tests DEFERRED_HARDWARE_UNAVAILABLE",
+    "note": "Prior 2026-09-13 release evidence; not qualification of the stable identity fix."
+  },
+  "stable_source_identity": {
+    "report": "reports/truenas/stable-source-identity-20260917.json",
+    "schema": 3,
+    "capability": "stable-source-identity-v1",
+    "software_validation": "PASS",
+    "publication": "PENDING",
+    "deployment": "NOT_PERFORMED",
+    "operator_yaml": "Generic file generated outside the repository; no private configuration published."
+  }
 }

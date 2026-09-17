@@ -17,6 +17,7 @@ import (
 	"syscall"
 
 	"wiibridge/shared/model"
+	"wiibridge/shared/sourceidentity"
 )
 
 var gameID = regexp.MustCompile(`^[A-Z0-9]{6}$`)
@@ -179,7 +180,11 @@ func inspectSet(root, leader string) (model.Game, error) {
 		if !ok {
 			return model.Game{}, errors.New("source identity unavailable")
 		}
-		sources = append(sources, model.Source{
+		filesystemID, identityErr := sourceidentity.FilesystemID(p)
+		if identityErr != nil {
+			return model.Game{}, identityErr
+		}
+		sources = append(sources, model.Source{FilesystemID: filesystemID,
 			Path: p, Offset: total, Length: info.Size(), Size: info.Size(),
 			ModUnix: info.ModTime().UnixNano(), Device: uint64(st.Dev), Inode: st.Ino,
 		})
@@ -194,8 +199,15 @@ func VerifySource(s model.Source) error {
 		return err
 	}
 	st, ok := info.Sys().(*syscall.Stat_t)
+	filesystemID := ""
+	if s.FilesystemID != "" {
+		filesystemID, err = sourceidentity.FilesystemID(s.Path)
+		if err != nil {
+			return err
+		}
+	}
 	if !ok || info.Size() != s.Size || info.ModTime().UnixNano() != s.ModUnix ||
-		uint64(st.Dev) != s.Device || st.Ino != s.Inode {
+		!sourceidentity.SameFilesystem(s.FilesystemID, s.Device, filesystemID, uint64(st.Dev)) || st.Ino != s.Inode {
 		return errors.New("source identity changed")
 	}
 	return nil

@@ -45,6 +45,15 @@ jobs:
             -o build/container-root/wiibridge-host \
             ./server/host-daemon
 
+      - name: Test source identity and recovery
+        run: |
+          go test -race ./server/... ./pi/... ./shared/... ./tests/... \
+            ./scripts/synthetic-wbfs ./scripts/gamecube-volume ./scripts/gamecube-saves
+          go vet ./server/... ./pi/... ./shared/... ./tests/...
+          mkdir -p build/bin
+          cp build/container-root/wiibridge-host build/bin/wiibridge-host
+          sudo -n python3 tests/truenas/separate-libraries-test.py
+
       - name: Build Docker image
         run: |
           BUILD_TIME="$(cat build/container-root/.build-time)"

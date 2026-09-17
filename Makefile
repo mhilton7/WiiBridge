@@ -33,6 +33,8 @@ oci:
 
 compose:
 	./deploy/truenas/validate-compose.sh
+	./deploy/truenas/validate-compose.sh deploy/truenas/compose.separate-libraries.yaml
+	./deploy/truenas/validate-compose.sh deploy/truenas/compose.ghcr.yaml
 
 firmware-zero-w:
 	./scripts/build-firmware.sh zero-w-armhf

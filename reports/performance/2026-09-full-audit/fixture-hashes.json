@@ -1,0 +1,13 @@
+{
+  "store_audit_test.go.txt": "04a662310c0f470fd004911c0076e9da2cc78c9151d593909dfbfef732756182",
+  "legacy_audit_test.go.txt": "2ce4191f0ae5ef1c9a1dc34aa868bdd49c70c6a823f73eefed5cd933cb5c54f6",
+  "startup_audit_test.go.txt": "19de2a59c83847ca793492fdef0204388f72edbac72e1e632f6a0a8ff61f8ff0",
+  "gamecube_audit_test.go.txt": "00daff867edb799babf30d1bb0db338038af84992d2edfe9645939173f1bc8e7",
+  "layout_audit_test.go.txt": "fdf1e6df2f9b6c667958a72e26fab61f386ddc64fa93f34d5bd67d56ce6277b5",
+  "save_audit_test.go.txt": "711900d4503fbe40a6b47f6a121468186a2e9f79410d8729e814329987cd4a06",
+  "control_audit_test.go.txt": "6b30fc8d621c261e13dfc9daa7149cd621cc57cd7a6d04d5c7703c95e6b82a09",
+  "latency_audit_test.go.txt": "12f1432fb358ed04f2c25b702ef842a4e5467291e9ffa6e15836974e3de5844b",
+  "vdisk_audit_test.go.txt": "51b38410fdc281dabb98665891fd04bb520f1bd6b161823cac85b3fd986a8020",
+  "nbd_audit_test.go.txt": "bba2541ed554d4d16fd4c3121402e87d67ae630bd9b96fb6d1db570c8506966d",
+  "nbd_helpers_test.go.txt": "73b6d1bcec7c34b842a07561c2b8bb78e0c97e3361fecb43ff6c9179ce422a87"
+}

@@ -15,5 +15,10 @@ Never substitute a guessed device path. Pi 4 and Pi 5 images are deliberately
 separate. First boot creates machine identity and SSH host keys; client TLS
 credentials are provisioned uniquely and are not embedded in the image.
 
-Physical flashing and boot remain `DEFERRED_HARDWARE_UNAVAILABLE` for this
-release candidate.
+The Zero W card for release source
+`3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2` was flashed with existing device
+configuration preserved and passed complete readback, controller identity and
+read-only filesystem checks on 2026-09-13. See
+[the card verification record](../reports/firmware/zero-w-armhf/performance-card-flash-2026-09-13.json).
+Physical board boot and Wii launch qualification remain
+`DEFERRED_HARDWARE_UNAVAILABLE`.

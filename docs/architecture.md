@@ -1,7 +1,7 @@
 # Architecture and implementation decision
 
-The host scanner records source device/inode, size, nanosecond mtime, and split
-extents. Snapshot construction creates only FAT32 metadata and an extent index.
+The host scanner records persistent filesystem identity where supported,
+device/inode, size, nanosecond mtime, and split extents. Snapshot construction creates only FAT32 metadata and an extent index.
 Every payload read revalidates source identity and opens the source read-only;
 no whole payload is read or persisted.
 

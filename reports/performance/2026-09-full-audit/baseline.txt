@@ -1,0 +1,402 @@
+goos: linux
+goarch: amd64
+pkg: wiibridge/server/host-daemon/vdisk
+BenchmarkAuditWiiCatalogRead/games=1/bytes=4096-8         	  137461	      6485 ns/op	 631.59 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=4096-8         	  135598	      6428 ns/op	 637.18 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=4096-8         	  140473	      6467 ns/op	 633.39 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=4096-8         	  138286	      6426 ns/op	 637.40 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=4096-8         	  135122	      6419 ns/op	 638.07 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=4096-8         	  133687	      6425 ns/op	 637.52 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=65536-8        	  116343	      7630 ns/op	8589.42 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=65536-8        	  120044	      7600 ns/op	8623.47 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=65536-8        	  115789	      7627 ns/op	8592.88 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=65536-8        	  115725	      7832 ns/op	8368.21 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=65536-8        	  117816	      7839 ns/op	8359.81 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1/bytes=65536-8        	  106464	      7874 ns/op	8323.24 MB/s	     712 B/op	       6 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=4096-8      	   46555	     18572 ns/op	 220.55 MB/s	   24687 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=4096-8      	   49338	     18667 ns/op	 219.42 MB/s	   24689 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=4096-8      	   49154	     18543 ns/op	 220.89 MB/s	   24688 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=4096-8      	   50090	     18644 ns/op	 219.70 MB/s	   24687 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=4096-8      	   48477	     18705 ns/op	 218.97 MB/s	   24688 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=4096-8      	   45792	     18700 ns/op	 219.04 MB/s	   24687 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=65536-8     	   45638	     19581 ns/op	3346.87 MB/s	   24689 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=65536-8     	   45152	     19699 ns/op	3326.79 MB/s	   24687 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=65536-8     	   45964	     19800 ns/op	3309.86 MB/s	   24688 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=65536-8     	   45360	     19466 ns/op	3366.62 MB/s	   24688 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=65536-8     	   45685	     19357 ns/op	3385.62 MB/s	   24689 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=1000/bytes=65536-8     	   45757	     19437 ns/op	3371.72 MB/s	   24688 B/op	     505 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=4096-8     	    7029	    129559 ns/op	  31.62 MB/s	  240717 B/op	    5006 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=4096-8     	    7570	    134410 ns/op	  30.47 MB/s	  240700 B/op	    5005 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=4096-8     	    6958	    131357 ns/op	  31.18 MB/s	  240701 B/op	    5005 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=4096-8     	    6597	    133414 ns/op	  30.70 MB/s	  240739 B/op	    5006 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=4096-8     	    6889	    131902 ns/op	  31.05 MB/s	  240643 B/op	    5004 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=4096-8     	    7065	    133775 ns/op	  30.62 MB/s	  240678 B/op	    5005 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=65536-8    	    6738	    131793 ns/op	 497.27 MB/s	  240647 B/op	    5004 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=65536-8    	    6285	    132331 ns/op	 495.24 MB/s	  240712 B/op	    5005 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=65536-8    	    6493	    133743 ns/op	 490.01 MB/s	  240642 B/op	    5004 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=65536-8    	    6576	    134237 ns/op	 488.21 MB/s	  240737 B/op	    5006 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=65536-8    	    6674	    134198 ns/op	 488.35 MB/s	  240684 B/op	    5005 allocs/op
+BenchmarkAuditWiiCatalogRead/games=10000/bytes=65536-8    	    6216	    133642 ns/op	 490.39 MB/s	  240683 B/op	    5005 allocs/op
+BenchmarkAuditWiiFATRead/bytes=512-8                      	 1406995	       650.0 ns/op	 787.74 MB/s	     512 B/op	       1 allocs/op
+BenchmarkAuditWiiFATRead/bytes=512-8                      	 1373524	       659.3 ns/op	 776.54 MB/s	     512 B/op	       1 allocs/op
+BenchmarkAuditWiiFATRead/bytes=512-8                      	 1372033	       661.5 ns/op	 773.97 MB/s	     512 B/op	       1 allocs/op
+BenchmarkAuditWiiFATRead/bytes=512-8                      	 1377856	       654.4 ns/op	 782.41 MB/s	     512 B/op	       1 allocs/op
+BenchmarkAuditWiiFATRead/bytes=512-8                      	 1378501	       640.2 ns/op	 799.75 MB/s	     512 B/op	       1 allocs/op
+BenchmarkAuditWiiFATRead/bytes=512-8                      	 1444857	       641.8 ns/op	 797.72 MB/s	     512 B/op	       1 allocs/op
+BenchmarkAuditWiiFATRead/bytes=65536-8                    	   10000	     81166 ns/op	 807.43 MB/s	   65536 B/op	     128 allocs/op
+BenchmarkAuditWiiFATRead/bytes=65536-8                    	    9694	     80992 ns/op	 809.17 MB/s	   65536 B/op	     128 allocs/op
+BenchmarkAuditWiiFATRead/bytes=65536-8                    	   10000	     83082 ns/op	 788.81 MB/s	   65536 B/op	     128 allocs/op
+BenchmarkAuditWiiFATRead/bytes=65536-8                    	    9511	     83318 ns/op	 786.58 MB/s	   65536 B/op	     128 allocs/op
+BenchmarkAuditWiiFATRead/bytes=65536-8                    	    9822	     84087 ns/op	 779.38 MB/s	   65536 B/op	     128 allocs/op
+BenchmarkAuditWiiFATRead/bytes=65536-8                    	    9859	     82994 ns/op	 789.64 MB/s	   65536 B/op	     128 allocs/op
+BenchmarkAuditWiiFATRead/bytes=1048576-8                  	     606	   1455125 ns/op	 720.61 MB/s	 1048578 B/op	    2048 allocs/op
+BenchmarkAuditWiiFATRead/bytes=1048576-8                  	     636	   1451793 ns/op	 722.26 MB/s	 1048579 B/op	    2048 allocs/op
+BenchmarkAuditWiiFATRead/bytes=1048576-8                  	     637	   1465878 ns/op	 715.32 MB/s	 1048577 B/op	    2048 allocs/op
+BenchmarkAuditWiiFATRead/bytes=1048576-8                  	     639	   1475866 ns/op	 710.48 MB/s	 1048579 B/op	    2048 allocs/op
+BenchmarkAuditWiiFATRead/bytes=1048576-8                  	     622	   1474713 ns/op	 711.04 MB/s	 1048580 B/op	    2048 allocs/op
+BenchmarkAuditWiiFATRead/bytes=1048576-8                  	     608	   1468302 ns/op	 714.14 MB/s	 1048580 B/op	    2048 allocs/op
+BenchmarkLargeFATSynthesis-8                              	    3848	    244153 ns/op	  287787 B/op	    2134 allocs/op
+BenchmarkLargeFATSynthesis-8                              	    3870	    247365 ns/op	  287570 B/op	    2133 allocs/op
+BenchmarkLargeFATSynthesis-8                              	    3944	    239894 ns/op	  287917 B/op	    2134 allocs/op
+BenchmarkLargeFATSynthesis-8                              	    3740	    237745 ns/op	  288180 B/op	    2134 allocs/op
+BenchmarkLargeFATSynthesis-8                              	    3801	    237431 ns/op	  288173 B/op	    2134 allocs/op
+BenchmarkLargeFATSynthesis-8                              	    3460	    239444 ns/op	  288413 B/op	    2134 allocs/op
+BenchmarkLargeFATSectorRead-8                             	 1372017	       651.2 ns/op	 786.19 MB/s	     512 B/op	       1 allocs/op
+BenchmarkLargeFATSectorRead-8                             	 1421610	       637.9 ns/op	 802.68 MB/s	     512 B/op	       1 allocs/op
+BenchmarkLargeFATSectorRead-8                             	 1392396	       644.8 ns/op	 794.03 MB/s	     512 B/op	       1 allocs/op
+BenchmarkLargeFATSectorRead-8                             	 1378771	       651.9 ns/op	 785.41 MB/s	     512 B/op	       1 allocs/op
+BenchmarkLargeFATSectorRead-8                             	 1403749	       638.4 ns/op	 802.00 MB/s	     512 B/op	       1 allocs/op
+BenchmarkLargeFATSectorRead-8                             	 1402032	       643.8 ns/op	 795.29 MB/s	     512 B/op	       1 allocs/op
+PASS
+ok  	wiibridge/server/host-daemon/vdisk	67.308s
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/server/host-daemon/gamecube
+BenchmarkAuditGameCubeManaged/reserveGiB=1/fast-8         	     235	   3427956 ns/op	 4501371 B/op	     189 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/fast-8         	     290	   3930967 ns/op	 4501305 B/op	     189 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/fast-8         	     258	   3103537 ns/op	 4501281 B/op	     188 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/fast-8         	     265	   3496895 ns/op	 4501424 B/op	     189 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/fast-8         	     244	   3309134 ns/op	 4501363 B/op	     189 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/fast-8         	     276	   3217839 ns/op	 4501382 B/op	     189 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/active-8       	     123	   6797425 ns/op	 9014369 B/op	     454 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/active-8       	     116	   7148222 ns/op	 9014382 B/op	     454 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/active-8       	      91	   9033157 ns/op	 9014393 B/op	     455 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/active-8       	     114	   8505852 ns/op	 9014232 B/op	     453 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/active-8       	     135	   6173770 ns/op	 9014127 B/op	     452 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/active-8       	     127	   6214688 ns/op	 9014024 B/op	     452 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/open-8         	     124	   6434317 ns/op	 8996170 B/op	     336 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/open-8         	     186	   6060213 ns/op	 8996154 B/op	     336 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/open-8         	     133	   6194287 ns/op	 8996218 B/op	     336 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/open-8         	     133	   7093375 ns/op	 8996441 B/op	     338 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/open-8         	     184	   7003160 ns/op	 8996386 B/op	     337 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=1/open-8         	     147	   6268764 ns/op	 8996346 B/op	     337 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/fast-8       	       6	 137086862 ns/op	269268309 B/op	     194 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/fast-8       	       6	 136956339 ns/op	269267397 B/op	     193 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/fast-8       	       6	 137234349 ns/op	269267384 B/op	     193 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/fast-8       	       6	 136613427 ns/op	269267400 B/op	     193 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/fast-8       	       6	 137266844 ns/op	269267389 B/op	     193 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/fast-8       	       6	 136627697 ns/op	269267384 B/op	     193 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/active-8     	       3	 274453402 ns/op	538547805 B/op	     464 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/active-8     	       3	 272269438 ns/op	538547730 B/op	     464 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/active-8     	       3	 281997317 ns/op	538547466 B/op	     462 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/active-8     	       3	 277393489 ns/op	538548045 B/op	     465 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/active-8     	       3	 302221464 ns/op	538547298 B/op	     464 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/active-8     	       3	 276538035 ns/op	538547464 B/op	     462 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/open-8       	       4	 236968096 ns/op	538529282 B/op	     345 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/open-8       	       4	 224450591 ns/op	538529992 B/op	     347 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/open-8       	       4	 224390882 ns/op	538529764 B/op	     346 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/open-8       	       4	 230389194 ns/op	538529278 B/op	     345 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/open-8       	       4	 230965710 ns/op	538529964 B/op	     348 allocs/op
+BenchmarkAuditGameCubeManaged/reserveGiB=512/open-8       	       4	 233957161 ns/op	538529238 B/op	     345 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=4096-8           	  211323	      4073 ns/op	1005.56 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=4096-8           	  220712	      4069 ns/op	1006.61 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=4096-8           	  222580	      4078 ns/op	1004.37 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=4096-8           	  223364	      4076 ns/op	1004.81 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=4096-8           	  223135	      4111 ns/op	 996.42 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=4096-8           	  217531	      4101 ns/op	 998.81 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=65536-8          	   16616	     53995 ns/op	1213.74 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=65536-8          	   16606	     54108 ns/op	1211.22 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=65536-8          	   16656	     54568 ns/op	1200.99 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=65536-8          	   15987	     54883 ns/op	1194.11 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=65536-8          	   16461	     54241 ns/op	1208.23 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=65536-8          	   16539	     54578 ns/op	1200.77 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=1048576-8        	    1046	    857596 ns/op	1222.69 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=1048576-8        	    1059	    858644 ns/op	1221.20 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=1048576-8        	    1058	    872420 ns/op	1201.92 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=1048576-8        	    1034	    858232 ns/op	1221.79 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=1048576-8        	    1041	    872056 ns/op	1202.42 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=false/bytes=1048576-8        	    1056	    857482 ns/op	1222.86 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=4096-8            	  225862	      3925 ns/op	1043.69 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=4096-8            	  217106	      3937 ns/op	1040.27 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=4096-8            	  221859	      3915 ns/op	1046.31 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=4096-8            	  226568	      3935 ns/op	1041.03 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=4096-8            	  228339	      3948 ns/op	1037.39 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=4096-8            	  222199	      3985 ns/op	1027.96 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=65536-8           	   16988	     53391 ns/op	1227.48 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=65536-8           	   17022	     52435 ns/op	1249.84 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=65536-8           	   16963	     52223 ns/op	1254.93 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=65536-8           	   17150	     52568 ns/op	1246.70 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=65536-8           	   16908	     52631 ns/op	1245.21 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=65536-8           	   17127	     52517 ns/op	1247.90 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=1048576-8         	    1070	    835027 ns/op	1255.74 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=1048576-8         	    1090	    837490 ns/op	1252.05 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=1048576-8         	    1064	    833660 ns/op	1257.80 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=1048576-8         	    1078	    834878 ns/op	1255.96 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=1048576-8         	    1065	    832528 ns/op	1259.51 MB/s	       0 B/op	       0 allocs/op
+BenchmarkAuditSaveRead/mixed=true/bytes=1048576-8         	    1046	    833145 ns/op	1258.58 MB/s	       0 B/op	       0 allocs/op
+BenchmarkSaveOverlayWriteAccounting-8                     	     921	    960005 ns/op	   4.27 MB/s	    5467 B/op	       8 allocs/op
+BenchmarkSaveOverlayWriteAccounting-8                     	     879	    959359 ns/op	   4.27 MB/s	    5244 B/op	       8 allocs/op
+BenchmarkSaveOverlayWriteAccounting-8                     	     877	    987080 ns/op	   4.15 MB/s	    5150 B/op	       8 allocs/op
+BenchmarkSaveOverlayWriteAccounting-8                     	     865	   1003577 ns/op	   4.08 MB/s	    5073 B/op	       8 allocs/op
+BenchmarkSaveOverlayWriteAccounting-8                     	     848	    973713 ns/op	   4.21 MB/s	    4996 B/op	       8 allocs/op
+BenchmarkSaveOverlayWriteAccounting-8                     	     928	    952905 ns/op	   4.30 MB/s	    5456 B/op	       8 allocs/op
+PASS
+ok  	wiibridge/server/host-daemon/gamecube	104.703s
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/server/host-daemon/fat32virtual
+BenchmarkSequentialReadsOneISO-8           	  173452	      5172 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkSequentialReadsOneISO-8           	  174498	      5096 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkSequentialReadsOneISO-8           	  168246	      5057 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkSequentialReadsOneISO-8           	  176138	      5085 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkSequentialReadsOneISO-8           	  174822	      5124 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkSequentialReadsOneISO-8           	  164151	      5081 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/disabled-8        	  240216	      3755 ns/op	17453.65 MB/s	     400 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/disabled-8        	  226312	      3800 ns/op	17244.79 MB/s	     400 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/disabled-8        	  231752	      3751 ns/op	17471.30 MB/s	     400 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/disabled-8        	  232845	      3729 ns/op	17572.78 MB/s	     400 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/disabled-8        	  244388	      3708 ns/op	17673.74 MB/s	     400 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/disabled-8        	  231458	      3736 ns/op	17543.80 MB/s	     400 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/enabled-8         	  234250	      3891 ns/op	16844.22 MB/s	     384 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/enabled-8         	  234609	      3884 ns/op	16872.13 MB/s	     384 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/enabled-8         	  226827	      3885 ns/op	16870.00 MB/s	     384 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/enabled-8         	  225426	      3904 ns/op	16785.32 MB/s	     384 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/enabled-8         	  231072	      3849 ns/op	17026.05 MB/s	     384 B/op	       2 allocs/op
+BenchmarkReadPathMetrics/enabled-8         	  226144	      3862 ns/op	16968.15 MB/s	     384 B/op	       2 allocs/op
+BenchmarkRandomReadsOneISO-8               	  356935	      2417 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkRandomReadsOneISO-8               	  341905	      2431 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkRandomReadsOneISO-8               	  336780	      2418 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkRandomReadsOneISO-8               	  341592	      2414 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkRandomReadsOneISO-8               	  334777	      2430 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkRandomReadsOneISO-8               	  357566	      2408 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkSwitchingThirtyTwoSources-8       	  358354	      2377 ns/op	        99.99 cache-hit-%	        32.00 peak-open-files	        32.00 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkSwitchingThirtyTwoSources-8       	  341599	      2373 ns/op	        99.99 cache-hit-%	        32.00 peak-open-files	        32.00 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkSwitchingThirtyTwoSources-8       	  359056	      2359 ns/op	        99.99 cache-hit-%	        32.00 peak-open-files	        32.00 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkSwitchingThirtyTwoSources-8       	  346053	      2378 ns/op	        99.99 cache-hit-%	        32.00 peak-open-files	        32.00 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkSwitchingThirtyTwoSources-8       	  352977	      2391 ns/op	        99.99 cache-hit-%	        32.00 peak-open-files	        32.00 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkSwitchingThirtyTwoSources-8       	  345004	      2371 ns/op	        99.99 cache-hit-%	        32.00 peak-open-files	        32.00 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkExtentLookup10000-8               	88147069	        10.07 ns/op	       0 B/op	       0 allocs/op
+BenchmarkExtentLookup10000-8               	91258759	         9.936 ns/op	       0 B/op	       0 allocs/op
+BenchmarkExtentLookup10000-8               	88535890	         9.932 ns/op	       0 B/op	       0 allocs/op
+BenchmarkExtentLookup10000-8               	90521320	         9.928 ns/op	       0 B/op	       0 allocs/op
+BenchmarkExtentLookup10000-8               	90416012	         9.888 ns/op	       0 B/op	       0 allocs/op
+BenchmarkExtentLookup10000-8               	89148992	         9.902 ns/op	       0 B/op	       0 allocs/op
+BenchmarkExtractedFSTFiveThousandFiles-8   	  373414	      2388 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkExtractedFSTFiveThousandFiles-8   	  376518	      2352 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkExtractedFSTFiveThousandFiles-8   	  376086	      2353 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkExtractedFSTFiveThousandFiles-8   	  377116	      2351 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkExtractedFSTFiveThousandFiles-8   	  380763	      2362 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkExtractedFSTFiveThousandFiles-8   	  385508	      2352 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     400 B/op	       2 allocs/op
+BenchmarkReadCrossingSourceExtents-8       	  129298	      6698 ns/op	       100.0 cache-hit-%	         2.000 peak-open-files	         2.000 source-opens	         2.000 source-reads/op	     800 B/op	       4 allocs/op
+BenchmarkReadCrossingSourceExtents-8       	  134739	      6668 ns/op	       100.0 cache-hit-%	         2.000 peak-open-files	         2.000 source-opens	         2.000 source-reads/op	     800 B/op	       4 allocs/op
+BenchmarkReadCrossingSourceExtents-8       	  132506	      6701 ns/op	       100.0 cache-hit-%	         2.000 peak-open-files	         2.000 source-opens	         2.000 source-reads/op	     800 B/op	       4 allocs/op
+BenchmarkReadCrossingSourceExtents-8       	  129145	      6689 ns/op	       100.0 cache-hit-%	         2.000 peak-open-files	         2.000 source-opens	         2.000 source-reads/op	     800 B/op	       4 allocs/op
+BenchmarkReadCrossingSourceExtents-8       	  130591	      6691 ns/op	       100.0 cache-hit-%	         2.000 peak-open-files	         2.000 source-opens	         2.000 source-reads/op	     800 B/op	       4 allocs/op
+BenchmarkReadCrossingSourceExtents-8       	  133002	      6647 ns/op	       100.0 cache-hit-%	         2.000 peak-open-files	         2.000 source-opens	         2.000 source-reads/op	     800 B/op	       4 allocs/op
+BenchmarkConcurrentReads-8                 	  333906	      2516 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkConcurrentReads-8                 	  356184	      2506 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkConcurrentReads-8                 	  333448	      2508 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkConcurrentReads-8                 	  348297	      2497 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkConcurrentReads-8                 	  337737	      2521 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkConcurrentReads-8                 	  350854	      2517 ns/op	       100.0 cache-hit-%	         1.000 peak-open-files	         1.000 source-opens	         1.000 source-reads/op	     384 B/op	       2 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=8-8       	     375	   2690721 ns/op	   2198016 metadata_bytes	 6904970 B/op	     131 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=8-8       	     372	   2391522 ns/op	   2198016 metadata_bytes	 6905405 B/op	     129 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=8-8       	     361	   2287439 ns/op	   2198016 metadata_bytes	 6905169 B/op	     130 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=8-8       	     382	   3000903 ns/op	   2198016 metadata_bytes	 6905083 B/op	     130 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=8-8       	     375	   2966396 ns/op	   2198016 metadata_bytes	 6905075 B/op	     131 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=8-8       	     276	   3919296 ns/op	   2198016 metadata_bytes	 6905276 B/op	     129 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=512-8     	      10	  82168947 ns/op	 134318592 metadata_bytes	432423340 B/op	     134 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=512-8     	      10	  83113083 ns/op	 134318592 metadata_bytes	432423264 B/op	     133 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=512-8     	      10	  83093511 ns/op	 134318592 metadata_bytes	432423362 B/op	     134 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=512-8     	       9	  84038609 ns/op	 134318592 metadata_bytes	432423344 B/op	     134 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=512-8     	       9	  84422406 ns/op	 134318592 metadata_bytes	432423321 B/op	     134 allocs/op
+BenchmarkAuditGameCubeLayout/GiB=512-8     	       9	 106738964 ns/op	 134318592 metadata_bytes	432422479 B/op	     133 allocs/op
+PASS
+ok  	wiibridge/server/host-daemon/fat32virtual	66.260s
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/server/host-daemon/store
+BenchmarkAuditReconcile/items=100-8         	     460	   1807939 ns/op	  129122 B/op	    2968 allocs/op
+BenchmarkAuditReconcile/items=100-8         	     458	   1796392 ns/op	  129016 B/op	    2967 allocs/op
+BenchmarkAuditReconcile/items=100-8         	     447	   2047289 ns/op	  129018 B/op	    2967 allocs/op
+BenchmarkAuditReconcile/items=100-8         	     441	   1904395 ns/op	  129033 B/op	    2967 allocs/op
+BenchmarkAuditReconcile/items=100-8         	     452	   1826519 ns/op	  129009 B/op	    2967 allocs/op
+BenchmarkAuditReconcile/items=100-8         	     469	   1806073 ns/op	  129022 B/op	    2967 allocs/op
+BenchmarkAuditReconcile/items=1000-8        	      78	   9974728 ns/op	 1190554 B/op	   29074 allocs/op
+BenchmarkAuditReconcile/items=1000-8        	      90	   9957289 ns/op	 1190510 B/op	   29073 allocs/op
+BenchmarkAuditReconcile/items=1000-8        	      84	   9948396 ns/op	 1190535 B/op	   29074 allocs/op
+BenchmarkAuditReconcile/items=1000-8        	      82	   9876013 ns/op	 1190516 B/op	   29074 allocs/op
+BenchmarkAuditReconcile/items=1000-8        	      79	   9792488 ns/op	 1190522 B/op	   29074 allocs/op
+BenchmarkAuditReconcile/items=1000-8        	      80	   9971608 ns/op	 1190574 B/op	   29074 allocs/op
+BenchmarkAuditReconcile/items=10000-8       	       8	  94958853 ns/op	14148757 B/op	  290119 allocs/op
+BenchmarkAuditReconcile/items=10000-8       	       8	 102756644 ns/op	14148602 B/op	  290119 allocs/op
+BenchmarkAuditReconcile/items=10000-8       	       8	  99852133 ns/op	14148538 B/op	  290117 allocs/op
+BenchmarkAuditReconcile/items=10000-8       	       8	  99501020 ns/op	14149029 B/op	  290119 allocs/op
+BenchmarkAuditReconcile/items=10000-8       	       8	  96070603 ns/op	14148584 B/op	  290118 allocs/op
+BenchmarkAuditReconcile/items=10000-8       	       8	  96846083 ns/op	14148455 B/op	  290118 allocs/op
+PASS
+ok  	wiibridge/server/host-daemon/store	19.209s
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/tests/nbd
+BenchmarkAuditNBDTLS/bytes=4096-8         	   33031	     27019 ns/op	 151.60 MB/s	      4228 TLS_bytes/op	         4.000 TLS_writes/op	      96 B/op	      10 allocs/op
+BenchmarkAuditNBDTLS/bytes=4096-8         	   33630	     27037 ns/op	 151.49 MB/s	      4228 TLS_bytes/op	         4.000 TLS_writes/op	      96 B/op	      10 allocs/op
+BenchmarkAuditNBDTLS/bytes=4096-8         	   33121	     27329 ns/op	 149.88 MB/s	      4228 TLS_bytes/op	         4.000 TLS_writes/op	      96 B/op	      10 allocs/op
+BenchmarkAuditNBDTLS/bytes=4096-8         	   32796	     26994 ns/op	 151.74 MB/s	      4228 TLS_bytes/op	         4.000 TLS_writes/op	      96 B/op	      10 allocs/op
+BenchmarkAuditNBDTLS/bytes=4096-8         	   33070	     27088 ns/op	 151.21 MB/s	      4228 TLS_bytes/op	         4.000 TLS_writes/op	      96 B/op	      10 allocs/op
+BenchmarkAuditNBDTLS/bytes=4096-8         	   33034	     26985 ns/op	 151.79 MB/s	      4228 TLS_bytes/op	         4.000 TLS_writes/op	      96 B/op	      10 allocs/op
+BenchmarkAuditNBDTLS/bytes=65536-8        	   15183	     59690 ns/op	1097.94 MB/s	     65755 TLS_bytes/op	         7.000 TLS_writes/op	     128 B/op	      11 allocs/op
+BenchmarkAuditNBDTLS/bytes=65536-8        	   15152	     59006 ns/op	1110.67 MB/s	     65755 TLS_bytes/op	         7.000 TLS_writes/op	     133 B/op	      11 allocs/op
+BenchmarkAuditNBDTLS/bytes=65536-8        	   15208	     59433 ns/op	1102.69 MB/s	     65755 TLS_bytes/op	         7.000 TLS_writes/op	     128 B/op	      11 allocs/op
+BenchmarkAuditNBDTLS/bytes=65536-8        	   15354	     59411 ns/op	1103.09 MB/s	     65755 TLS_bytes/op	         7.000 TLS_writes/op	     128 B/op	      11 allocs/op
+BenchmarkAuditNBDTLS/bytes=65536-8        	   14797	     59350 ns/op	1104.22 MB/s	     65755 TLS_bytes/op	         7.000 TLS_writes/op	     133 B/op	      11 allocs/op
+BenchmarkAuditNBDTLS/bytes=65536-8	14738	     60956 ns/op	1075.14 MB/s	     65755 TLS_bytes/op	         7.000 TLS_writes/op	     134 B/op	      11 allocs/op
+BenchmarkAuditNBDTLS/bytes=1048576-8      	    1326	    676033 ns/op	1551.07 MB/s	   1050535 TLS_bytes/op	        67.00 TLS_writes/op	    2437 B/op	      41 allocs/op
+BenchmarkAuditNBDTLS/bytes=1048576-8      	    1234	    682965 ns/op	1535.33 MB/s	   1050535 TLS_bytes/op	        67.00 TLS_writes/op	    1705 B/op	      41 allocs/op
+BenchmarkAuditNBDTLS/bytes=1048576-8      	    1383	    680922 ns/op	1539.94 MB/s	   1050535 TLS_bytes/op	        67.00 TLS_writes/op	    1612 B/op	      41 allocs/op
+BenchmarkAuditNBDTLS/bytes=1048576-8      	    1228	    686024 ns/op	1528.48 MB/s	   1050535 TLS_bytes/op	        67.00 TLS_writes/op	    2578 B/op	      41 allocs/op
+BenchmarkAuditNBDTLS/bytes=1048576-8      	    1332	    680723 ns/op	1540.39 MB/s	   1050535 TLS_bytes/op	        67.00 TLS_writes/op	    3245 B/op	      41 allocs/op
+BenchmarkAuditNBDTLS/bytes=1048576-8      	    1272	    680014 ns/op	1541.99 MB/s	   1050535 TLS_bytes/op	        67.00 TLS_writes/op	    2518 B/op	      41 allocs/op
+PASS
+ok  	wiibridge/tests/nbd	21.995s
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/server/nbd-plugin
+BenchmarkRequestBuffer64KiB-8   	100000000	         7.946 ns/op	       0 B/op	       0 allocs/op
+BenchmarkRequestBuffer64KiB-8   	100000000	         8.044 ns/op	       0 B/op	       0 allocs/op
+BenchmarkRequestBuffer64KiB-8   	100000000	         7.964 ns/op	       0 B/op	       0 allocs/op
+BenchmarkRequestBuffer64KiB-8   	100000000	         7.922 ns/op	       0 B/op	       0 allocs/op
+BenchmarkRequestBuffer64KiB-8   	100000000	         7.918 ns/op	       0 B/op	       0 allocs/op
+BenchmarkRequestBuffer64KiB-8   	100000000	         7.952 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNBDReadPathMetrics/disabled-8         	  942991	       940.0 ns/op	69722.20 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/disabled-8         	  933481	       938.5 ns/op	69833.54 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/disabled-8         	  958268	       941.4 ns/op	69616.37 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/disabled-8         	  916134	       931.2 ns/op	70374.72 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/disabled-8         	  957903	       930.5 ns/op	70434.50 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/disabled-8         	  924308	       939.0 ns/op	69796.85 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/enabled-8          	  835740	      1020 ns/op	64231.74 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/enabled-8          	  792048	      1026 ns/op	63847.07 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/enabled-8          	  844404	      1031 ns/op	63562.17 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/enabled-8          	  838544	      1028 ns/op	63756.96 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/enabled-8          	  880209	      1032 ns/op	63503.38 MB/s	      64 B/op	      10 allocs/op
+BenchmarkNBDReadPathMetrics/enabled-8          	  785545	      1021 ns/op	64210.21 MB/s	      64 B/op	      10 allocs/op
+PASS
+ok  	wiibridge/server/nbd-plugin	16.159s
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/server/host-daemon
+BenchmarkPerformanceSummarySerialization-8   	    4533	    170227 ns/op	   33354 B/op	     306 allocs/op
+BenchmarkPerformanceSummarySerialization-8   	    4933	    171021 ns/op	   33327 B/op	     306 allocs/op
+BenchmarkPerformanceSummarySerialization-8   	    4778	    177658 ns/op	   33331 B/op	     306 allocs/op
+BenchmarkPerformanceSummarySerialization-8   	    5200	    171285 ns/op	   33350 B/op	     306 allocs/op
+BenchmarkPerformanceSummarySerialization-8   	    4689	    169052 ns/op	   33316 B/op	     306 allocs/op
+BenchmarkPerformanceSummarySerialization-8   	    4521	    174039 ns/op	   33340 B/op	     306 allocs/op
+BenchmarkAuditDashboard/games=100-8          	    2286	    388121 ns/op	     30682 html_bytes	  194282 B/op	    4042 allocs/op
+BenchmarkAuditDashboard/games=100-8          	    2362	    385270 ns/op	     30682 html_bytes	  194281 B/op	    4042 allocs/op
+BenchmarkAuditDashboard/games=100-8          	    2266	    392110 ns/op	     30682 html_bytes	  194282 B/op	    4042 allocs/op
+BenchmarkAuditDashboard/games=100-8          	    2312	    387201 ns/op	     30682 html_bytes	  194281 B/op	    4042 allocs/op
+BenchmarkAuditDashboard/games=100-8          	    2082	    385372 ns/op	     30682 html_bytes	  194284 B/op	    4042 allocs/op
+BenchmarkAuditDashboard/games=100-8          	    2178	    391060 ns/op	     30682 html_bytes	  194283 B/op	    4042 allocs/op
+BenchmarkAuditDashboard/games=1000-8         	     278	   3203825 ns/op	    169285 html_bytes	 1548447 B/op	   32694 allocs/op
+BenchmarkAuditDashboard/games=1000-8         	     274	   3233324 ns/op	    169285 html_bytes	 1548465 B/op	   32695 allocs/op
+BenchmarkAuditDashboard/games=1000-8         	     279	   3245952 ns/op	    169285 html_bytes	 1548454 B/op	   32694 allocs/op
+BenchmarkAuditDashboard/games=1000-8         	     282	   3174748 ns/op	    169285 html_bytes	 1548444 B/op	   32694 allocs/op
+BenchmarkAuditDashboard/games=1000-8         	     273	   3231478 ns/op	    169285 html_bytes	 1548488 B/op	   32695 allocs/op
+BenchmarkAuditDashboard/games=1000-8         	     280	   3230583 ns/op	    169285 html_bytes	 1548457 B/op	   32694 allocs/op
+BenchmarkAuditDashboard/games=10000-8        	      27	  35933476 ns/op	   1555288 html_bytes	13918996 B/op	  320730 allocs/op
+BenchmarkAuditDashboard/games=10000-8        	      21	  38514064 ns/op	   1555288 html_bytes	13919545 B/op	  320736 allocs/op
+BenchmarkAuditDashboard/games=10000-8        	      21	  37871379 ns/op	   1555288 html_bytes	13919536 B/op	  320736 allocs/op
+BenchmarkAuditDashboard/games=10000-8        	      21	  40274776 ns/op	   1555288 html_bytes	13919494 B/op	  320736 allocs/op
+BenchmarkAuditDashboard/games=10000-8        	      21	  38078249 ns/op	   1555288 html_bytes	13919505 B/op	  320736 allocs/op
+BenchmarkAuditDashboard/games=10000-8        	      22	  35013692 ns/op	   1555288 html_bytes	13919512 B/op	  320736 allocs/op
+BenchmarkAuditDashboard/pendingGC512GiB-8    	       6	 136232031 ns/op	     15323 html_bytes	269275504 B/op	    1232 allocs/op
+BenchmarkAuditDashboard/pendingGC512GiB-8    	       6	 137405839 ns/op	     15323 html_bytes	269275458 B/op	    1232 allocs/op
+BenchmarkAuditDashboard/pendingGC512GiB-8    	       6	 135472564 ns/op	     15323 html_bytes	269275154 B/op	    1229 allocs/op
+BenchmarkAuditDashboard/pendingGC512GiB-8    	       6	 143487389 ns/op	     15323 html_bytes	269274849 B/op	    1228 allocs/op
+BenchmarkAuditDashboard/pendingGC512GiB-8    	       6	 138653133 ns/op	     15323 html_bytes	269274837 B/op	    1230 allocs/op
+BenchmarkAuditDashboard/pendingGC512GiB-8    	       6	 136791608 ns/op	     15323 html_bytes	269275450 B/op	    1231 allocs/op
+BenchmarkAuditScan/wii/files=1000-8          	      75	  12043560 ns/op	 3069890 B/op	   22107 allocs/op
+BenchmarkAuditScan/wii/files=1000-8          	      81	  11934715 ns/op	 3070500 B/op	   22107 allocs/op
+BenchmarkAuditScan/wii/files=1000-8          	      75	  12305420 ns/op	 3070619 B/op	   22107 allocs/op
+BenchmarkAuditScan/wii/files=1000-8          	      69	  11853790 ns/op	 3070831 B/op	   22108 allocs/op
+BenchmarkAuditScan/wii/files=1000-8          	      79	  11933447 ns/op	 3070164 B/op	   22107 allocs/op
+BenchmarkAuditScan/wii/files=1000-8          	      80	  11738754 ns/op	 3070434 B/op	   22107 allocs/op
+BenchmarkAuditScan/gamecube/files=1000-8     	      80	  10156782 ns/op	 3826271 B/op	   17122 allocs/op
+BenchmarkAuditScan/gamecube/files=1000-8     	      97	  10109727 ns/op	 3826617 B/op	   17122 allocs/op
+BenchmarkAuditScan/gamecube/files=1000-8     	      88	  10117320 ns/op	 3826486 B/op	   17121 allocs/op
+BenchmarkAuditScan/gamecube/files=1000-8     	      86	  10214586 ns/op	 3826776 B/op	   17122 allocs/op
+BenchmarkAuditScan/gamecube/files=1000-8     	      85	  10045686 ns/op	 3825676 B/op	   17121 allocs/op
+BenchmarkAuditScan/gamecube/files=1000-8     	      92	  10082399 ns/op	 3826346 B/op	   17121 allocs/op
+PASS
+ok  	wiibridge/server/host-daemon	52.419s
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/pi/controller
+BenchmarkCachedPiMetrics-8     	28692352	        31.34 ns/op	       0 B/op	       0 allocs/op
+BenchmarkCachedPiMetrics-8     	29064463	        31.48 ns/op	       0 B/op	       0 allocs/op
+BenchmarkCachedPiMetrics-8     	28106101	        31.33 ns/op	       0 B/op	       0 allocs/op
+BenchmarkCachedPiMetrics-8     	29033839	        31.24 ns/op	       0 B/op	       0 allocs/op
+BenchmarkCachedPiMetrics-8     	28278264	        31.33 ns/op	       0 B/op	       0 allocs/op
+BenchmarkCachedPiMetrics-8     	29081997	        31.46 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPiMetricsEndpoint-8   	  407409	      2160 ns/op	    1970 B/op	      13 allocs/op
+BenchmarkPiMetricsEndpoint-8   	  340407	      2255 ns/op	    1970 B/op	      13 allocs/op
+BenchmarkPiMetricsEndpoint-8   	  380412	      2151 ns/op	    1970 B/op	      13 allocs/op
+BenchmarkPiMetricsEndpoint-8   	  431672	      2218 ns/op	    1970 B/op	      13 allocs/op
+BenchmarkPiMetricsEndpoint-8   	  409893	      2190 ns/op	    1970 B/op	      13 allocs/op
+BenchmarkPiMetricsEndpoint-8   	  452338	      2179 ns/op	    1970 B/op	      13 allocs/op
+PASS
+ok  	wiibridge/pi/controller	11.119s
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/shared/perf
+BenchmarkObserveNBDReadEnabled-8    	14627563	        61.57 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadEnabled-8    	14296453	        61.74 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadEnabled-8    	14708626	        61.57 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadEnabled-8    	14511186	        61.71 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadEnabled-8    	14680783	        61.76 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadEnabled-8    	14646820	        61.62 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadDisabled-8   	1000000000	         0.8600 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadDisabled-8   	1000000000	         0.8620 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadDisabled-8   	1000000000	         0.8598 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadDisabled-8   	1000000000	         0.8788 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadDisabled-8   	1000000000	         0.8620 ns/op	       0 B/op	       0 allocs/op
+BenchmarkObserveNBDReadDisabled-8   	1000000000	         0.8706 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	wiibridge/shared/perf	11.554s
+
+
+goos: linux
+goarch: amd64
+pkg: wiibridge/server/host-daemon/gamecube
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     145	   7580781 ns/op	 9039697 B/op	     530 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     100	   9556587 ns/op	 9039834 B/op	     531 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     126	   7701028 ns/op	 9039829 B/op	     531 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     127	   9114870 ns/op	 9039914 B/op	     531 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     123	   6735678 ns/op	 9039630 B/op	     529 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=1-8         	     130	   8070736 ns/op	 9039828 B/op	     531 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 267949025 ns/op	538569632 B/op	     536 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 261698113 ns/op	538570520 B/op	     540 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 276886350 ns/op	538569792 B/op	     538 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 263508102 ns/op	538570210 B/op	     539 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 267008009 ns/op	538569912 B/op	     537 allocs/op
+BenchmarkAuditGameCubeStartup/reserveGiB=512-8       	       3	 265993193 ns/op	538570525 B/op	     541 allocs/op
+PASS
+ok  	wiibridge/server/host-daemon/gamecube	25.225s

@@ -1,0 +1,26 @@
+package fat32virtual
+
+import (
+	"fmt"
+	"testing"
+)
+
+func BenchmarkAuditGameCubeLayout(b *testing.B) {
+	file := performanceSource(b, b.TempDir(), 0, 1<<20)
+	file.VirtualPath = "/games/Synthetic [GTEST1]/game.iso"
+	file.GameID = "GTEST1"
+	file.Format = "iso"
+	for _, gib := range []int64{8, 512} {
+		b.Run(fmt.Sprintf("GiB=%d", gib), func(b *testing.B) {
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				_, metadata, err := Build(gib<<30, "WIIBRIDGE", "audit", []File{file})
+				if err != nil {
+					b.Fatal(err)
+				}
+				b.ReportMetric(float64(len(metadata)), "metadata_bytes")
+			}
+		})
+	}
+}

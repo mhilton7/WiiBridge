@@ -7,13 +7,14 @@ import "time"
 const SectorSize = 512
 
 type Source struct {
-	Path    string `json:"path"`
-	Offset  int64  `json:"offset"`
-	Length  int64  `json:"length"`
-	Size    int64  `json:"size"`
-	ModUnix int64  `json:"mod_unix_ns"`
-	Device  uint64 `json:"device"`
-	Inode   uint64 `json:"inode"`
+	Path         string `json:"path"`
+	Offset       int64  `json:"offset"`
+	Length       int64  `json:"length"`
+	Size         int64  `json:"size"`
+	ModUnix      int64  `json:"mod_unix_ns"`
+	FilesystemID string `json:"filesystem_id,omitempty"`
+	Device       uint64 `json:"device"`
+	Inode        uint64 `json:"inode"`
 }
 
 type Game struct {

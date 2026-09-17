@@ -1186,3 +1186,174 @@
 - Pinned the immutable commit tag and digest in the generic TrueNAS Compose,
   environment, and paste-ready YAML templates. Runtime deployment remains
   pending and is not recorded as passed.
+
+### Separate Wii/GameCube library paths and moved-mount recovery
+
+- Confirmed the reported rescan failure matches source preflight rejecting a
+  different saved mount identity. The existing retry path had no explicit
+  recovery operation for an intentionally moved library.
+- Added `WIIBRIDGE_WII_LIBRARY` and `WIIBRIDGE_GAMECUBE_LIBRARY`, both falling
+  back to the existing shared `WIIBRIDGE_LIBRARY` setting. Separate roots
+  retain independent catalog availability, scan controls, runtime failure
+  handling, and diagnostics. Shared-root rescans remain atomic.
+- Added an authenticated, CSRF-protected, explicitly confirmed location
+  recovery action. Read-only proof, complete discovery, non-empty valid-game
+  checks for previously populated libraries, mount rechecks, and snapshot
+  validation precede an atomic SQLite identity/catalog/snapshot commit.
+  Failed scans preserve the old trusted mount, catalog, and save data.
+- Kept fresh GameCube scan results playable when an old generation refers to
+  moved paths. Generations built for another configured root cannot activate;
+  new builds use the selected GameCube root. An unavailable Wii source no
+  longer prevents a healthy GameCube library from building or activating.
+- Added per-platform dashboard source/recovery cards, a standalone separate-
+  dataset Compose definition, updated read-only mount validation/preflight,
+  and `docs/library-locations.md`. Hosts advertise `separate-library-paths-v1`.
+- Validation PASS: `make test`, `make static`, full Host/source-health race
+  checks and focused final race checks, shared/separate Compose parsing, a
+  negative writable-second-mount check, V8 dashboard JavaScript syntax,
+  public-tree privacy checks including new files, and `git diff --check`.
+- Real container validation PASS via
+  `tests/truenas/separate-libraries-test.py`: separate read-only mounts;
+  moved GameCube file rescan/rebuild; persisted stale mount rejection then
+  explicit recovery; empty replacement preserving the catalog and Wii
+  readiness; GameCube build/activation with Wii unavailable; unchanged
+  synthetic source bytes. An initial harness run was corrected to wait for
+  the new build to finish instead of the prior generation's ready flag.
+- Local build is intentionally marked dirty/unpublished. No live TrueNAS
+  configuration, games, database, certificates, or saves were changed.
+  Publication, operator dataset paths, deployment, and physical retesting
+  remain pending; physical results are `DEFERRED_HARDWARE_UNAVAILABLE`.
+
+## Full performance audit — 2026-09-12, implementation underway
+
+- Freshly cloned and resolved remote main to
+  `cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27` (2026-08-28). Preserved that
+  checkout, generated artifacts, logs, and exact local environment inventory.
+- Baseline PASS: `make test`, `make static`, `make server`, `make compose`,
+  `make oci`, full server/Pi/shared/tests race run, vet, and `make release`.
+  The release built all three firmware targets and passed offline validation,
+  including filesystem checks and QEMU application smoke tests. Release elapsed
+  time was 4033.057 seconds, with audit tooling also running during the build.
+- Additional baseline PASS: hardened OCI startup/restart, real read-only binds,
+  libnbd mutual TLS, plaintext rejection, matching FAT copies through NBD,
+  Linux NBD read-only mounts, and synthetic Wii/GameCube payload checksums.
+  Temporary containers and the audit-loaded NBD module were removed afterward.
+- Repeated benchmark comparison uses ext4 temporary storage after firmware
+  building finished. Exploratory Go fixtures used the machine's RAM-backed
+  temporary filesystem; their timings are not representative of disk storage.
+  Allocation and syscall-count findings were retained separately. Cold source
+  page tests now verify eviction with mincore; storage caches remain uncontrolled.
+- Opened a separate clean implementation worktree on
+  `perf/full-system-optimization`. Preserved the previously requested separate
+  Wii/GameCube paths by cherry-picking the existing implementation, separately
+  from performance changes and performance claims.
+- Implemented indexed Wii extent lookup, allocation-free batched FAT synthesis,
+  and complete NBD reply framing with short-read rejection. Focused vdisk,
+  protocol, and mutual-TLS NBD tests PASS. Remaining implementation and the
+  optimized full release validation are pending.
+- No operator game data, live TrueNAS deployment, Pi configuration, or Wii
+  settings were changed. Physical launch and save tests remain
+  `DEFERRED_HARDWARE_UNAVAILABLE`.
+
+## September full-performance implementation and validation
+
+Implemented logarithmic Wii extent lookup and allocation-free FAT sector reads;
+coalesced NBD response framing with strict short-read handling; compact GameCube
+FAT storage and non-copying validation; bounded cancellation; coalesced save
+reads; prepared SQLite reconciliation; dashboard pagination and visible-only,
+non-overlapping periodic polling. Durable writes and security gates remain.
+Corrected benchmark cache/fixture labels and release build-input provenance.
+
+All seven requested optimized software checks pass, including the full race
+suite. Six-sample ext4 measurements, preserved-baseline generation checks,
+actual readonly Docker/kernel NBD mounts, payload hashes, fsck without repairs,
+and separate-library recovery/activation integration pass. Physical results
+remain unavailable. The final clean release build and publication are pending.
+See docs/full-performance-audit.md and reports/performance/2026-09-full-audit.
+
+## Firmware build isolation correction
+
+The first concurrent release firmware attempt at 18346a0 failed: Pi 4 and Pi 5
+pi-gen jobs could not unmount shared chroot device filesystems. Stopped only the
+remaining audit builder's descendants; normal unmount cleanup removed all ten
+remaining audit mounts and restored the original host devpts mount topology.
+No failed firmware was published. Added private mount namespaces per builder
+and a mount-presence guard before build-tree deletion. Final validation and a
+fresh full build of every board remain pending after this correction.
+
+## Validated performance prerelease publication
+
+Completed the clean release at `3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2`: full software validation,
+all three complete firmware builds, repeated offline checks and final packaging
+PASS. The corrected parallel firmware build took 1,884 seconds; no controlled
+build-speed claim is made. Parent mount inspection found no remaining pi-gen
+mounts. Final Wii/GameCube hardened OCI, mTLS/libnbd/Linux NBD, readonly payload
+hashes, both FAT copies, denied writes, fsck and separate-source recovery PASS.
+
+Published immutable GHCR digest `sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09` and
+[the prerelease](https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91). All 30 uploaded sizes and SHA-256 values were
+verified before publication. A draft-release lookup by tag returned 404 after
+upload; verification resumed using the existing draft's release ID, without
+reuploading or replacing assets. Final public lookup passed.
+
+Finalized separate-library YAML after binary packaging: remove the nested
+required shared-path fallback, require both dedicated paths, reject empty/missing
+paths, validate every shipped Compose definition and replace the obsolete GHCR
+example with the tested image pin. These deployment and audit records do not
+change packaged host/Pi runtime code. The manifest records its exact revision.
+
+Baseline/main is preserved; work is on `perf/full-system-optimization` and PR 14.
+Physical board boots, Wii launches, TrueNAS/ZFS behavior and emulated-save
+hardware qualification remain `DEFERRED_HARDWARE_UNAVAILABLE`. No operator
+repository was reset and no live appliance deployment was performed.
+
+## Zero W card generation, configuration preservation and flash
+
+At the operator's request, inspected the attached removable card and confirmed
+its installed board target was zero-w-armhf. Protected it read-only and saved
+a restorable filesystem backup with partition table, complete FAT partition,
+and all allocated ext4 metadata and file data. Unused ext4 space was omitted
+to avoid unnecessary slow card reads. Both backup filesystems passed read-only
+checks; the private backup has a full-image hash and bmap recovery data.
+
+Verified the raw/compressed released firmware hashes and prepared a private
+configured image from clean release revision
+`3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2`. Preserved 27 existing configuration
+files, including Wi-Fi, device/NBD TLS identities, admin token, machine identity,
+bridge/USB settings and appliance state. Kept the existing identity marker so
+first boot cannot replace the host-pinned device identity. SSH remains disabled.
+No old controller binaries or service definitions were imported.
+
+Flashed only the inspected card, flushed and invalidated the block cache, and
+verified every written image byte by readback. The actual card's partition
+layout, read-only filesystem checks, controller hash and preserved files all
+passed. Unmounted and safely powered off the card reader. No private image or
+credential material was published. Physical board boot and Wii launch tests
+remain DEFERRED_HARDWARE_UNAVAILABLE. See
+reports/firmware/zero-w-armhf/performance-card-flash-2026-09-13.json.
+# Stable source identity and automatic source recovery — 2026-09-17
+
+Implemented persistent ZFS dataset/ext4 filesystem identity with root and file
+inode checks. Temporary Linux device renumbering no longer invalidates an
+enrolled unchanged library or generation. Schema 3 backs up and extends the
+existing database. Legacy GameCube enrollment updates only the validated
+receipt, preserving immutable generation metadata and its original validation
+time. Already mismatched legacy identities still require explicit recovery.
+
+Unavailable roots are probed with capped backoff and rescanned only after the
+saved identity passes. Read-only enforcement, prior catalog retention, changed
+file rejection and atomic commits remain in place. CI now exercises race tests
+and real container recovery before publishing main's image.
+
+A failed GameCube receipt enrollment write leaves that platform blocked and
+recoverable without aborting independent Wii startup. The permission-failure
+regression also verifies readiness is restored once receipt storage is writable.
+
+Full tests, static/vet checks, race suite, Compose validation, ARMv6 controller
+cross-build, ext4 migration/read tests and read-only container restart/recovery
+tests passed. Corrected a preexisting benchmark fixture that overwrote its disc
+header; both payload and startup benchmark smoke runs now pass. Evidence:
+`reports/truenas/stable-source-identity-20260917.json`. Main merge and image
+publication are pending at this commit. New generic operator YAML stays outside
+the repository; no private configuration is included. Actual TrueNAS reboot,
+pool export/import and physical gameplay remain DEFERRED_HARDWARE_UNAVAILABLE.

@@ -27,6 +27,7 @@ const (
 )
 
 type Identity struct {
+	FilesystemID    string `json:"filesystem_id,omitempty"`
 	Size            int64  `json:"size"`
 	ModTimeUnixNano int64  `json:"mtime_unix_nano"`
 	Device          uint64 `json:"device"`
@@ -212,8 +213,12 @@ func Build(virtualSize int64, label, identity string, files []File) (Layout, []b
 	for _, file := range fileNodes {
 		file.first = chain(file.clusters)
 	}
-	var metadata []byte
-	var metadataExtents []MetadataExtent
+	metadataSize := 5*SectorSize + int64(len(fat))
+	for _, directory := range directories {
+		metadataSize += directory.clusters * ClusterSize
+	}
+	metadata := make([]byte, 0, metadataSize)
+	metadataExtents := make([]MetadataExtent, 0, 5+int(numberOfFATs)+len(directories))
 	addMetadata := func(virtualOffset int64, data []byte) {
 		storageOffset := int64(len(metadata))
 		metadata = append(metadata, data...)
@@ -224,13 +229,29 @@ func Build(virtualSize int64, label, identity string, files []File) (Layout, []b
 	addMetadata(0, makeMBR(PartitionStart, partitionSectors, volumeID))
 	boot := makeBoot(partitionSectors, fatSectors, root.first, volumeID, label)
 	addMetadata(PartitionStart*SectorSize, boot)
-	addMetadata((PartitionStart+6)*SectorSize, append([]byte(nil), boot...))
-	info := makeFSInfo()
+	addMetadata((PartitionStart+6)*SectorSize, boot)
+	// Save writes stay inside already allocated card extents, so free-space
+	// information remains exact throughout the generation's lifetime.
+	freeClusters := uint32(availableClusters - int64(next-2))
+	nextFree := next
+	if freeClusters == 0 {
+		nextFree = 0xffffffff
+	}
+	info := makeFSInfo(freeClusters, nextFree)
 	addMetadata((PartitionStart+1)*SectorSize, info)
-	addMetadata((PartitionStart+7)*SectorSize, append([]byte(nil), info...))
+	addMetadata((PartitionStart+7)*SectorSize, info)
+	fatStorageOffset := int64(len(metadata))
 	for copyIndex := int64(0); copyIndex < numberOfFATs; copyIndex++ {
-		addMetadata((PartitionStart+reservedSectors+copyIndex*fatSectors)*SectorSize,
-			append([]byte(nil), fat...))
+		virtualOffset := (PartitionStart + reservedSectors + copyIndex*fatSectors) * SectorSize
+		if copyIndex == 0 {
+			addMetadata(virtualOffset, fat)
+		} else {
+			// Both immutable virtual FATs expose the same bytes. Schema 2's
+			// storage offsets already support sharing their stored copy.
+			metadataExtents = append(metadataExtents, MetadataExtent{
+				VirtualOffset: virtualOffset, Length: int64(len(fat)), StorageOffset: fatStorageOffset,
+			})
+		}
 	}
 	dataStart := (PartitionStart + firstData) * SectorSize
 	for _, directory := range directories {
@@ -314,6 +335,9 @@ func hashExtents(extents []Extent) string {
 		fmt.Fprintf(hash, "%d\x00%d\x00%s\x00%d\x00%d\x00%s\n",
 			extent.VirtualOffset, extent.Length, extent.SourcePath, extent.SourceOffset,
 			extent.SourceSize, extent.Identity.SHA256)
+		if extent.Identity.FilesystemID != "" {
+			fmt.Fprintf(hash, "filesystem-id\x00%s\n", extent.Identity.FilesystemID)
+		}
 	}
 	return hex.EncodeToString(hash.Sum(nil))
 }
@@ -606,12 +630,12 @@ func makeBoot(sectors, fatSectors int64, root, volumeID uint32, label string) []
 	return data
 }
 
-func makeFSInfo() []byte {
+func makeFSInfo(freeClusters, nextFree uint32) []byte {
 	data := make([]byte, SectorSize)
 	copy(data[0:4], "RRaA")
 	copy(data[484:488], "rrAa")
-	binary.LittleEndian.PutUint32(data[488:492], 0xffffffff)
-	binary.LittleEndian.PutUint32(data[492:496], 0xffffffff)
+	binary.LittleEndian.PutUint32(data[488:492], freeClusters)
+	binary.LittleEndian.PutUint32(data[492:496], nextFree)
 	data[510], data[511] = 0x55, 0xaa
 	return data
 }

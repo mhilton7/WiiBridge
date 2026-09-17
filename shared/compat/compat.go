@@ -33,6 +33,8 @@ const (
 	CapDiagnosticStatus           = "diagnostic-status-v1"
 	CapRuntimeMetrics             = "runtime-metrics-v1"
 	CapSourceOfflineStatus        = "source-offline-status-v1"
+	CapStableSourceIdentity       = "stable-source-identity-v1"
+	CapSeparateLibraryPaths       = "separate-library-paths-v1"
 	CapWiiFAT32ExactFSInfoSplit   = "wii-fat32-exact-fsinfo-split-v1"
 )
 
@@ -106,8 +108,8 @@ func NewDescriptor(platform, board, deviceID, productVersion, revision, buildTim
 func HostCapabilities() []string {
 	return []string{
 		CapDiagnosticStatus, CapGameCubePhysicalMemoryCard, CapGameCubeSaveOverlay,
-		CapGameCubeSchema2, CapRuntimeMetrics, CapSourceOfflineStatus,
-		CapStartupReadiness, CapWiiFAT32ExactFSInfoSplit, CapWiiReadOnly,
+		CapGameCubeSchema2, CapRuntimeMetrics, CapSourceOfflineStatus, CapSeparateLibraryPaths,
+		CapStartupReadiness, CapWiiFAT32ExactFSInfoSplit, CapWiiReadOnly, CapStableSourceIdentity,
 	}
 }
 

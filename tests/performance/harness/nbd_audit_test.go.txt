@@ -1,0 +1,113 @@
+package nbd_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/tls"
+	"encoding/binary"
+	"fmt"
+	"io"
+	"net"
+	"sync/atomic"
+	"testing"
+	"wiibridge/server/nbd-plugin"
+)
+
+type auditCountConn struct {
+	net.Conn
+	writes *atomic.Int64
+	bytes  *atomic.Int64
+}
+
+func (c auditCountConn) Write(p []byte) (int, error) {
+	c.writes.Add(1)
+	c.bytes.Add(int64(len(p)))
+	return c.Conn.Write(p)
+}
+
+type auditListener struct {
+	net.Listener
+	writes atomic.Int64
+	bytes  atomic.Int64
+}
+
+func (l *auditListener) Accept() (net.Conn, error) {
+	c, e := l.Listener.Accept()
+	if e != nil {
+		return nil, e
+	}
+	return auditCountConn{c, &l.writes, &l.bytes}, nil
+}
+
+func BenchmarkAuditNBDTLS(b *testing.B) {
+	for _, size := range []int{4096, 65536, 1 << 20} {
+		b.Run(fmt.Sprintf("bytes=%d", size), func(b *testing.B) {
+			serverTLS, clientTLS := certs(b)
+			serverTLS.MinVersion = tls.VersionTLS12
+			serverTLS.MaxVersion = tls.VersionTLS12
+			clientTLS.MinVersion = tls.VersionTLS12
+			clientTLS.MaxVersion = tls.VersionTLS12
+			serverTLS.DynamicRecordSizingDisabled = true
+			listener, err := net.Listen("tcp", "127.0.0.1:0")
+			if err != nil {
+				b.Fatal(err)
+			}
+			counted := &auditListener{Listener: listener}
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			payload := memoryBackend(make([]byte, size))
+			for i := range payload {
+				payload[i] = byte(i * 17)
+			}
+			server := &nbd.Server{Backend: payload, TLS: serverTLS, ExportName: "all"}
+			done := make(chan error, 1)
+			go func() { done <- server.Serve(ctx, counted) }()
+			defer func() { cancel(); <-done }()
+			raw, err := net.Dial("tcp", listener.Addr().String())
+			if err != nil {
+				b.Fatal(err)
+			}
+			defer raw.Close()
+			var greeting [18]byte
+			readFull(b, raw, greeting[:])
+			mustWrite(b, raw, uint32(3))
+			writeOption(b, raw, 5, nil)
+			var option [20]byte
+			readFull(b, raw, option[:])
+			conn := tls.Client(raw, clientTLS)
+			if err = conn.Handshake(); err != nil {
+				b.Fatal(err)
+			}
+			writeOption(b, conn, 1, []byte("all"))
+			var export [10]byte
+			readFull(b, conn, export[:])
+			var request [28]byte
+			binary.BigEndian.PutUint32(request[:4], requestMagic)
+			binary.BigEndian.PutUint32(request[24:], uint32(size))
+			reply := make([]byte, 16+size)
+			read := func() {
+				if _, err = conn.Write(request[:]); err != nil {
+					b.Fatal(err)
+				}
+				if _, err = io.ReadFull(conn, reply); err != nil {
+					b.Fatal(err)
+				}
+				if binary.BigEndian.Uint32(reply[:4]) != replyMagic || binary.BigEndian.Uint32(reply[4:8]) != 0 || !bytes.Equal(reply[16:], payload) {
+					b.Fatal("invalid reply")
+				}
+			}
+			read()
+			before := counted.writes.Load()
+			beforeBytes := counted.bytes.Load()
+			b.SetBytes(int64(size))
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				read()
+			}
+			b.StopTimer()
+			b.ReportMetric(float64(counted.writes.Load()-before)/float64(b.N), "TLS_writes/op")
+			b.ReportMetric(float64(counted.bytes.Load()-beforeBytes)/float64(b.N), "TLS_bytes/op")
+		})
+	}
+}

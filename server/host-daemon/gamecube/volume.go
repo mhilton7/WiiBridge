@@ -77,7 +77,7 @@ func BuildVolume(ctx context.Context, cacheRoot string, game Game, mode MemoryCa
 		return VolumeManifest{}, errors.New("invalid memory-card mode")
 	}
 	var err error
-	game, err = hashGameSources(game)
+	game, err = hashGameSourcesContext(ctx, game)
 	if err != nil {
 		return VolumeManifest{}, err
 	}
@@ -141,7 +141,15 @@ func BuildVolume(ctx context.Context, cacheRoot string, game Game, mode MemoryCa
 }
 
 func hashGameSources(game Game) (Game, error) {
+	return hashGameSourcesContext(context.Background(), game)
+}
+
+func hashGameSourcesContext(ctx context.Context, game Game) (Game, error) {
+	game.Discs = append([]Disc(nil), game.Discs...)
 	for index := range game.Discs {
+		if err := ctx.Err(); err != nil {
+			return Game{}, err
+		}
 		if game.Discs[index].SHA256 != "" {
 			continue
 		}
@@ -150,9 +158,9 @@ func hashGameSources(game Game) (Game, error) {
 			err error
 		)
 		if game.Discs[index].Format == "fst" {
-			sum, _, err = hashTree(game.Discs[index].SourcePath)
+			sum, _, err = hashTreeContext(ctx, game.Discs[index].SourcePath)
 		} else {
-			sum, err = hashFile(game.Discs[index].SourcePath)
+			sum, err = hashFileContext(ctx, game.Discs[index].SourcePath)
 		}
 		if err != nil {
 			return Game{}, fmt.Errorf("hash disc %d: %w", game.Discs[index].Number+1, err)

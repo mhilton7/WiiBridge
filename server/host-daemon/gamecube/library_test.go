@@ -59,6 +59,62 @@ func libraryManager(t testing.TB, managed, sources string) *LibraryManager {
 	return manager
 }
 
+func TestChangingConfiguredLibraryRootRequiresNewGeneration(t *testing.T) {
+	oldRoot, newRoot, managed := t.TempDir(), t.TempDir(), t.TempDir()
+	oldManager := libraryManager(t, managed, oldRoot)
+	old, err := oldManager.Build(context.Background(), libraryGames(t, oldRoot))
+	if err != nil {
+		t.Fatal(err)
+	}
+	manager := libraryManager(t, managed, newRoot)
+	if _, ready := manager.ValidatedSummary(); ready {
+		t.Fatal("old folder remained active after path change")
+	}
+	if _, err = manager.Active(); !errors.Is(err, ErrGameCubeSourceChanged) {
+		t.Fatalf("old generation path accepted: %v", err)
+	}
+	if retained, retainedErr := manager.ManagedActive(); retainedErr != nil || retained.GenerationID != old.GenerationID {
+		t.Fatal("old generation was not retained")
+	}
+	current, err := manager.Build(context.Background(), libraryGames(t, newRoot))
+	if err != nil || current.LibraryRoot != newRoot {
+		t.Fatalf("new folder could not be built: %v", err)
+	}
+	if _, err = manager.Active(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGenerationDisplayHintDoesNotBypassActivationValidation(t *testing.T) {
+	sources, managed := t.TempDir(), t.TempDir()
+	manager := libraryManager(t, managed, sources)
+	manifest, err := manager.Build(context.Background(), libraryGames(t, sources))
+	if err != nil {
+		t.Fatal(err)
+	}
+	manager = libraryManager(t, managed, sources)
+	if manager.KnownGenerationID() != manifest.GenerationID {
+		t.Fatal("ready generation was not remembered")
+	}
+	data, err := os.ReadFile(manifest.MetadataPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data[0] ^= 1
+	if err = os.WriteFile(manifest.MetadataPath, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if manager.KnownGenerationID() != manifest.GenerationID {
+		t.Fatal("display hint unexpectedly accessed damaged metadata")
+	}
+	if _, err = manager.Active(); err == nil {
+		t.Fatal("display hint authorized tampered metadata")
+	}
+	if _, err = OpenLibraryBackend(manager.Root(), manifest); err == nil {
+		t.Fatal("opening a previously checked generation skipped revalidation")
+	}
+}
+
 func TestCompleteLibraryIsNoCopyAndReadsEveryDisc(t *testing.T) {
 	root := t.TempDir()
 	sourceRoot := filepath.Join(root, "sources")

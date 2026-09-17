@@ -13,6 +13,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"wiibridge/shared/sourceidentity"
 )
 
 type State string
@@ -52,6 +54,8 @@ type Record struct {
 	FailureCode             string    `json:"failure_code,omitempty"`
 	FailureMessage          string    `json:"failure_message,omitempty"`
 	ConsecutiveFailures     int       `json:"consecutive_failure_count"`
+	FilesystemID            string    `json:"filesystem_id,omitempty"`
+	RootInode               uint64    `json:"root_inode,omitempty"`
 	LastKnownDevice         uint64    `json:"last_known_device,omitempty"`
 	LastKnownFilesystem     string    `json:"last_known_filesystem,omitempty"`
 	LastKnownMountInfo      string    `json:"last_known_mount_information,omitempty"`
@@ -63,6 +67,10 @@ type PreflightResult struct {
 }
 
 func Preflight(root string, previous *Record) (PreflightResult, error) {
+	return preflight(root, previous, sourceidentity.FilesystemID)
+}
+
+func preflight(root string, previous *Record, filesystemID func(string) (string, error)) (PreflightResult, error) {
 	now := time.Now().UTC()
 	absolute, err := filepath.Abs(root)
 	if err != nil {
@@ -77,18 +85,28 @@ func Preflight(root string, previous *Record) (PreflightResult, error) {
 		return failure(previous, absolute, StateInvalid, "SOURCE-OFFLINE",
 			"Configured source is not a regular directory.", now, errors.New("invalid source root"))
 	}
-	device := uint64(0)
+	device, inode := uint64(0), uint64(0)
 	if stat, ok := info.Sys().(*syscall.Stat_t); ok {
-		device = uint64(stat.Dev)
+		device, inode = uint64(stat.Dev), stat.Ino
+	}
+	stableID, err := filesystemID(absolute)
+	if err != nil {
+		return classifyFailure(previous, absolute, now, err)
 	}
 	filesystem, mount := mountIdentity(absolute)
-	if previous != nil && previous.LastKnownMountInfo != "" &&
+	stableBaseline := previous != nil && previous.FilesystemID != ""
+	if stableBaseline && (stableID != previous.FilesystemID || inode == 0 || inode != previous.RootInode || absolute != previous.RootPath) {
+		return failure(previous, absolute, StateChanged, "SOURCE-IDENTITY-CHANGED",
+			"The source filesystem or library directory changed; confirm the intended location.", now,
+			errors.New("source filesystem or directory changed"))
+	}
+	if !stableBaseline && previous != nil && previous.LastKnownMountInfo != "" &&
 		mount != previous.LastKnownMountInfo {
 		return failure(previous, absolute, StateMountMissing, "SOURCE-MOUNT-MISSING",
 			"The configured source mount was replaced or is no longer mounted.", now,
 			errors.New("source mount missing"))
 	}
-	if previous != nil && previous.LastKnownDevice != 0 && device != 0 &&
+	if !stableBaseline && previous != nil && previous.LastKnownDevice != 0 && device != 0 &&
 		previous.LastKnownDevice != device {
 		return failure(previous, absolute, StateChanged, "SOURCE-IDENTITY-CHANGED",
 			"Source root identity changed; validation is required.", now,
@@ -114,11 +132,31 @@ func Preflight(root string, previous *Record) (PreflightResult, error) {
 	}
 	record := base(previous, absolute, now)
 	record.SourceID = sourceID(absolute, device, mount)
+	if stableID != "" && inode != 0 {
+		record.FilesystemID, record.RootInode = stableID, inode
+		record.SourceID = sourceID(absolute, inode, stableID)
+	}
 	record.State = StateAvailable
 	record.FailureCode, record.FailureMessage, record.ConsecutiveFailures = "", "", 0
 	record.LastKnownDevice, record.LastKnownFilesystem = device, filesystem
 	record.LastKnownMountInfo = mount
 	return PreflightResult{Record: record}, nil
+}
+
+// PreflightReplacement inspects an explicitly selected replacement mount. Its
+// identity is only a candidate: callers must complete discovery and validation
+// before committing it. Failed recovery retains the last trusted identity.
+func PreflightReplacement(root string, previous Record) (PreflightResult, error) {
+	baseline := previous
+	baseline.LastKnownDevice, baseline.LastKnownMountInfo = 0, ""
+	baseline.FilesystemID, baseline.RootInode = "", 0
+	result, err := Preflight(root, &baseline)
+	if err != nil {
+		return failure(&previous, result.Record.RootPath, result.Record.State,
+			result.Record.FailureCode, result.Record.FailureMessage,
+			result.Record.LastAttemptedScan, err)
+	}
+	return result, nil
 }
 
 func Successful(previous Record, itemCount int) Record {
@@ -244,7 +282,7 @@ func mountIdentity(root string) (string, string) {
 			continue
 		}
 		mountPoint := unescapeMount(fields[4])
-		if root != mountPoint && !strings.HasPrefix(root, mountPoint+string(os.PathSeparator)) {
+		if root != mountPoint && !strings.HasPrefix(root, strings.TrimSuffix(mountPoint, string(os.PathSeparator))+string(os.PathSeparator)) {
 			continue
 		}
 		if len(mountPoint) < len(bestMount) {

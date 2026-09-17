@@ -15,7 +15,8 @@
     "real_readonly_container_restart_and_device_renumbering": "PASS",
     "late_source_automatic_recovery_without_rescan": "PASS",
     "source_payload_bytes_unchanged": "PASS",
-    "armv6_controller_cross_compile": "PASS"
+    "armv6_controller_cross_compile": "PASS",
+    "legacy_enrollment_write_failure_preserves_host_startup_and_recovers": "PASS"
   },
   "benchmarks": {
     "kind": "Single short smoke sample; warm synthetic ext4 data, not a comparative performance claim",

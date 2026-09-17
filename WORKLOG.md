@@ -1345,6 +1345,10 @@ saved identity passes. Read-only enforcement, prior catalog retention, changed
 file rejection and atomic commits remain in place. CI now exercises race tests
 and real container recovery before publishing main's image.
 
+A failed GameCube receipt enrollment write leaves that platform blocked and
+recoverable without aborting independent Wii startup. The permission-failure
+regression also verifies readiness is restored once receipt storage is writable.
+
 Full tests, static/vet checks, race suite, Compose validation, ARMv6 controller
 cross-build, ext4 migration/read tests and read-only container restart/recovery
 tests passed. Corrected a preexisting benchmark fixture that overwrote its disc

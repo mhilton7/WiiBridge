@@ -243,14 +243,17 @@ func NewLibraryManager(root string, config LibraryConfig) (*LibraryManager, erro
 		validation := "pending"
 		state := "Validating"
 		phase := "Deep validation pending"
+		enrollmentError := ""
 		if fastErr != nil {
 			validation, state, phase = "blocked", "Source unavailable", "Source validation blocked"
 		} else if receiptErr := validateReceipt(manager.root, active); receiptErr == nil {
-			if err = upgradeValidationReceipt(manager.root, active); err != nil {
-				return nil, fmt.Errorf("enroll GameCube filesystem identities: %w", err)
+			if enrollmentErr := upgradeValidationReceipt(manager.root, active); enrollmentErr != nil {
+				validation, state, phase = "blocked", "Source unavailable", "Filesystem identity enrollment blocked"
+				enrollmentError = boundedError(enrollmentErr)
+			} else {
+				validation, state, phase = "validated", "Ready", "Ready"
+				manager.validated = true
 			}
-			validation, state, phase = "validated", "Ready", "Ready"
-			manager.validated = true
 		}
 		manager.progress = LibraryBuildProgress{
 			State: state, GenerationID: active.GenerationID,
@@ -258,7 +261,7 @@ func NewLibraryManager(root string, config LibraryConfig) (*LibraryManager, erro
 			DiscsCompleted: active.DiscCount, TotalDiscs: active.DiscCount,
 			FilesMapped: active.MappedFileCount, Phase: phase,
 			MetadataGeneration: phase, ExtentCount: active.MappedExtentCount,
-			Validation: validation, Completed: active.Created,
+			Validation: validation, Completed: active.Created, Error: enrollmentError,
 		}
 		if info, statErr := os.Stat(active.MetadataPath); statErr == nil {
 			manager.progress.MetadataBytes = info.Size()
@@ -1035,6 +1038,11 @@ func (manager *LibraryManager) RecheckActive() error {
 		return err
 	}
 	if err = upgradeValidationReceipt(manager.root, manifest); err != nil {
+		manager.validated = false
+		manager.progress.State = "Source unavailable"
+		manager.progress.Validation = "blocked"
+		manager.progress.Phase = "Filesystem identity enrollment blocked"
+		manager.progress.Error = boundedError(err)
 		return err
 	}
 	manager.validated = true

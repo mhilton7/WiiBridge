@@ -56,6 +56,7 @@ func TestChangedIdentityAndDerivedAvailability(t *testing.T) {
 		t.Fatal(err)
 	}
 	previous := Successful(result.Record, 10)
+	previous.FilesystemID, previous.RootInode = "", 0
 	previous.LastKnownDevice++
 	changed, err := Preflight(root, &previous)
 	if err == nil || changed.Record.State != StateChanged {
@@ -86,6 +87,7 @@ func TestEmptyMountpointReplacementIsNotADeletion(t *testing.T) {
 		t.Fatal(err)
 	}
 	previous := Successful(available.Record, 17)
+	previous.FilesystemID, previous.RootInode = "", 0
 	previous.LastKnownMountInfo = "synthetic:missing:mount"
 	replaced, err := Preflight(root, &previous)
 	if err == nil || replaced.Record.State != StateMountMissing ||

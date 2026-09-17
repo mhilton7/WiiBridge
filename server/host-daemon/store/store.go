@@ -134,7 +134,10 @@ VALUES(2,strftime('%Y-%m-%dT%H:%M:%fZ','now'));`
 			return err
 		}
 	}
-	return tx.Commit()
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	return s.migrateSourceIdentity()
 }
 
 func backupPreSchema2Database(path string) error {
@@ -143,10 +146,18 @@ func backupPreSchema2Database(path string) error {
 		sourceInfo.Mode()&os.ModeSymlink != 0 {
 		return errors.New("schema-1 database is not a regular file")
 	}
-	backupPath := path + ".pre-schema2.bak"
+	return backupDatabase(path, ".pre-schema2.bak")
+}
+
+func backupDatabase(path, suffix string) error {
+	sourceInfo, err := os.Lstat(path)
+	if err != nil || !sourceInfo.Mode().IsRegular() || sourceInfo.Mode()&os.ModeSymlink != 0 {
+		return errors.New("database backup source is unsafe")
+	}
+	backupPath := path + suffix
 	if info, statErr := os.Lstat(backupPath); statErr == nil {
 		if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
-			return errors.New("schema-2 rollback backup is unsafe")
+			return errors.New("database rollback backup is unsafe")
 		}
 		return nil
 	} else if !errors.Is(statErr, os.ErrNotExist) {
@@ -155,7 +166,7 @@ func backupPreSchema2Database(path string) error {
 	tempPath := backupPath + ".tmp"
 	if info, statErr := os.Lstat(tempPath); statErr == nil {
 		if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
-			return errors.New("schema-2 rollback staging file is unsafe")
+			return errors.New("database rollback staging file is unsafe")
 		}
 		if err = os.Remove(tempPath); err != nil {
 			return err
@@ -295,12 +306,12 @@ func (s *Store) SourceByRoot(root string) (sourcehealth.Record, error) {
 	var attempted string
 	err := s.db.QueryRow(`SELECT source_id,root_path,state,last_successful_scan,
  last_attempted_scan,last_successful_item_count,failure_code,failure_message,
- consecutive_failures,last_known_device,last_known_filesystem,last_known_mount_info
+ consecutive_failures,last_known_device,last_known_filesystem,last_known_mount_info,filesystem_id,root_inode
  FROM source_roots WHERE root_path=?`, root).Scan(
 		&record.SourceID, &record.RootPath, &record.State, &successful, &attempted,
 		&record.LastSuccessfulItemCount, &record.FailureCode, &record.FailureMessage,
 		&record.ConsecutiveFailures, &record.LastKnownDevice,
-		&record.LastKnownFilesystem, &record.LastKnownMountInfo)
+		&record.LastKnownFilesystem, &record.LastKnownMountInfo, &record.FilesystemID, &record.RootInode)
 	if err != nil {
 		return sourcehealth.Record{}, err
 	}
@@ -330,8 +341,8 @@ func upsertSource(executor sqlExecutor, record sourcehealth.Record) error {
 	_, err := executor.Exec(`INSERT INTO source_roots(
  source_id,root_path,state,last_successful_scan,last_attempted_scan,
  last_successful_item_count,failure_code,failure_message,consecutive_failures,
- last_known_device,last_known_filesystem,last_known_mount_info)
- VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+ last_known_device,last_known_filesystem,last_known_mount_info,filesystem_id,root_inode)
+ VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
  ON CONFLICT(root_path) DO UPDATE SET
  source_id=excluded.source_id,state=excluded.state,
  last_successful_scan=excluded.last_successful_scan,
@@ -341,12 +352,13 @@ func upsertSource(executor sqlExecutor, record sourcehealth.Record) error {
  consecutive_failures=excluded.consecutive_failures,
  last_known_device=excluded.last_known_device,
  last_known_filesystem=excluded.last_known_filesystem,
- last_known_mount_info=excluded.last_known_mount_info`,
+ last_known_mount_info=excluded.last_known_mount_info,
+ filesystem_id=excluded.filesystem_id,root_inode=excluded.root_inode`,
 		record.SourceID, record.RootPath, record.State, successful,
 		record.LastAttemptedScan.UTC().Format(time.RFC3339Nano),
 		record.LastSuccessfulItemCount, record.FailureCode, bounded(record.FailureMessage, 240),
 		record.ConsecutiveFailures, record.LastKnownDevice,
-		record.LastKnownFilesystem, record.LastKnownMountInfo)
+		record.LastKnownFilesystem, record.LastKnownMountInfo, record.FilesystemID, record.RootInode)
 	return err
 }
 
@@ -666,4 +678,35 @@ func bounded(value string, limit int) string {
 		return value[:limit]
 	}
 	return value
+}
+
+// migrateSourceIdentity is additive. Existing catalogs, receipts and source trust
+// stay intact; preflight enrolls a stable ID only after legacy checks succeed.
+func (s *Store) migrateSourceIdentity() error {
+	var applied int
+	if err := s.db.QueryRow(`SELECT COUNT(*) FROM schema_migrations WHERE version=3`).Scan(&applied); err != nil {
+		return err
+	}
+	if applied != 0 {
+		return nil
+	}
+	if s.preexisting {
+		if _, err := s.db.Exec(`PRAGMA wal_checkpoint(FULL)`); err != nil {
+			return err
+		}
+		if err := backupDatabase(s.path, ".pre-schema3.bak"); err != nil {
+			return fmt.Errorf("back up source identity migration: %w", err)
+		}
+	}
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err = tx.Exec(`ALTER TABLE source_roots ADD COLUMN filesystem_id TEXT NOT NULL DEFAULT '';
+ ALTER TABLE source_roots ADD COLUMN root_inode INTEGER NOT NULL DEFAULT 0;
+ INSERT INTO schema_migrations(version,applied_utc) VALUES(3,strftime('%Y-%m-%dT%H:%M:%fZ','now'));`); err != nil {
+		return err
+	}
+	return tx.Commit()
 }

@@ -27,6 +27,7 @@ const (
 )
 
 type Identity struct {
+	FilesystemID    string `json:"filesystem_id,omitempty"`
 	Size            int64  `json:"size"`
 	ModTimeUnixNano int64  `json:"mtime_unix_nano"`
 	Device          uint64 `json:"device"`
@@ -334,6 +335,9 @@ func hashExtents(extents []Extent) string {
 		fmt.Fprintf(hash, "%d\x00%d\x00%s\x00%d\x00%d\x00%s\n",
 			extent.VirtualOffset, extent.Length, extent.SourcePath, extent.SourceOffset,
 			extent.SourceSize, extent.Identity.SHA256)
+		if extent.Identity.FilesystemID != "" {
+			fmt.Fprintf(hash, "filesystem-id\x00%s\n", extent.Identity.FilesystemID)
+		}
 	}
 	return hex.EncodeToString(hash.Sum(nil))
 }

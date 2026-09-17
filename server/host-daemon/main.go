@@ -812,6 +812,7 @@ func serve() error {
 	go a.initializeGameCube(ctx)
 	go a.runAutomaticSaveBackups(ctx)
 	go a.runSourceFailureReconciler(ctx)
+	go a.runSourceRecovery(ctx)
 	go a.runMetricsPersistence(ctx)
 	select {
 	case <-ctx.Done():

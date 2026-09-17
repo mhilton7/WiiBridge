@@ -194,3 +194,16 @@ Status values are `PENDING`, `PASS`, `FAIL`, `BLOCKED_EXTERNAL`, and
 - Optimized complete validation, artifact provenance and publication: PENDING.
 - Physical Wii/GameCube launches, real TrueNAS storage and Pi USB timing:
   `DEFERRED_HARDWARE_UNAVAILABLE`.
+# Stable source identity gates — 2026-09-17
+
+| Gate | Status | Evidence |
+| --- | --- | --- |
+| Persistent source identity, migration and read guards | PASS | Simulated ZFS identity and real ext4 Wii/GameCube tests; changed filesystem/directory/file rejected |
+| Existing GameCube generation enrollment | PASS | Prior receipt time and immutable generation files unchanged; remount reads succeed |
+| Automatic source return | PASS | Real read-only container observes missing source returning without an operator rescan; prior catalog preserved |
+| Full software validation | PASS | make test, make static, full race suite, Compose parsing and ARMv6 controller cross-build |
+| Main and immutable GHCR publication | PENDING | Completed after clean commit and CI |
+| TrueNAS reboot/pool export-import and physical gameplay | DEFERRED_HARDWARE_UNAVAILABLE | Synthetic device renumbering and container tests do not establish actual appliance behavior |
+
+Current evidence: `reports/truenas/stable-source-identity-20260917.json`.
+Earlier sections retain historical release observations.

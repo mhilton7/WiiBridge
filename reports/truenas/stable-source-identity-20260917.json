@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-17",
+  "base_revision": "4fb7f686913dcf986e674ea6de6e5be680776182",
+  "status": "SOFTWARE_VALIDATED_PUBLICATION_PENDING",
+  "tests": {
+    "full_make_test": "PASS",
+    "full_race_suite": "PASS",
+    "make_static_go_vet_shellcheck_pi_static": "PASS",
+    "compose_templates": "PASS",
+    "schema2_to_schema3_backup_and_catalog_preservation": "PASS",
+    "simulated_zfs_fsid_and_device_renumbering": "PASS",
+    "ext4_wii_and_gamecube_read_identity": "PASS",
+    "legacy_gamecube_receipt_enrollment_immutable_generation_unchanged": "PASS",
+    "wrong_filesystem_directory_and_file_rejection": "PASS",
+    "real_readonly_container_restart_and_device_renumbering": "PASS",
+    "late_source_automatic_recovery_without_rescan": "PASS",
+    "source_payload_bytes_unchanged": "PASS",
+    "armv6_controller_cross_compile": "PASS"
+  },
+  "benchmarks": {
+    "kind": "Single short smoke sample; warm synthetic ext4 data, not a comparative performance claim",
+    "gamecube_fast_startup_ns_per_op": 1023812,
+    "wii_payload_read_1mib_ns_per_op": 32632,
+    "fixture_correction": "The prior payload benchmark zeroed its disc header at offset 1 MiB. It now rewrites existing blocks intact and verifies discovery before timing."
+  },
+  "limitations": [
+    "Actual TrueNAS reboot and pool export/import NOT EXECUTED: DEFERRED_HARDWARE_UNAVAILABLE",
+    "Physical Pi/Wii/Nintendont acceptance DEFERRED_HARDWARE_UNAVAILABLE",
+    "An already mismatched legacy mount requires explicit recovery once before enrollment",
+    "An inaccessible or permanently stale container bind mount requires TrueNAS mount repair or container recreation",
+    "Unsupported filesystem types and zero filesystem IDs retain strict legacy device checks"
+  ],
+  "source_configuration": "No operator paths, credentials or private YAML included."
+}

@@ -92,3 +92,19 @@ candidate is in [`compose.ghcr.yaml`](../deploy/truenas/compose.ghcr.yaml); use
 the same dedicated paths and your existing credentials, certificates and
 persistent directories. See [the performance audit](full-performance-audit.md)
 for its exact build identity and hardware qualification limits.
+
+## Updating an existing library to persistent identity checks
+
+Install the new digest-pinned Host YAML while keeping the currently working
+source mounts, UID/GID, certificates, tokens and persistent data directories.
+Wait for any active GameCube build to complete before replacing the Host.
+Healthy existing sources and validated GameCube generations are enrolled on
+startup. The host reports `stable-source-identity-v1` in its capabilities.
+The Pi protocol is unchanged; this fix does not require reflashing the Pi.
+
+If an old source is already blocked by a changed device or folder before this
+upgrade, restore/accept the intended location once. The new identity scheme
+cannot infer which filesystem an old record used. After enrollment, ordinary
+device renumbering on the same filesystem and library directory is automatic.
+See [source reconciliation](source-reconciliation.md) for validation and retry
+behavior. A real move from a parent folder into its child remains a relocation.

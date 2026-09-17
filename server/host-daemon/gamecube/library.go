@@ -20,6 +20,7 @@ import (
 
 	"wiibridge/server/host-daemon/fat32virtual"
 	"wiibridge/shared/perf"
+	"wiibridge/shared/sourceidentity"
 )
 
 const (
@@ -165,13 +166,16 @@ type LibraryBuildProgress struct {
 }
 
 type ValidationReceipt struct {
-	Schema                int       `json:"schema"`
-	ValidatorSchema       int       `json:"validator_schema"`
-	GenerationID          string    `json:"generation_id"`
-	CatalogFingerprint    string    `json:"catalog_fingerprint"`
-	SourceIdentitySetHash string    `json:"source_identity_set_hash"`
-	Completed             time.Time `json:"completed_utc"`
-	Result                string    `json:"result"`
+	// FilesystemIDs enrolls legacy immutable file maps only after their original
+	// device/inode/size/mtime checks and prior deep-validation receipt pass.
+	FilesystemIDs         map[string]string `json:"filesystem_ids,omitempty"`
+	Schema                int               `json:"schema"`
+	ValidatorSchema       int               `json:"validator_schema"`
+	GenerationID          string            `json:"generation_id"`
+	CatalogFingerprint    string            `json:"catalog_fingerprint"`
+	SourceIdentitySetHash string            `json:"source_identity_set_hash"`
+	Completed             time.Time         `json:"completed_utc"`
+	Result                string            `json:"result"`
 }
 
 type ValidationProgress struct {
@@ -242,6 +246,9 @@ func NewLibraryManager(root string, config LibraryConfig) (*LibraryManager, erro
 		if fastErr != nil {
 			validation, state, phase = "blocked", "Source unavailable", "Source validation blocked"
 		} else if receiptErr := validateReceipt(manager.root, active); receiptErr == nil {
+			if err = upgradeValidationReceipt(manager.root, active); err != nil {
+				return nil, fmt.Errorf("enroll GameCube filesystem identities: %w", err)
+			}
 			validation, state, phase = "validated", "Ready", "Ready"
 			manager.validated = true
 		}
@@ -846,7 +853,11 @@ func sourceIdentity(path, sum string) (fat32virtual.Identity, error) {
 	if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
 		return fat32virtual.Identity{}, errors.New("GameCube source is not a regular file")
 	}
-	identity := fat32virtual.Identity{
+	filesystemID, err := sourceidentity.FilesystemID(path)
+	if err != nil {
+		return fat32virtual.Identity{}, err
+	}
+	identity := fat32virtual.Identity{FilesystemID: filesystemID,
 		Size: info.Size(), ModTimeUnixNano: info.ModTime().UnixNano(), SHA256: sum,
 	}
 	if stat, ok := info.Sys().(*syscall.Stat_t); ok {
@@ -1023,6 +1034,9 @@ func (manager *LibraryManager) RecheckActive() error {
 		manager.progress.Phase = "Deep validation pending"
 		return err
 	}
+	if err = upgradeValidationReceipt(manager.root, manifest); err != nil {
+		return err
+	}
 	manager.validated = true
 	manager.progress.State = "Ready"
 	manager.progress.Validation = "validated"
@@ -1172,8 +1186,9 @@ func validateLibraryManifest(ctx context.Context, root string,
 }
 
 type validatedLibraryData struct {
-	layout   fat32virtual.Layout
-	metadata []byte
+	sourceFilesystems map[string]string
+	layout            fat32virtual.Layout
+	metadata          []byte
 }
 
 // loaded only shares data within this validation/open operation. No validation
@@ -1283,6 +1298,12 @@ func validateLibraryManifestData(ctx context.Context, root string,
 	if err != nil || manifest.LibraryRoot == "" {
 		return errors.New("invalid GameCube source root metadata")
 	}
+	var sourceFilesystems map[string]string
+	if checkSources {
+		if receipt, receiptErr := readValidationReceipt(root, manifest); receiptErr == nil {
+			sourceFilesystems = receipt.FilesystemIDs
+		}
+	}
 	seen := make(map[string]struct{}, len(manifest.Files))
 	checkedTrees := make(map[string]struct{})
 	var bytesHashed int64
@@ -1367,9 +1388,11 @@ func validateLibraryManifestData(ctx context.Context, root string,
 		if identityErr != nil {
 			return fmt.Errorf("%w: %v", ErrGameCubeSourceUnavailable, identityErr)
 		}
-		if identity.Size != file.Identity.Size ||
-			identity.ModTimeUnixNano != file.Identity.ModTimeUnixNano ||
-			identity.Device != file.Identity.Device || identity.Inode != file.Identity.Inode {
+		expected := file.Identity
+		if expected.FilesystemID == "" {
+			expected.FilesystemID = sourceFilesystems[file.SourcePath]
+		}
+		if !sameSourceIdentity(expected, identity) {
 			return ErrGameCubeSourceChanged
 		}
 		if deep && file.Format != "fst" {
@@ -1401,6 +1424,7 @@ func validateLibraryManifestData(ctx context.Context, root string,
 	}
 	if loaded != nil {
 		loaded.layout, loaded.metadata = layout, metadata
+		loaded.sourceFilesystems = sourceFilesystems
 	}
 	return nil
 }
@@ -1419,6 +1443,9 @@ func sourceIdentitySetHash(manifest LibraryManifest) string {
 			file.VirtualPath, file.SourcePath, file.Identity.Size,
 			file.Identity.ModTimeUnixNano, file.Identity.Device,
 			file.Identity.Inode, file.Identity.SHA256)
+		if file.Identity.FilesystemID != "" {
+			fmt.Fprintf(hash, "filesystem-id\x00%s\n", file.Identity.FilesystemID)
+		}
 	}
 	return hex.EncodeToString(hash.Sum(nil))
 }
@@ -1427,14 +1454,73 @@ func validationReceiptPath(manifest LibraryManifest) string {
 	return filepath.Join(filepath.Dir(manifest.LayoutPath), "validation.json")
 }
 
+func sameSourceIdentity(expected, actual fat32virtual.Identity) bool {
+	return expected.Size == actual.Size && expected.ModTimeUnixNano == actual.ModTimeUnixNano &&
+		expected.Inode == actual.Inode && sourceidentity.SameFilesystem(expected.FilesystemID, expected.Device, actual.FilesystemID, actual.Device)
+}
+
+func collectLegacyFilesystems(manifest LibraryManifest, known map[string]string) (map[string]string, error) {
+	identities := make(map[string]string)
+	for _, file := range manifest.Files {
+		if file.Writable {
+			continue
+		}
+		actual, err := sourceIdentity(file.SourcePath, file.Identity.SHA256)
+		if err != nil {
+			return nil, err
+		}
+		expected := file.Identity
+		if expected.FilesystemID == "" {
+			expected.FilesystemID = known[file.SourcePath]
+		}
+		if !sameSourceIdentity(expected, actual) {
+			return nil, ErrGameCubeSourceChanged
+		}
+		if file.Identity.FilesystemID == "" && actual.FilesystemID != "" {
+			identities[file.SourcePath] = actual.FilesystemID
+		}
+	}
+	return identities, nil
+}
+
 func writeValidationReceipt(root string, manifest LibraryManifest) error {
+	var known map[string]string
+	if prior, err := readValidationReceipt(root, manifest); err == nil {
+		known = prior.FilesystemIDs
+	}
+	identities, err := collectLegacyFilesystems(manifest, known)
+	if err != nil {
+		return err
+	}
 	receipt := ValidationReceipt{
 		Schema: validationReceiptSchema, ValidatorSchema: LibrarySchema,
-		GenerationID:          manifest.GenerationID,
-		CatalogFingerprint:    manifest.CatalogFingerprint,
+		GenerationID: manifest.GenerationID, CatalogFingerprint: manifest.CatalogFingerprint,
 		SourceIdentitySetHash: sourceIdentitySetHash(manifest),
-		Completed:             time.Now().UTC(), Result: "validated",
+		Completed:             time.Now().UTC(), Result: "validated", FilesystemIDs: identities,
 	}
+	return persistValidationReceipt(root, manifest, receipt)
+}
+
+// Upgrade the mutable validation receipt, not the immutable generation or save
+// layout. Preserve the original deep-validation time and all existing hashes.
+// Legacy device mismatches cannot be enrolled automatically.
+func upgradeValidationReceipt(root string, manifest LibraryManifest) error {
+	receipt, err := readValidationReceipt(root, manifest)
+	if err != nil {
+		return err
+	}
+	identities, err := collectLegacyFilesystems(manifest, receipt.FilesystemIDs)
+	if err != nil {
+		return err
+	}
+	if reflect.DeepEqual(identities, receipt.FilesystemIDs) || len(identities) == 0 {
+		return nil
+	}
+	receipt.FilesystemIDs = identities
+	return persistValidationReceipt(root, manifest, receipt)
+}
+
+func persistValidationReceipt(root string, manifest LibraryManifest, receipt ValidationReceipt) error {
 	data, err := json.MarshalIndent(receipt, "", "  ")
 	if err != nil {
 		return err
@@ -1448,32 +1534,58 @@ func writeValidationReceipt(root string, manifest LibraryManifest) error {
 	if err != nil || !strings.HasPrefix(absolute, rootAbsolute+string(os.PathSeparator)) {
 		return errors.New("GameCube validation receipt escapes managed storage")
 	}
-	temp := absolute + ".tmp"
-	if err = os.WriteFile(temp, append(data, '\n'), 0o600); err != nil {
+	// An unpredictable exclusive temporary file avoids following a stale symlink.
+	temp, err := os.CreateTemp(filepath.Dir(absolute), ".validation-*")
+	if err != nil {
 		return err
 	}
-	if err = os.Rename(temp, absolute); err != nil {
+	defer os.Remove(temp.Name())
+	if _, err = temp.Write(append(data, '\n')); err == nil {
+		err = temp.Sync()
+	}
+	if closeErr := temp.Close(); err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		return err
+	}
+	if err = os.Rename(temp.Name(), absolute); err != nil {
 		return err
 	}
 	return syncDirectory(filepath.Dir(absolute))
 }
 
-func validateReceipt(root string, manifest LibraryManifest) error {
+func readValidationReceipt(root string, manifest LibraryManifest) (ValidationReceipt, error) {
 	data, err := readManagedFile(root, validationReceiptPath(manifest))
 	if err != nil {
-		return errors.New("GameCube deep validation receipt is unavailable")
+		return ValidationReceipt{}, errors.New("GameCube deep validation receipt is unavailable")
 	}
 	var receipt ValidationReceipt
 	if err = json.Unmarshal(data, &receipt); err != nil ||
-		receipt.Schema != validationReceiptSchema ||
-		receipt.ValidatorSchema != LibrarySchema ||
-		receipt.GenerationID != manifest.GenerationID ||
-		receipt.CatalogFingerprint != manifest.CatalogFingerprint ||
+		receipt.Schema != validationReceiptSchema || receipt.ValidatorSchema != LibrarySchema ||
+		receipt.GenerationID != manifest.GenerationID || receipt.CatalogFingerprint != manifest.CatalogFingerprint ||
 		receipt.SourceIdentitySetHash != sourceIdentitySetHash(manifest) ||
 		receipt.Result != "validated" || receipt.Completed.IsZero() {
-		return errors.New("GameCube deep validation receipt is stale")
+		return ValidationReceipt{}, errors.New("GameCube deep validation receipt is stale")
 	}
-	return nil
+	// Supplemental identities may authorize only files in this exact trusted map.
+	allowed := make(map[string]bool)
+	for _, file := range manifest.Files {
+		if !file.Writable && file.Identity.FilesystemID == "" {
+			allowed[file.SourcePath] = true
+		}
+	}
+	for path, id := range receipt.FilesystemIDs {
+		if !allowed[path] || id == "" {
+			return ValidationReceipt{}, errors.New("GameCube filesystem identity receipt is invalid")
+		}
+	}
+	return receipt, nil
+}
+
+func validateReceipt(root string, manifest LibraryManifest) error {
+	_, err := readValidationReceipt(root, manifest)
+	return err
 }
 
 func readManagedFile(root, name string) ([]byte, error) {
@@ -1536,6 +1648,7 @@ func OpenLibraryBackendAndSaveStore(root string, manifest LibraryManifest,
 	backend, err := fat32virtual.OpenWithOptions(loaded.layout, loaded.metadata,
 		fat32virtual.OpenOptions{
 			CacheLimit: libraryFileCacheLimit, SaveStore: saveBackend, Metrics: metrics,
+			SourceFilesystems: loaded.sourceFilesystems,
 		})
 	if err != nil && saves != nil {
 		_ = saves.Close()

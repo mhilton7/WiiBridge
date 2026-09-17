@@ -2,18 +2,12 @@
   "schema_version": 1,
   "project_version": "0.1.0-rc.1",
   "prompt_version": 3,
-  "status": "validated-optimized-prerelease-published",
+  "status": "stable-source-identity-software-validated-publication-pending",
   "final_label": "SOFTWARE-COMPLETE RELEASE CANDIDATE \u2014 HARDWARE UNVERIFIED",
-  "application_commit": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
   "baseline_main_commit": "cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27",
   "last_published_application_commit": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
-  "branch": "perf/full-system-optimization",
-  "worktree_state": "Artifacts built from clean pinned application_commit; later Compose and audit records do not change host/Pi runtime code.",
-  "published_oci_digest": "sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
-  "local_oci_digest": "sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
-  "published_oci_reference": "ghcr.io/mhilton7/wiibridge-host:sha-3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2@sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
-  "release_url": "https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91",
-  "pull_request": "https://github.com/mhilton7/WiiBridge/pull/14",
+  "branch": "fix/stable-library-identity",
+  "worktree_state": "Stable filesystem identity and automatic source recovery implemented; clean commit and GHCR publication pending.",
   "build_host": {
     "os": "Debian GNU/Linux 13.6 (trixie)",
     "kernel": "6.12.107+deb13-amd64",
@@ -26,17 +20,13 @@
     "podman": "unavailable"
   },
   "phases": {
-    "baseline": "PASS: fresh pinned main; complete release including all firmware",
-    "server": "PASS: full tests, static, race, vet",
-    "container": "PASS: final OCI tested, immutable GHCR digest verified",
-    "firmware_zero_w": "PASS: full build, offline validation, operator card flash and whole-image readback; physical boot deferred",
-    "firmware_pi4": "PASS: full build and offline validation",
-    "firmware_pi5": "PASS: full build and offline validation",
-    "integration": "PASS: final Wii/GameCube kernel NBD and separate-source recovery",
-    "release": "PASS: public prerelease; 30 asset sizes and hashes verified",
-    "truenas_deployment": "NOT_PERFORMED"
+    "server": "PASS: full test, static, race and vet suites",
+    "container": "PASS: real read-only bind mounts, restart, renumbered saved device and automatic late-source recovery",
+    "firmware": "No firmware change required; ARMv6 controller cross-compile PASS; prior released firmware retained",
+    "release": "PENDING: main merge and immutable GHCR publication",
+    "truenas_deployment": "NOT_PERFORMED for this fix"
   },
-  "physical_tests": "Zero W SD flashing and whole-image readback PASS; physical board boot, Wii launches and hardware save tests DEFERRED_HARDWARE_UNAVAILABLE",
+  "physical_tests": "TrueNAS reboot/pool export-import and physical Pi/Wii/GameCube acceptance: DEFERRED_HARDWARE_UNAVAILABLE",
   "library_locations": {
     "settings": [
       "WIIBRIDGE_WII_LIBRARY",
@@ -147,7 +137,7 @@
       "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
     }
   },
-  "updated_utc": "2026-09-13T23:24:40.421726+00:00",
+  "updated_utc": "2026-09-17T18:04:08.402096+00:00",
   "operator_zero_w_card_flash": {
     "status": "PASS",
     "release_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
@@ -156,5 +146,60 @@
     "full_readback": "PASS",
     "safe_eject": "PASS",
     "physical_boot": "DEFERRED_HARDWARE_UNAVAILABLE"
+  },
+  "historical_performance_release": {
+    "application_commit": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
+    "branch": "perf/full-system-optimization",
+    "worktree_state": "Artifacts built from clean pinned application_commit; later Compose and audit records do not change host/Pi runtime code.",
+    "published_oci_digest": "sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+    "local_oci_digest": "sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+    "published_oci_reference": "ghcr.io/mhilton7/wiibridge-host:sha-3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2@sha256:d345997ca9271e5451b354afe646464a35810e561ae1ffa3dc7fc8016a25cf09",
+    "release_url": "https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91",
+    "pull_request": "https://github.com/mhilton7/WiiBridge/pull/14",
+    "phases": {
+      "baseline": "PASS: fresh pinned main; complete release including all firmware",
+      "server": "PASS: full tests, static, race, vet",
+      "container": "PASS: final OCI tested, immutable GHCR digest verified",
+      "firmware_zero_w": "PASS: full build, offline validation, operator card flash and whole-image readback; physical boot deferred",
+      "firmware_pi4": "PASS: full build and offline validation",
+      "firmware_pi5": "PASS: full build and offline validation",
+      "integration": "PASS: final Wii/GameCube kernel NBD and separate-source recovery",
+      "release": "PASS: public prerelease; 30 asset sizes and hashes verified",
+      "truenas_deployment": "NOT_PERFORMED"
+    },
+    "firmware": [
+      {
+        "target": "zero-w-armhf",
+        "raw_image_sha256": "3c5ecc921be55ad829a02cbb6871f63075558034b869b78c4b7d662ae5bcf138",
+        "compressed_sha256": "be3540662e6bb0bc6169de37b9d6cb435baef1da28e420361b7233814b88d645",
+        "controller_sha256": "a2b778e718496e3e1542e38db810b124c1245d3047c7b20698f6585a552ad809",
+        "offline_validation": "PASS"
+      },
+      {
+        "target": "pi4-arm64",
+        "raw_image_sha256": "3787b3a00829f0ed86f0686f878b288dfb9d88a86fca963a87521aca3957965a",
+        "compressed_sha256": "0baa2cc4d2e04c94b52c5c6805d60d1968f90bbbe7f5c14694291ddb0861e907",
+        "controller_sha256": "0e65592980e5416e654f4ed559f730c26cf59c64bf96ca8e5e8c924567f552fe",
+        "offline_validation": "PASS"
+      },
+      {
+        "target": "pi5-arm64",
+        "raw_image_sha256": "8f4612df8a0fa659726c608cee4c96cf02e5c6f50bc657968661f80743c110f3",
+        "compressed_sha256": "b83c118f558e4a110a831fa8edf29ea68002e18825dc3600f94a9a80477cbdce",
+        "controller_sha256": "0e65592980e5416e654f4ed559f730c26cf59c64bf96ca8e5e8c924567f552fe",
+        "offline_validation": "PASS"
+      }
+    ],
+    "physical_tests": "Zero W SD flashing and whole-image readback PASS; physical board boot, Wii launches and hardware save tests DEFERRED_HARDWARE_UNAVAILABLE",
+    "note": "Prior 2026-09-13 release evidence; not qualification of the stable identity fix."
+  },
+  "stable_source_identity": {
+    "report": "reports/truenas/stable-source-identity-20260917.json",
+    "schema": 3,
+    "capability": "stable-source-identity-v1",
+    "software_validation": "PASS",
+    "publication": "PENDING",
+    "deployment": "NOT_PERFORMED",
+    "operator_yaml": "Generic file generated outside the repository; no private configuration published."
   }
 }

@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"wiibridge/shared/perf"
+	"wiibridge/shared/sourceidentity"
 )
 
 var ErrSourceIdentityChanged = errors.New("GameCube source identity changed")
@@ -39,6 +40,7 @@ type Backend struct {
 	metrics           *perf.Registry
 	onSourceFailure   func(string)
 	lastSourceFailure atomic.Int64
+	sourceFilesystems map[string]string
 }
 
 type Stats struct {
@@ -59,9 +61,11 @@ type SaveStore interface {
 }
 
 type OpenOptions struct {
-	CacheLimit int
-	SaveStore  SaveStore
-	Metrics    *perf.Registry
+	// SourceFilesystems supplements legacy immutable layouts after receipt validation.
+	SourceFilesystems map[string]string
+	CacheLimit        int
+	SaveStore         SaveStore
+	Metrics           *perf.Registry
 }
 
 func Open(layout Layout, metadata []byte, cacheLimit int) (*Backend, error) {
@@ -78,7 +82,11 @@ func OpenWithOptions(layout Layout, metadata []byte, options OpenOptions) (*Back
 	if err := Validate(layout, metadata); err != nil {
 		return nil, err
 	}
-	return &Backend{
+	filesystems := make(map[string]string, len(options.SourceFilesystems))
+	for path, id := range options.SourceFilesystems {
+		filesystems[path] = id
+	}
+	return &Backend{sourceFilesystems: filesystems,
 		size: layout.VirtualSize, metadata: append([]byte(nil), metadata...),
 		meta:    append([]MetadataExtent(nil), layout.MetadataExtents...),
 		extents: append([]Extent(nil), layout.SourceExtents...),
@@ -272,7 +280,11 @@ func (b *Backend) ReadAt(buffer []byte, offset int64) (int, error) {
 				count = int(available)
 			}
 			started := time.Now()
-			if err := verifyIdentity(item.SourcePath, item.Identity); err != nil {
+			expected := item.Identity
+			if expected.FilesystemID == "" {
+				expected.FilesystemID = b.sourceFilesystems[item.SourcePath]
+			}
+			if err := verifyIdentity(item.SourcePath, expected); err != nil {
 				if b.metricsEnabled() {
 					b.metrics.Source.IdentityErrors.Add(1)
 					b.metrics.ObserveSourceRead(0, time.Since(started), err)
@@ -404,8 +416,15 @@ func verifyIdentity(path string, expected Identity) error {
 		info.Size() != expected.Size || info.ModTime().UnixNano() != expected.ModTimeUnixNano {
 		return ErrSourceIdentityChanged
 	}
-	if stat, ok := info.Sys().(*syscall.Stat_t); ok &&
-		(uint64(stat.Dev) != expected.Device || stat.Ino != expected.Inode) {
+	filesystemID := ""
+	if expected.FilesystemID != "" {
+		filesystemID, err = sourceidentity.FilesystemID(path)
+		if err != nil {
+			return err
+		}
+	}
+	if stat, ok := info.Sys().(*syscall.Stat_t); !ok ||
+		(!sourceidentity.SameFilesystem(expected.FilesystemID, expected.Device, filesystemID, uint64(stat.Dev)) || stat.Ino != expected.Inode) {
 		return ErrSourceIdentityChanged
 	}
 	return nil

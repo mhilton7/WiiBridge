@@ -1331,3 +1331,25 @@ passed. Unmounted and safely powered off the card reader. No private image or
 credential material was published. Physical board boot and Wii launch tests
 remain DEFERRED_HARDWARE_UNAVAILABLE. See
 reports/firmware/zero-w-armhf/performance-card-flash-2026-09-13.json.
+# Stable source identity and automatic source recovery — 2026-09-17
+
+Implemented persistent ZFS dataset/ext4 filesystem identity with root and file
+inode checks. Temporary Linux device renumbering no longer invalidates an
+enrolled unchanged library or generation. Schema 3 backs up and extends the
+existing database. Legacy GameCube enrollment updates only the validated
+receipt, preserving immutable generation metadata and its original validation
+time. Already mismatched legacy identities still require explicit recovery.
+
+Unavailable roots are probed with capped backoff and rescanned only after the
+saved identity passes. Read-only enforcement, prior catalog retention, changed
+file rejection and atomic commits remain in place. CI now exercises race tests
+and real container recovery before publishing main's image.
+
+Full tests, static/vet checks, race suite, Compose validation, ARMv6 controller
+cross-build, ext4 migration/read tests and read-only container restart/recovery
+tests passed. Corrected a preexisting benchmark fixture that overwrote its disc
+header; both payload and startup benchmark smoke runs now pass. Evidence:
+`reports/truenas/stable-source-identity-20260917.json`. Main merge and image
+publication are pending at this commit. New generic operator YAML stays outside
+the repository; no private configuration is included. Actual TrueNAS reboot,
+pool export/import and physical gameplay remain DEFERRED_HARDWARE_UNAVAILABLE.

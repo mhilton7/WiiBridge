@@ -95,13 +95,14 @@ def main():
             time.sleep(0.1)
         raise AssertionError("Timed out: " + description)
 
-    def start(wii_source, gc_source):
+    def start(wii_source, gc_source, wii_child=""):
         nonlocal base
         run("docker", "run", "-d", "--name", name,
             "--user", "568:568", "--read-only", "--cap-drop", "ALL",
             "--security-opt", "no-new-privileges:true", "--pids-limit", "256",
             "--tmpfs", "/tmp:rw,noexec,nosuid,nodev,size=32m",
             "--env-file", str(root / "host.env"),
+            "--env", "WIIBRIDGE_WII_LIBRARY=/library/wii" + wii_child,
             "--mount", f"type=bind,src={wii_source},dst=/library/wii,readonly",
             "--mount", f"type=bind,src={gc_source},dst=/library/gamecube,readonly",
             "--mount", f"type=bind,src={root / 'data'},dst=/data",
@@ -159,9 +160,27 @@ def main():
         results.append("moved GameCube file rebuild")
         stop()
 
+
+        # Persisted device numbers may change without changing a filesystem or
+        # directory. Keep real readonly bind mounts and restart the service.
         database_path = next((root / "data").glob("*.sqlite3"))
         with sqlite3.connect(database_path) as database:
-            database.execute("UPDATE source_roots SET last_known_mount_info=? WHERE root_path=?",
+            stable = database.execute("SELECT COUNT(*) FROM source_roots WHERE filesystem_id != ''").fetchone()[0]
+            if stable:
+                database.execute("UPDATE source_roots SET last_known_device=last_known_device+1,last_known_mount_info='synthetic:old:device' WHERE filesystem_id != ''")
+        if stable:
+            start(root / "wii", root / "gc")
+            assert all(value["state"] == "available" for value in expect("/api/v1/sources")["sources"].values())
+            assert expect("/api/v1/gamecube/library")["ready"]
+            expect("/readyz")
+            results.append("persistent filesystem identity survives saved device renumbering and restart")
+            stop()
+        else:
+            results.append("persistent identity container check skipped: use ext4 or ZFS TMPDIR")
+
+        database_path = next((root / "data").glob("*.sqlite3"))
+        with sqlite3.connect(database_path) as database:
+            database.execute("UPDATE source_roots SET filesystem_id='',root_inode=0,last_known_mount_info=? WHERE root_path=?",
                              ("synthetic:prior:mount", "/library/gamecube"))
         start(root / "wii", root / "gc")
         assert expect("/api/v1/sources")["sources"]["gamecube"]["state"] == "mount-missing"
@@ -181,11 +200,26 @@ def main():
         stop()
 
         start(root / "empty", root / "gc")
-        assert expect("/api/v1/sources")["sources"]["wii"]["state"] == "mount-missing"
+        assert expect("/api/v1/sources")["sources"]["wii"]["state"] in ("mount-missing", "changed")
         build_gc()
         expect("/api/v1/export/gamecube", {})
         expect("/readyz")
         results.append("GameCube builds and activates while Wii mount is unavailable")
+        stop()
+        (root / "delayed/catalog").mkdir(parents=True)
+        shutil.copyfile(root / "wii/synthetic.wbfs", root / "delayed/catalog/synthetic.wbfs")
+        start(root / "delayed", root / "gc", "/catalog")
+        expect("/readyz")
+        stop()
+        (root / "delayed/catalog").rename(root / "delayed/offline")
+        start(root / "delayed", root / "gc", "/catalog")
+        assert expect("/api/v1/sources")["sources"]["wii"]["state"] == "mount-missing"
+        assert len(expect("/api/v1/scan")["games"]) == 1
+        (root / "delayed/offline").rename(root / "delayed/catalog")
+        wait_until(lambda: api("/api/v1/sources")[1]["sources"]["wii"]["state"] == "available", "automatic return of original library")
+        expect("/api/v1/export/wii", {})
+        expect("/readyz")
+        results.append("late source automatically rescanned after startup without catalog loss")
         assert hashlib.sha256((root / "wii/synthetic.wbfs").read_bytes()).hexdigest() == before[".wbfs"]
         assert hashlib.sha256((root / "gc/moved.iso").read_bytes()).hexdigest() == before[".iso"]
         results.append("source bytes unchanged")

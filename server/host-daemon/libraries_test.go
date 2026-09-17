@@ -158,6 +158,7 @@ func TestMovedGameCubeGenerationDoesNotBlockRebuild(t *testing.T) {
 
 func TestAcceptReplacementMountRecoversPersistedIdentity(t *testing.T) {
 	a := separateLibraryApp(t)
+	a.gcSource.FilesystemID, a.gcSource.RootInode = "", 0
 	a.gcSource.LastKnownMountInfo = "synthetic:previous:mount"
 	a.gcSource.LastKnownDevice++
 	if err := a.store.UpsertSource(a.gcSource); err != nil {

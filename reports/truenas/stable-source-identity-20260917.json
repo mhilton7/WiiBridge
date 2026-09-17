@@ -1,7 +1,7 @@
 {
   "date": "2026-09-17",
   "base_revision": "4fb7f686913dcf986e674ea6de6e5be680776182",
-  "status": "SOFTWARE_VALIDATED_PUBLICATION_PENDING",
+  "status": "PUBLISHED_SOFTWARE_VALIDATED",
   "tests": {
     "full_make_test": "PASS",
     "full_race_suite": "PASS",
@@ -31,5 +31,37 @@
     "An inaccessible or permanently stale container bind mount requires TrueNAS mount repair or container recreation",
     "Unsupported filesystem types and zero filesystem IDs retain strict legacy device checks"
   ],
-  "source_configuration": "No operator paths, credentials or private YAML included."
+  "source_configuration": "No operator paths, credentials or private YAML included.",
+  "source_revision": "f938a869c7bad00b4562f44eb65f66f56d0aa4d8",
+  "pull_request": "https://github.com/mhilton7/WiiBridge/pull/15",
+  "pr_ci": "https://github.com/mhilton7/WiiBridge/actions/runs/35256812097",
+  "main_ci": "https://github.com/mhilton7/WiiBridge/actions/runs/35257026413",
+  "published_image": "ghcr.io/mhilton7/wiibridge-host:sha-f938a869c7bad00b4562f44eb65f66f56d0aa4d8@sha256:273e0ab11b13f8f9733469bccc4da4b53af3b6862c9a26f6e0f4ef3d87058f79",
+  "published_digest": "sha256:273e0ab11b13f8f9733469bccc4da4b53af3b6862c9a26f6e0f4ef3d87058f79",
+  "published_binary_sha256": "fd0e3c076e9a7b4a99e5b832fd44ba22498da63f2989dd817f1d3b15e216572d",
+  "published_binary_version": [
+    "WiiBridge 0.1.0-rc.1",
+    "commit f938a869c7bad00b4562f44eb65f66f56d0aa4d8",
+    "built 2026-09-17T18:08:58Z",
+    "dirty false",
+    "go go1.25.12",
+    "target linux/amd64"
+  ],
+  "published_container": {
+    "status": "PASS",
+    "checks": [
+      "separate read-only mounts scan and build",
+      "moved GameCube file rebuild",
+      "persistent filesystem identity survives saved device renumbering and restart",
+      "persisted stale mount rejected then explicitly recovered",
+      "empty replacement preserves GameCube catalog and Wii readiness",
+      "GameCube builds and activates while Wii mount is unavailable",
+      "late source automatically rescanned after startup without catalog loss",
+      "source bytes unchanged"
+    ]
+  },
+  "registry_identity": "PASS: anonymously resolved digest and OCI revision match main; pulled binary reports same revision and dirty=false",
+  "yaml": "PASS: generic local-only template passes policy and independent Docker Compose parser; no operator YAML published",
+  "main_ci_status": "PASS",
+  "deployed_to_truenas": false
 }

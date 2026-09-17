@@ -1,3 +1,18 @@
+# Stable identity publication — 2026-09-17
+
+Merged PR 15 into main at `f938a869c7bad00b4562f44eb65f66f56d0aa4d8`, including
+PR 14's prior separate-library and performance work. Both PR and main CI passed.
+Main CI published the host image; anonymous registry resolution, OCI revision,
+and the downloaded clean binary's version agree. Immutable reference:
+
+`ghcr.io/mhilton7/wiibridge-host:sha-f938a869c7bad00b4562f44eb65f66f56d0aa4d8@sha256:273e0ab11b13f8f9733469bccc4da4b53af3b6862c9a26f6e0f4ef3d87058f79`
+
+The published binary passed all eight real read-only container recovery checks.
+The generic YAML was generated and independently parsed outside Git, with no
+operator paths or credentials. No new operator YAML was committed. The live
+TrueNAS host was not replaced; hardware and actual pool-remount acceptance remain
+DEFERRED_HARDWARE_UNAVAILABLE. No Pi reflash is required for this host correction.
+
 # Worklog
 
 ## 2026-07-24 — Baseline

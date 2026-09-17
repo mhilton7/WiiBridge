@@ -202,8 +202,10 @@ Status values are `PENDING`, `PASS`, `FAIL`, `BLOCKED_EXTERNAL`, and
 | Existing GameCube generation enrollment | PASS | Prior receipt time and immutable generation files unchanged; remount reads succeed |
 | Automatic source return | PASS | Real read-only container observes missing source returning without an operator rescan; prior catalog preserved |
 | Full software validation | PASS | make test, make static, full race suite, Compose parsing and ARMv6 controller cross-build |
-| Main and immutable GHCR publication | PENDING | Completed after clean commit and CI |
+| Main and immutable GHCR publication | PASS | PR 15 merged; main CI passed; anonymously resolved digest and pulled clean binary match main revision |
 | TrueNAS reboot/pool export-import and physical gameplay | DEFERRED_HARDWARE_UNAVAILABLE | Synthetic device renumbering and container tests do not establish actual appliance behavior |
+
+| Published image and generic YAML | PASS | Downloaded binary passes all eight container recovery checks; local-only generic YAML passes Compose parsing |
 
 Current evidence: `reports/truenas/stable-source-identity-20260917.json`.
 Earlier sections retain historical release observations.

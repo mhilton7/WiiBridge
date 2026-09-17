@@ -2,12 +2,12 @@
   "schema_version": 1,
   "project_version": "0.1.0-rc.1",
   "prompt_version": 3,
-  "status": "stable-source-identity-software-validated-publication-pending",
+  "status": "stable-source-identity-published",
   "final_label": "SOFTWARE-COMPLETE RELEASE CANDIDATE \u2014 HARDWARE UNVERIFIED",
   "baseline_main_commit": "cbb1d7842d866a7ba3969a2a8ae39679ccd5cd27",
-  "last_published_application_commit": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
-  "branch": "fix/stable-library-identity",
-  "worktree_state": "Stable filesystem identity and automatic source recovery implemented; clean commit and GHCR publication pending.",
+  "last_published_application_commit": "f938a869c7bad00b4562f44eb65f66f56d0aa4d8",
+  "branch": "main",
+  "worktree_state": "Runtime published from clean main revision; subsequent publication records do not change runtime code.",
   "build_host": {
     "os": "Debian GNU/Linux 13.6 (trixie)",
     "kernel": "6.12.107+deb13-amd64",
@@ -21,9 +21,9 @@
   },
   "phases": {
     "server": "PASS: full test, static, race and vet suites",
-    "container": "PASS: real read-only bind mounts, restart, renumbered saved device and automatic late-source recovery",
+    "container": "PASS: published GHCR binary passes read-only bind mount, restart, device renumbering and late-source recovery tests",
     "firmware": "No firmware change required; ARMv6 controller cross-compile PASS; prior released firmware retained",
-    "release": "PENDING: main merge and immutable GHCR publication",
+    "release": "PASS: merged main, GitHub Actions success, anonymous GHCR digest and binary/OCI provenance verified",
     "truenas_deployment": "NOT_PERFORMED for this fix"
   },
   "physical_tests": "TrueNAS reboot/pool export-import and physical Pi/Wii/GameCube acceptance: DEFERRED_HARDWARE_UNAVAILABLE",
@@ -137,7 +137,7 @@
       "physical_tests": "DEFERRED_HARDWARE_UNAVAILABLE"
     }
   },
-  "updated_utc": "2026-09-17T18:04:08.402096+00:00",
+  "updated_utc": "2026-09-17T18:13:13.206188+00:00",
   "operator_zero_w_card_flash": {
     "status": "PASS",
     "release_revision": "3c5dd917cfe0d6771cdd2e003fa9002dfcb963f2",
@@ -198,8 +198,14 @@
     "schema": 3,
     "capability": "stable-source-identity-v1",
     "software_validation": "PASS",
-    "publication": "PENDING",
+    "publication": "PASS",
     "deployment": "NOT_PERFORMED",
-    "operator_yaml": "Generic file generated outside the repository; no private configuration published."
-  }
+    "operator_yaml": "Generic file generated outside the repository; no private configuration published.",
+    "source_revision": "f938a869c7bad00b4562f44eb65f66f56d0aa4d8",
+    "ci": "https://github.com/mhilton7/WiiBridge/actions/runs/35257026413"
+  },
+  "application_commit": "f938a869c7bad00b4562f44eb65f66f56d0aa4d8",
+  "published_oci_digest": "sha256:273e0ab11b13f8f9733469bccc4da4b53af3b6862c9a26f6e0f4ef3d87058f79",
+  "published_oci_reference": "ghcr.io/mhilton7/wiibridge-host:sha-f938a869c7bad00b4562f44eb65f66f56d0aa4d8@sha256:273e0ab11b13f8f9733469bccc4da4b53af3b6862c9a26f6e0f4ef3d87058f79",
+  "pull_request": "https://github.com/mhilton7/WiiBridge/pull/15"
 }

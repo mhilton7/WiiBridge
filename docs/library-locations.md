@@ -87,11 +87,14 @@ unavailable merely because its old paths no longer exist.
 The standalone separate-library definition requires both
 `WIIBRIDGE_WII_LIBRARY_PATH` and `WIIBRIDGE_GAMECUBE_LIBRARY_PATH`; it does not
 require `WIIBRIDGE_LIBRARY_PATH`. Missing or empty dedicated paths are rejected.
-The shared-root definition remains `compose.yaml`. The digest-pinned optimized
-candidate is in [`compose.ghcr.yaml`](../deploy/truenas/compose.ghcr.yaml); use
-the same dedicated paths and your existing credentials, certificates and
-persistent directories. See [the performance audit](full-performance-audit.md)
-for its exact build identity and hardware qualification limits.
+The shared-root definition remains `compose.yaml`.
+[`compose.ghcr.yaml`](../deploy/truenas/compose.ghcr.yaml) provides the dedicated-path
+template. Set its image to `published_oci_reference` in
+[`BUILD_STATUS.json`](../BUILD_STATUS.json) for the current validated host; the
+template may pin an earlier release. Keep your existing credentials, certificates
+and persistent directories. Current identity-fix publication and qualification
+evidence is in [the validation report](../reports/truenas/stable-source-identity-20260917.json);
+[the performance audit](full-performance-audit.md) records the preceding release.
 
 ## Updating an existing library to persistent identity checks
 

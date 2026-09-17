@@ -1,6 +1,25 @@
 # Known issues
 
-## Current September performance candidate
+## Stable identity release limitations — 2026-09-17
+
+The device-renumbering correction passes software and container tests. Actual
+TrueNAS reboot/pool export-import and physical Pi/Wii/GameCube acceptance remain
+DEFERRED_HARDWARE_UNAVAILABLE. Earlier entries below retain historical state.
+
+- Upgrade while existing sources are healthy to enroll their persistent IDs.
+  An already mismatched legacy mount needs explicit recovery once; historical
+  filesystem identity cannot safely be inferred.
+- A real directory move remains a relocation. Replaced directories/files and
+  unsupported filesystem identities retain conservative validation behavior.
+- Automatic retries recover returning sources visible inside the container.
+  They cannot repair a permanently stale Docker bind mount or mount the NAS pool.
+- The new host has not been deployed to the operator's TrueNAS by this task.
+  Wait for active generation builds to finish and retain all existing source,
+  managed-data and certificate mounts during an image-only update.
+- This host-only correction requires no Pi firmware update. Previous firmware
+  artifacts remain available; no new physical qualification is claimed.
+
+## Previous September performance candidate
 
 [The optimized prerelease](https://github.com/mhilton7/WiiBridge/releases/tag/perf-2026-09-13-3c5dd91) passes complete software, firmware-offline
 and local container/kernel validation. The previously pending firmware build
@@ -127,21 +146,3 @@ source catalog.
 - Baseline firmware packaging modifies tracked reports between target builds
   and hardcodes parts of provenance. Baseline evidence is retained as produced;
   optimized release provenance still requires correction and validation.
-# Stable identity release limitations — 2026-09-17
-
-The device-renumbering correction passes software and container tests. Actual
-TrueNAS reboot/pool export-import and physical Pi/Wii/GameCube acceptance remain
-DEFERRED_HARDWARE_UNAVAILABLE. Earlier entries below retain historical state.
-
-- Upgrade while existing sources are healthy to enroll their persistent IDs.
-  An already mismatched legacy mount needs explicit recovery once; historical
-  filesystem identity cannot safely be inferred.
-- A real directory move remains a relocation. Replaced directories/files and
-  unsupported filesystem identities retain conservative validation behavior.
-- Automatic retries recover returning sources visible inside the container.
-  They cannot repair a permanently stale Docker bind mount or mount the NAS pool.
-- The new host has not been deployed to the operator's TrueNAS by this task.
-  Wait for active generation builds to finish and retain all existing source,
-  managed-data and certificate mounts during an image-only update.
-- This host-only correction requires no Pi firmware update. Previous firmware
-  artifacts remain available; no new physical qualification is claimed.
